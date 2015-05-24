@@ -124,7 +124,24 @@ class account_voucher(osv.osv):
         
         'company_currency_id': fields.related('company_id','currency_id', type='many2one', relation='res.currency', string='Company Currency', readonly=True),
     }
-    
+
+    def action_move_line_create(self, cr, uid, ids, context=None):
+        order = self.browse(cr, uid, ids[0])
+        old_company_id = self.write_partner_company_to_user(cr, uid, order, context)
+        res = super(account_voucher, self).action_move_line_create(cr, uid, ids, context)
+        if old_company_id:
+            self.pool.get('res.users').write(cr, uid, [uid],{'company_id': old_company_id})
+        return res
+
+    def onchange_journal(self, cr, uid, ids, journal_id, line_ids, tax_id, partner_id, date, amount, ttype, company_id, context=None):
+        res = super(account_voucher, self).onchange_journal(cr, uid, ids, journal_id, line_ids, tax_id, partner_id, date, amount, ttype, company_id, context)
+        if partner_id:
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
+            if partner.company_id:
+                res['value'].update({'company_id': partner.company_id.id})
+        print '========',res
+        return res
+
     #Thanh: Add bank_fee_deducted and discount_allowed to onchange for total_to_apply
     def onchange_line_ids(self, cr, uid, ids, line_dr_ids, line_cr_ids, amount, voucher_currency, type, 
                           bank_fee_deducted = 0.0,
@@ -155,6 +172,10 @@ class account_voucher(osv.osv):
             
         res = super(account_voucher, self).onchange_amount(cr, uid, ids, total_to_apply, rate, partner_id, journal_id, currency_id, ttype, date, payment_rate_currency_id, company_id, context=context)
         res['value']['total_to_apply'] = total_to_apply
+        if partner_id:
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
+            if partner.company_id:
+                res['value'].update({'company_id': partner.company_id.id})
         return res
     
     #Thanh: New function creating Bank Fee move line

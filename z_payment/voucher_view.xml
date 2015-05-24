@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+
+        {# customer payment tree#}
+        <record model="ir.ui.view" id="view_voucher_receipt_tree">
+            <field name="name">account.voucher.tree</field>
+            <field name="model">account.voucher</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state == 'draft';gray:state == 'cancel';red:audit" string="Voucher Entries">
+                    <field name="date"/>
+                    <field name="number"/>
+                    <field name="reference"/>
+                    <field name="partner_id"/>
+                    <field name="journal_id" groups="account.group_account_user"/>
+                    <field name="period_id" invisible="context.get('visible', True)"/>
+                    <field name="type" invisible="context.get('visible', True)"/>
+                    <field name="amount" sum="Total Amount"/>
+                    <field name="bank_fee_deducted" sum="Total Fee"/>
+                    <field name="discount_allowed" sum="Total Discount"/>
+                    <field name="total_to_apply" sum="Total"/>
+                    <field name="audit" invisible="1"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="account_voucher.action_vendor_receipt_tree" model="ir.actions.act_window.view">
+            <field name="view_id" ref="view_voucher_receipt_tree"/>
+        </record>
 		
 	<!-- res.config form view -->
         <record model="ir.ui.view" id="view_account_settings_deduction_account_form">
@@ -19,6 +46,41 @@
                         </group>
                     </group>
                 </xpath>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="z_view_vendor_receipt_dialog_form">
+            <field name="name">account.voucher.receipt.dialog.form.inherit</field>
+            <field name="model">account.voucher</field>
+            <field name="inherit_id" ref="account_voucher.view_vendor_receipt_dialog_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="after">
+                	<field name="bank_fee_deducted" attrs="{'invisible':[('type','!=', 'receipt')]}"
+                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
+                    <field name="discount_allowed" attrs="{'invisible':[('type','!=', 'receipt')]}"
+                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
+                    <field name="total_to_apply"/>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="attributes">
+            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='line_cr_ids']" position="attributes">
+            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='line_dr_ids']" position="attributes">
+            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='paid_amount_in_company_currency']" position="replace">
+                </xpath>
+
+                <xpath expr="//field[@name='company_id']" position="after">
+                	<field name="company_currency_id" invisible='1'/>
+                	<field name="paid_amount_in_company_currency" string='Payment Amount Converted'  attrs="{'invisible':[('type','!=', 'receipt')]}"
+                		widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                </xpath>
+
             </field>
         </record>
         

@@ -27,10 +27,11 @@
     'description': """
     Update all Zetags Installed Modules in one click
      """,
-    'author': 'Le Truong Thanh <thanh.lt1689@gmail.com>',
+    'author': 'An Le <lehoangan1988@gmail.com>',
     'images': [],
     'depends': [],
     'data': [
+        'res_users_view.xml'
     ],
     'demo': [],
     'test': [

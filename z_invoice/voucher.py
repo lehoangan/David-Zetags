@@ -44,7 +44,7 @@ class account_voucher(osv.osv):
         return True
 
     _constraints = [
-        (_check_amount, 'Your Total Allocation does not match the Amount to Allocate.', ['amount']),
+        # (_check_amount, 'Your Total Allocation does not match the Amount to Allocate.', ['amount']),
     ]
     
     def cancel_voucher(self, cr, uid, ids, context=None):

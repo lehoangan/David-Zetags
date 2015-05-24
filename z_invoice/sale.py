@@ -27,20 +27,6 @@ from datetime import datetime
 import openerp.addons.decimal_precision as dp
 from openerp import netsvc
 
-# class res_partner(osv.osv):
-#     _inherit = "res.partner"
-#     _columns = {
-#     }
-#     
-#     def search(self, cr, uid, args, offset=0, limit=None, order=None,
-#             context=None, count=False):
-#         if context is None:
-#             context = {}
-#         return super(res_partner, self).search(cr, uid, args, offset, limit,
-#                 order, context=context, count=count)
-#         
-# res_partner()
-
 AVAILABLE_STATES = [
             ('NEW', 'NEW'),
             ('GOODS_REQUIRED', 'GOODS REQUIRED'),
@@ -279,9 +265,6 @@ class sale_order(osv.osv):
         dedicated_salesman = part.user_id and part.user_id.id or uid
         val = {
             #Thanh: Add contact
-#             'partner_contact_id': addr['contact'],
-            #Thanh: Add contact
-            
             'partner_invoice_id': addr['invoice'],
             'partner_shipping_id': addr['delivery'],
             'payment_term': payment_term,
@@ -383,7 +366,7 @@ class sale_order(osv.osv):
             'payment_term': order.payment_term and order.payment_term.id or False,
             'fiscal_position': order.fiscal_position.id or order.partner_id.property_account_position.id,
             'date_invoice': order.shipping_date or context.get('date_invoice', False),
-            'company_id': order.company_id.id,
+            'company_id': order.partner_id.company_id.id,
             'user_id': order.user_id and order.user_id.id or False,
             
             #Thanh: Add more fields
@@ -400,6 +383,18 @@ class sale_order(osv.osv):
         # Care for deprecated _inv_get() hook - FIXME: to be removed after 6.1
         invoice_vals.update(self._inv_get(cr, uid, order, context=context))
         return invoice_vals
+
+    def write_partner_company_to_user(self, cr, uid, order, context=None):
+        user_obj = self.pool.get('res.users').browse(cr, uid, uid)
+        #anlee: Dont need switch company
+        old_company_id = False
+        if  order.partner_id.company_id and user_obj.company_id != order.partner_id.company_id and user_obj.non_switch_company:
+            company_ids = [comp.id for comp in user_obj.company_ids]
+            if order.partner_id.company_id.id in company_ids:
+                old_company_id = user_obj.company_id.id
+                user_obj.write({'company_id': order.partner_id.company_id.id})
+        #anlee: END
+        return old_company_id
     
     def _make_invoice(self, cr, uid, order, lines, context=None):
         inv_id = super(sale_order, self)._make_invoice(cr, uid, order, lines, context=context)
@@ -413,6 +408,15 @@ class sale_order(osv.osv):
                 number = number.replace(prefix,'IN')
         cr.execute("update account_invoice set number='%s' where id=%s"%(number,inv_id))
         return inv_id
+
+    def action_invoice_create(self, cr, uid, ids, grouped=False, states=None, date_invoice = False, context=None):
+        order = self.browse(cr, uid, ids[0])
+        old_company_id = self.write_partner_company_to_user(cr, uid, order, context)
+        res = super(sale_order, self). action_invoice_create(cr, uid, ids, grouped, states, date_invoice, context)
+        #anlee:  revert company for user
+        if old_company_id:
+            self.pool.get('res.users').write(cr, uid, [uid],{'company_id': old_company_id})
+        return res
     
     def unlink(self, cr, uid, ids, context=None):
         sale_orders = self.read(cr, uid, ids, ['state','picking_ids'], context=context)
@@ -491,7 +495,29 @@ class sale_order_line(osv.osv):
         result = super(sale_order_line,self).product_id_change(cr, uid, ids, pricelist, product, qty=qty,
             uom=uom, qty_uos=qty_uos, uos=uos, name=name, partner_id=partner_id,
             lang=lang, update_tax=update_tax, date_order=date_order, packaging=packaging, fiscal_position=fiscal_position, flag=flag, context=context)
-        
+        if result['value'].get('tax_id', []):
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
+            tax_obj = self.pool.get('account.tax')
+            tax_ids = []
+            name_tax = ''
+            for tax_id in result['value']['tax_id']:
+                tax = tax_obj.browse(cr, uid, tax_id)
+                if partner.company_id and partner.company_id != tax.company_id:
+                    if not name_tax:
+                        name_tax = tax.name
+                    else:
+                        name_tax = '%s - %s'%(name_tax, tax.name)
+                else:
+                    tax_ids += [tax.id]
+            result['value']['tax_id'] = tax_ids
+            warning = {}
+            if name_tax:
+                warning = {
+                           'title': _('Configuration Error!'),
+                           'message' : '%s is not the same company of customer. Please select other tax manual'%name_tax
+                        }
+            result['warning'] = warning
+
         if not product:
             return result
         
@@ -500,6 +526,7 @@ class sale_order_line(osv.osv):
         result['value']['name'] = res.description or res.name
         if res.packaging_id:
             result['value']['name'] += '\n'+res.packaging_id.name
+
         return result
     
     def default_get(self, cr, uid, fields, context=None):

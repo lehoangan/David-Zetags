@@ -136,7 +136,8 @@ class account_invoice(osv.osv):
     _columns = {
         'number': fields.char('Number', size=64, readonly=True),#, states={'draft':[('readonly',False)]}),
         'partner_contact_id': fields.many2one('res.partner', 'Contact', readonly=True, required=False, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
-
+        'journal_id': fields.many2one('account.journal', 'Journal', required=True, readonly=True, states={'draft':[('readonly',False)]},
+                                      domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale_refund'], 'in_refund': ['purchase_refund'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]"),
         'shipping_charge': fields.float('Shipping Charge', digits_compute=dp.get_precision('Account'), readonly=True, states={'draft':[('readonly',False)]}),
         'delivery_account_id': fields.many2one('account.account', 'Delivery Account', readonly=True, states={'draft': [('readonly', False)]}, domain="[('type','!=','view')]"),
         
@@ -207,7 +208,28 @@ class account_invoice(osv.osv):
     _sql_constraints = [
         ('number_uniq', 'Check(1=1)', 'Invoice Number must be unique per Company!'),
     ]
-    
+
+    def button_reset_taxes(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+        ctx = context.copy()
+        ait_obj = self.pool.get('account.invoice.tax')
+        for id in ids:
+            cr.execute("DELETE FROM account_invoice_tax WHERE invoice_id=%s AND manual is False", (id,))
+            inv = self.browse(cr, uid, id, context=ctx)
+            old_company_id = self.pool.get('sale.order').write_partner_company_to_user(cr, uid, inv, context)
+            partner = inv.partner_id
+            if partner.lang:
+                ctx.update({'lang': partner.lang})
+            for taxe in ait_obj.compute(cr, uid, id, context=ctx).values():
+                ait_obj.create(cr, uid, taxe)
+            #anlee:  revert company for user
+            if old_company_id:
+                self.pool.get('res.users').write(cr, uid, [uid],{'company_id': old_company_id})
+        # Update the stored value (fields.function), so we write to trigger recompute
+        self.pool.get('account.invoice').write(cr, uid, ids, {'invoice_line':[]}, context=ctx)
+        return True
+
     #Thanh: Dont get currency from Journal
     def onchange_journal_id(self, cr, uid, ids, journal_id=False, context=None):
         result = {}
@@ -299,6 +321,7 @@ class account_invoice(osv.osv):
         if context is None:
             context = {}
         for inv in self.browse(cr, uid, ids, context=context):
+            old_company_id = self.pool.get('sale.order').write_partner_company_to_user(cr, uid, inv, context)
             if not inv.journal_id.sequence_id:
                 raise osv.except_osv(_('Error!'), _('Please define sequence on the journal related to this invoice.'))
             if not inv.invoice_line:
@@ -550,6 +573,8 @@ class account_invoice(osv.osv):
                         WHERE id in (select order_id from sale_order_invoice_rel where invoice_id=%s)
                         '''%(number,inv.id))
             #Thanh: Update Move name to Sale Order
+            if old_company_id:
+                self.pool.get('res.users').write(cr, uid, [uid],{'company_id': old_company_id})
             
         self._log_event(cr, uid, ids)
         self.pay_invoice(cr, uid, ids, context)
@@ -732,5 +757,12 @@ class account_move_line(osv.osv):
         return True
     
 account_move_line()
+
+# class account_invoice_tax(osv.osv):
+#     _inherit = "account.invoice.tax"
+#
+#     _columns = {
+#         'account_id': fields.many2one('account.account', 'Tax Account', required=True, domain="[('type','<>','view'),('type','<>','income'), ('type', '<>', 'closed'), ('company_id', '=', parent.company_id)]"),
+#     }
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+	<!-- res.config form view -->
+        <record model="ir.ui.view" id="view_account_settings_deduction_account_form">
+            <field name="name">account.config.settings.inherit.deduction.account</field>
+            <field name="inherit_id" ref="account.view_account_config_settings"/>
+            <field name="model">account.config.settings</field>
+            <field name="priority">21</field>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='group_multi_currency']" position="after">
+                    <group col="2">
+                        <group>
+                            <field name="deduct_bank_fee_account_id"/>
+                            <field name="deduct_payment_discount_account_id"/>
+                        </group>
+                        <group>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        
+    <!-- Modify Customer Payment Form -->
+    	<record model="ir.ui.view" id="view_vendor_receipt_extend_form">
+            <field name="name">view.vendor.receipt.extend.form</field>
+            <field name="inherit_id" ref="account_voucher.view_vendor_receipt_form"/>
+            <field name="model">account.voucher</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="after">
+                	<field name="bank_fee_deducted" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
+                    <field name="discount_allowed" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
+                    <field name="total_to_apply"/>
+                </xpath>
+                
+                <xpath expr="//field[@name='amount']" position="attributes">
+            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)</attribute>
+                </xpath>
+                
+                <xpath expr="//field[@name='line_cr_ids']" position="attributes">
+            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
+                </xpath>
+                
+                <xpath expr="//field[@name='line_dr_ids']" position="attributes">
+            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
+                </xpath>
+                
+                <xpath expr="//field[@name='paid_amount_in_company_currency']" position="replace">
+                </xpath>
+                
+                <xpath expr="//field[@name='company_id']" position="after">
+                	<field name="company_currency_id" invisible='1'/>
+                	<field name="paid_amount_in_company_currency" string='Payment Amount Converted'
+                		widget="monetary" options="{'currency_field': 'company_currency_id'}"/> 
+                </xpath>
+                
+                <xpath expr="//field[@string='Paid Amount']" position="attributes">
+                	<attribute name="string">Payment Amount</attribute>
+                </xpath>
+                
+                <xpath expr="//field[@name='writeoff_amount']" position="attributes">
+                	<attribute name="string">Unbalanced Amount</attribute>
+                </xpath>
+                
+            </field>
+        </record>
+        
+    </data>
+</openerp>
+
+

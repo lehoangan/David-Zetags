@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<menuitem id="base.menu_invoiced" name="Invoicing" parent="base.menu_base_partner" 
+			groups="z_base.group_nobody"
+			sequence="5"/>
+			        
+    </data>
+</openerp>
+
+

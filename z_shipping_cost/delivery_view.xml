@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+        <record id="view_delivery_grid_form_add_region" model="ir.ui.view">
+            <field name="name">view.delivery.grid.form.add.region</field>
+            <field name="model">delivery.grid</field>
+            <field name="inherit_id" ref="delivery.view_delivery_grid_form"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='active']" position="after">
+                    <field name="product_categ_id"/>
+                </xpath>
+                
+            	<xpath expr="//group[@string='Countries']" position="before">
+                	<group string="Regions">
+                        <field name="region_ids"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="view_delivery_grid_line_form_add_min_price" model="ir.ui.view">
+            <field name="name">view.delivery.grid.line.form.add.min.price</field>
+            <field name="model">delivery.grid.line</field>
+            <field name="inherit_id" ref="delivery.view_delivery_grid_line_form"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='list_price']" position="before">
+                	<field name="min_price"/>
+                </xpath>
+            </field>
+        </record>
+        
+        <menuitem action="delivery.action_delivery_carrier_form" id="delivery.menu_action_delivery_carrier_form" parent="delivery.menu_delivery" sequence="0"/>
+        
+        <record id="view_delivery_carrier_form_add_region" model="ir.ui.view">
+            <field name="name">view.delivery.carrier.form.add.region</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='product_id']" position="after">
+                    <field name="account_id"/>
+                </xpath>
+                
+            	<xpath expr="//field[@name='normal_price']" position="after">
+                    <field name="minimum_charge_per_shipment"/>
+                </xpath>
+                
+            	<xpath expr="//field[@name='country_ids']" position="before">
+                    <field name="region_ids" widget="many2many_tags"/>
+                </xpath>
+                
+                <xpath expr="//field[@name='pricelist_ids']" position="before">
+                	<separator colspan="4" string="Delivery Grid Line"/>
+                    <field name="delivery_grid_lines" attrs="{'invisible':[('use_detailed_pricelist','=',False)]}" mode="tree"/>
+                    <separator colspan="4" string="Delivery Category"/>
+                </xpath>
+                
+            </field>
+        </record>
+        
+<!-- Create Menu Grid -->
+		<record id="delivery.view_delivery_grid_line_tree" model="ir.ui.view">
+            <field name="name">delivery.grid.line.tree</field>
+            <field name="model">delivery.grid.line</field>
+            <field name="arch" type="xml">
+                <tree string="Grid Lines">
+                	<field name="grid_id"/>
+                	<field name="name"/>
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="operator"/>
+                    <field name="max_value" nolabel="1"/>
+                    <field name="list_price"/>
+                    <field name="standard_price"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="delivery.view_delivery_grid_line_form" model="ir.ui.view">
+            <field name="name">delivery.grid.line.form</field>
+            <field name="model">delivery.grid.line</field>
+            <field name="arch" type="xml">
+                <form string="Grid Lines" version="7.0">
+                    <group>
+                    	<field name="name"/>
+                    </group>
+                    <group>
+                        <group>
+                        	<field name="grid_id"/>
+                            <label for="type" string="Condition"/>
+                            <div>
+                                <field name="type" class="oe_inline"/>
+                                <field name="operator" class="oe_inline"/>
+                                <field name="max_value" class="oe_inline"/>
+                            </div>
+                            <label for="price_type"/>
+                            <div>
+                                <field name="price_type" class="oe_inline"/>
+                                <label string=" in Function of " class="oe_inline" attrs="{'invisible':[('price_type','=','fixed')]}"/>
+                                <field name="variable_factor" attrs="{'invisible':[('price_type','=','fixed')]}" class="oe_inline"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="list_price"/>
+                            <field name="standard_price"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+		<record id="action_delivery_grid_line" model="ir.actions.act_window">
+            <field name="name">Delivery.Grid Line</field>
+            <field name="res_model">delivery.grid.line</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{}</field>
+        </record>
+        
+        <menuitem action="action_delivery_grid_line" id="menu_action_delivery_grid_line" parent="delivery.menu_delivery" sequence="20"/>
+                
+    </data>
+</openerp>
+
+

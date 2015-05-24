@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<!-- Top menu item -->
+        <menuitem name="Marketing"
+            id="menu_base_marketing"
+            groups="base.group_sale_salesman"
+            sequence="30"/>
+            
+            <menuitem name="Marketing"
+	            id="menu_marketing"
+	            parent="menu_base_marketing"
+	            groups="base.group_sale_salesman"
+	            sequence="21"/>
+            
+            <!-- Thanh: Moves Leads and Opp to Marketing menu -->
+	            <menuitem name="Leads" id="crm.menu_crm_leads" parent="menu_marketing" action="crm.crm_case_category_act_leads_all" sequence="2" />
+	    		<menuitem name="Opportunities" id="crm.menu_crm_opportunities" parent="menu_marketing" action="crm.crm_case_category_act_oppor11" sequence="3" />
+           
+           <!-- Thanh New obj and menu -->
+           		<!-- Marketing Method -->
+           			<record id="view_marketing_method_tree" model="ir.ui.view">
+			            <field name="name">marketing.method.tree</field>
+			            <field name="model">marketing.method</field>
+			            <field name="arch" type="xml">
+			                <tree string="Marketing Methods" editable='top'>
+			                    <field name="name"/>
+			                </tree>
+			            </field>
+			        </record>
+			
+			        <record id="view_marketing_method_form" model="ir.ui.view">
+			            <field name="name">marketing.method.form</field>
+			            <field name="model">marketing.method</field>
+			            <field name="arch" type="xml">
+			                <form string="Marketing Method" version="7.0">
+			                    <group>
+			                        <group>
+			                            <field name="name"/>
+			                        </group>
+			                    </group>
+			                </form>
+			            </field>
+			        </record>
+			
+			        <record id="action_marketing_method" model="ir.actions.act_window">
+			            <field name="name">Marketing Methods</field>
+			            <field name="type">ir.actions.act_window</field>
+			            <field name="res_model">marketing.method</field>
+			            <field name="view_type">form</field>
+			            <field name="view_mode">tree,form</field>
+			        </record>
+			
+			        <menuitem action="action_marketing_method" id="menu_action_marketing_method" parent="menu_marketing" 
+			        	sequence="30"/>
+	        	
+	        	<!-- Marketing Method Line-->
+           			<record id="view_marketing_method_line_tree" model="ir.ui.view">
+			            <field name="name">marketing.method.line.tree</field>
+			            <field name="model">marketing.method.line</field>
+			            <field name="arch" type="xml">
+			                <tree string="Marketing Details" editable='top'>
+			                    <field name="name"/>
+			                    <field name="method_id"/>
+			                </tree>
+			            </field>
+			        </record>
+			
+			        <record id="view_marketing_method_line_form" model="ir.ui.view">
+			            <field name="name">marketing.method.line.form</field>
+			            <field name="model">marketing.method.line</field>
+			            <field name="arch" type="xml">
+			                <form string="Marketing Detail" version="7.0">
+			                    <group>
+			                        <group>
+			                            <field name="name"/>
+			                            <field name="method_id"/>
+			                        </group>
+			                    </group>
+			                </form>
+			            </field>
+			        </record>
+			
+			        <record id="action_marketing_method_line" model="ir.actions.act_window">
+			            <field name="name">Marketing Details</field>
+			            <field name="type">ir.actions.act_window</field>
+			            <field name="res_model">marketing.method.line</field>
+			            <field name="view_type">form</field>
+			            <field name="view_mode">tree,form</field>
+			        </record>
+			
+			        <menuitem action="action_marketing_method_line" id="menu_action_marketing_method_line" parent="menu_marketing" 
+			        	sequence="40"/>
+        	
+        	<!-- Thanh: Inherit and Customize Lead View -->
+        		<record id="crm_case_form_view_leads_inherit_marketing" model="ir.ui.view">
+		            <field name="name">crm.case.form.view.leads.inherit.marketing</field>
+		            <field name="model">crm.lead</field>
+		            <field name="inherit_id" ref="crm.crm_case_form_view_leads"/>
+		            <field name="arch" type="xml">
+		            	<xpath expr="//field[@name='type']" position="before">
+		            		<field name="method_line_id"/>
+		                </xpath>
+		            </field>
+		        </record>
+        
+    </data>
+</openerp>
+
+

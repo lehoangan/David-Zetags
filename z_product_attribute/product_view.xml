@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<record id="view_product_attribute_tree" model="ir.ui.view">
+            <field name="name">product.attribute.tree</field>
+            <field name="model">product.attribute</field>
+            <field eval="7" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Attribute">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="view_product_attribute_form" model="ir.ui.view">
+            <field name="name">product.attribute.form</field>
+            <field name="model">product.attribute</field>
+            <field eval="7" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="Attribute" version="7.0">
+                    <group>
+                        <field name="name"/>
+                        <field name="value">
+                        	<tree editable='top'>
+			                    <field name="name"/>
+			                </tree>
+		                </field>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+		<record id="action_product_attribute" model="ir.actions.act_window">
+            <field name="name">Product Attributes</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.attribute</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_product_attribute_tree"/>
+        </record>
+        
+        <menuitem action="action_product_attribute" id="menu_action_product_attribute" parent="base.menu_product" sequence="5"/>
+        
+        <record model="ir.ui.view" id="product_manufacturer.view_product_form_expiry">
+            <field name="name">product.normal.form.attribute.onchange</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view" />
+            <field name="arch" type="xml">
+                <group name="procurement" position="inside">
+                    <group string="Manufacturer">
+                        <field name="manufacturer" context="{'default_supplier':True, 'default_customer':False}"/>
+                        <field name="manufacturer_pname"/>
+                        <field name="manufacturer_pref"/>
+                    </group>
+                    <group string="Attributes">
+                        <field name="attribute_ids" colspan="4" nolabel="1">
+                            <tree string="Product Attributes" editable="bottom">
+                                <field name="name" on_change="onchange_attribute(name)"/>
+                                <field name="value"/>
+                            </tree>
+                        </field>
+                    </group>
+                </group>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="product_manufacturer.product_manufacturer_attribute_tree_view">
+            <field name="name">product.manufacturer.attribute.tree</field>
+            <field name="model">product.manufacturer.attribute</field>
+            <field name="arch" type="xml">
+                <tree string="Product Attributes" editable="bottom">
+                    <field name="name" on_change="onchange_attribute(name)"/>
+                    <field name="value"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="product_manufacturer.product_manufacturer_attribute_form_view">
+            <field name="name">product.manufacturer.attribute.form</field>
+            <field name="model">product.manufacturer.attribute</field>
+            <field name="arch" type="xml">
+                <form string="Product Template Name" version="7.0">
+                    <group>
+                        <field name="name" on_change="onchange_attribute(name)"/>
+                        <field name="value"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+        
+    </data>
+</openerp>
+
+

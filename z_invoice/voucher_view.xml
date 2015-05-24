@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+	<record id="view_vendor_receipt_form_zinvoice_modify" model="ir.ui.view">
+        <field name="name">view.vendor.receipt.form.zinvoice.modify</field>
+        <field name="model">account.voucher</field>
+        <field name="inherit_id" ref="account_voucher.view_vendor_receipt_form"/>
+        <field name="arch" type="xml">
+        	<xpath expr="//field[@name='partner_id']" position="replace">
+            	<field name="partner_id" domain="[('customer','=',True),('is_company','=',True)]"
+	            	required="1" on_change="onchange_partner_id(partner_id, journal_id, amount, currency_id, type, date, context)" string="Customer" 
+	            	context="{'search_default_customer':1, 'default_customer':1, 'default_is_company':1}" />
+            </xpath>
+            <xpath expr="//field[@name='number']" position="attributes">
+            	<attribute name='readonly'>0</attribute>
+            </xpath>
+        </field>
+    </record>
+	        
+    </data>
+</openerp>
+
+

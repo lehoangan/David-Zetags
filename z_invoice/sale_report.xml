@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<!-- Quotation -->
+			<record id="sale.report_sale_order" model="ir.actions.report.xml">
+		        <field name="name">report_sale_order</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">sale.order</field>
+		        <field name="report_name">report_sale_order</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/quotation.py</field>
+		        <field name="report_rml">z_invoice/report/quotation.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+	    	
+	        <report 
+	        		menu="False"
+	        		auto="False" 
+	        		id="sale.report_sale_order" 
+	        		model="sale.order" 
+	        		name="report_sale_order"
+	                rml="z_invoice/report/quotation.odt" 
+	                string="Pro Forma Invoice"
+	                header="False"
+	                usage="default"/>
+		
+		<!-- Picking Slip -->
+			<record id="report_picking_slip" model="ir.actions.report.xml">
+		        <field name="name">report_picking_slip</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">sale.order</field>
+		        <field name="report_name">report_picking_slip</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/quotation.py</field>
+		        <field name="report_rml">z_invoice/report/picking_slip.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+	    	
+	        <report 
+	        		menu="False"
+	        		auto="False" 
+	        		id="report_picking_slip" 
+	        		model="sale.order" 
+	        		name="report_picking_slip"
+	                rml="z_invoice/report/picking_slip.odt" 
+	                string="Picking Slip"
+	                header="False"
+	                usage="default"/>
+        
+        <!-- Shipping Invoice -->
+			<record id="report_shipping_invoice" model="ir.actions.report.xml">
+		        <field name="name">report_shipping_invoice</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">sale.order</field>
+		        <field name="report_name">report_shipping_invoice</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/quotation.py</field>
+		        <field name="report_rml">z_invoice/report/shipping_invoice.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+	    	
+	        <report 
+	        		menu="False"
+	        		auto="False" 
+	        		id="report_shipping_invoice" 
+	        		model="sale.order" 
+	        		name="report_shipping_invoice"
+	                rml="z_invoice/report/shipping_invoice.odt" 
+	                string="Shipping Invoice"
+	                header="False"
+	                usage="default"/>
+	                
+		<!-- Sale Order -->
+			<record id="report_sale_order_main" model="ir.actions.report.xml">
+		        <field name="name">report_sale_order_main</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">sale.order</field>
+		        <field name="report_name">report_sale_order_main</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/sale_order.py</field>
+		        <field name="report_rml">z_invoice/report/sale_order.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+	    	
+	        <report 
+	        		menu="False"
+	        		auto="False" 
+	        		id="report_sale_order_main" 
+	        		model="sale.order" 
+	        		name="report_sale_order_main"
+	                rml="z_invoice/report/sale_order.odt" 
+	                string="Sale Order"
+	                header="False"
+	                usage="default"/>
+	                
+    </data>
+</openerp>

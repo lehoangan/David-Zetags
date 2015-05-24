@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+    
+        <record id="z_purchase_order_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.form,inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@class='oe_subtotal_footer oe_right']" position="after">
+                    <group style="width: 65%%">
+                        <field name="product_tariff_code_id" class="oe_inline"/>
+                        <field name="tracking_number" class="oe_inline"/>
+                        <field name="weight"/>
+                        <field name="packages" class="oe_inline"/>
+                    </group>
+                </xpath>
+                <xpath expr="//tree[@string='Purchase Order Lines']" position="attributes">
+                    <attribute name="editable"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
+
+

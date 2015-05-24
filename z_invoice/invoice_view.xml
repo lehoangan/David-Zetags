@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<record id="view_invoice_form_zinvoice_modify" model="ir.ui.view">
+			<field name="name">view.invoice.form.zinvoice.modify</field>
+			<field name="model">account.invoice</field>
+			<field name="inherit_id" ref="account.invoice_form"/>
+			<field name="arch" type="xml">
+				<xpath expr="//button[@string='Refund Invoice']" position="attributes">
+					<attribute name="invisible">True</attribute>
+				</xpath>
+
+				<xpath expr="//field[@name='partner_id']" position="after">
+					<field name="partner_contact_id" domain="[('id','child_of',partner_id)]"
+					context="{'default_type':'invoice', 'show_address': 1}"
+					options="{'always_reload': True}"/>
+				</xpath>
+
+				<xpath expr="//field[@name='number']" position="attributes">
+					<attribute name="readonly">True</attribute>
+				</xpath>
+				<xpath expr="//field[@name='partner_id']" position="replace">
+					<field string="Customer" name="partner_id"
+						on_change="onchange_partner_id(type,partner_id,date_invoice,payment_term, partner_bank_id,company_id)" groups="base.group_user"
+						context="{'search_default_customer':1, 'default_customer':1, 'default_is_company':1, 'show_address': 1}"
+						options="{'always_reload': True}"
+						 domain="[('customer','=',True),('is_company','=',True)]"/>
+				</xpath>
+
+				<xpath expr="//field[@name='amount_untaxed']" position="attributes">
+					<attribute name="string">Untaxed Goods Total</attribute>
+				</xpath>
+
+				<xpath expr="//field[@name='amount_untaxed']" position="after">
+					<field name="shipping_charge" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+				</xpath>
+
+				<xpath expr="//field[@name='payment_term']" position="after">
+					<field name="delivery_account_id" class="oe_inline"/>
+					<field name="product_tariff_code_id" class="oe_inline"/>
+					<field name="tracking_number" class="oe_inline"/>
+					<field name="weight"/>
+					<field name="packages" class="oe_inline"/>
+				</xpath>
+
+				<xpath expr="//field[@name='invoice_line']" position="attributes">
+					<attribute name="context">{'type': type,'invoice_partner_id':partner_id}</attribute>
+				</xpath>
+				<xpath expr="//field[@name='invoice_line']/tree/field[@name='account_analytic_id']" position="attributes">
+					<attribute name="invisible">True</attribute>
+				</xpath>
+
+
+				<xpath expr="//field[@name='amount_total']" position="after">
+					<field name="deposit_paid" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+				</xpath>
+
+				<xpath expr="//page[@string='Invoice Lines']" position="after">
+					<page string="Prepayments">
+						<field name="prepayment_lines" nolabel='1'>
+							<tree string="Prepayments" editable="bottom">
+								<field name="journal_id" domain="[('type','in',['cash','bank']),('company_id','=',company_id)]"/>
+								<field name="date"/>
+								<field name="amount"/>
+								<field name="company_id" invisible='0'/>
+							</tree>
+						</field>
+					</page>
+				</xpath>
+			</field>
+		</record>
+
+		<record id="view_invoice_supplier_form_modify" model="ir.ui.view">
+			<field name="name">view.supplier.invoice.form.modify</field>
+			<field name="model">account.invoice</field>
+			<field name="inherit_id" ref="account.invoice_supplier_form"/>
+			<field name="arch" type="xml">
+				 <xpath expr="//field[@name='tax_line']" position="after">
+                    <group>
+                        <field name="product_tariff_code_id" class="oe_inline"/>
+                        <field name="tracking_number" class="oe_inline"/>
+                        <field name="weight"/>
+                        <field name="packages" class="oe_inline"/>
+                    </group>
+                </xpath>
+
+			</field>
+		</record>
+	        
+    </data>
+</openerp>
+
+

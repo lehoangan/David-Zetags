@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+    	<!-- Inherit Country -->
+		<record id="view_country_form_add_default_shipping" model="ir.ui.view">
+            <field name="name">view.country.form.add.default.shipping</field>
+            <field name="model">res.country</field>
+            <field name="inherit_id" ref="base.view_country_form"/>
+            <field name="arch" type="xml">
+            	<xpath expr="//field[@name='company_id']" position="after">
+                    <field name="default_shipping_id"/>
+                </xpath>
+            </field>
+        </record>
+	        
+    </data>
+</openerp>
+
+

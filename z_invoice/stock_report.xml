@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Delivery Order -->
+			<record id="stock.report_picking_list_out" model="ir.actions.report.xml">
+		        <field name="name">report_picking_list_out</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">stock.picking.out</field>
+		        <field name="report_name">report_picking_list_out</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/picking.py</field>
+		        <field name="report_rml">z_invoice/report/picking.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+	    	
+            <report 
+            	id="stock.report_picking_list_out" 
+	        	model="stock.picking.out" 
+	        	name="stock.picking.list.out" 
+	        	string="Delivery Slip" 
+	        	rml="z_invoice/report/picking.odt"/>
+	                
+    </data>
+</openerp>

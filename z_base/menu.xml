@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<!-- Thanh: Rename menu Reporting -->
+			<menuitem name="Analysis"
+	            id="base.menu_reporting"
+	            groups="base.group_user"
+	            sequence="170"/>
+	            
+		<!-- Thanh: New menu Inventory -->
+			<menuitem name="Inventory" 
+	            id="menu_base_inventory" 
+	            sequence="25"/>
+        
+        <!-- Thanh: New menu Reporting -->
+        	<menuitem name="Reporting"
+	            id="menu_base_reporting"
+	            groups="base.group_user"
+	            sequence="55"/>
+        
+        <!-- Thanh: Reorder menu Purchases and Warehouse -->
+        	<menuitem name="Purchases"
+	            id="base.menu_purchase_root"
+	            groups="purchase.group_purchase_manager,purchase.group_purchase_user"
+	            sequence="45"/>
+            
+            <menuitem name="Warehouse"
+	            id="stock.menu_stock_root"
+	            groups="stock.group_stock_manager,stock.group_stock_user"
+	            sequence="47"/>
+		    
+    </data>
+</openerp>
+
+

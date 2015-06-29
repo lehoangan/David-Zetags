@@ -28,7 +28,21 @@
 	                string="Pro Forma Invoice"
 	                header="False"
 	                usage="default"/>
-		
+            
+            <record id="sale.report_sale_order_odt" model="ir.actions.report.xml">
+		        <field name="name">report_sale_order_odt</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">sale.order</field>
+		        <field name="report_name">report_sale_order_odt</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-odt'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/quotation.py</field>
+		        <field name="report_rml">z_invoice/report/quotation.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
 		<!-- Picking Slip -->
 			<record id="report_picking_slip" model="ir.actions.report.xml">
 		        <field name="name">report_picking_slip</field>

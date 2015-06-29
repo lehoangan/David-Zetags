@@ -33,6 +33,7 @@ class Parser(report_sxw.rml_parse):
             'get_taxes': self.get_taxes,
             'get_line_description': self.get_line_description,
             'get_street': self.get_street,
+            'get_street2': self.get_street2,
             'get_address': self.get_address,
         })
     
@@ -51,7 +52,10 @@ class Parser(report_sxw.rml_parse):
         return address
     
     def get_street(self, partner):
-        return partner.street or partner.street2
+        return partner.street or ''
+
+    def get_street2(self, partner):
+        return partner.street2 or ''
     
     def get_address(self, partner):
         address = partner.city and partner.city.name + ', ' or ''

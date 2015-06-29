@@ -26,7 +26,7 @@
     'category': 'Zetags',
     'description': """
     """,
-    'author': 'Le Truong Thanh <thanh.lt1689@gmail.com>',
+    'author': 'Le Hoang An <lehoangan1988@gmail.com>',
     'images': [],
     'depends': ['z_base','sale','account','account_cancel',
                 'account_voucher','stock','sale_stock',
@@ -34,14 +34,13 @@
                 'z_shipping_cost','z_product','z_product_attribute','z_customer'],
     'data': [
          "security/ir.model.access.csv",
+         "sale_report.xml",
          "sale_view.xml",
          "invoice_view.xml",
          "voucher_view.xml",
          "delivery_order_view.xml",
          "stock_report.xml",
          "account_report.xml",
-         "sale_report.xml",
-         
          'menu.xml',
     ],
     'demo': [],

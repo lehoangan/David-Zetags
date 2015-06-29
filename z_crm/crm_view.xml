@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <tree string="Leads" fonts="bold:message_unread==True" colors="grey:state in ('cancel', 'done')">
                 	<field name="image" widget='image'/>
-                	<field name="name"/>
+                	<field name="name" invisible="1"/>
                 	<field name="partner_name" string="Company Name"/>
                 	<field name="contact_name"/>
                 	<field name="email_from"/>
@@ -54,14 +54,15 @@
                                 type="action"/>
                     </div>
                     <div class="oe_title">
-                        <label for="name" class="oe_edit_only"/>
-                        <h1><field name="name" placeholder="Describe the lead..."/></h1>
+                        <label for="partner_name" class="oe_edit_only" />
+                        <h1><field name="partner_name" required="1" placeholder="Company name ..." on_change="onchange_partner_name(partner_name,context)"/></h1>
+                        <label for="name" class="oe_edit_only" invisible="1"/>
+                        <h1><field name="name" placeholder="Describe the lead..." invisible="1"/></h1>
                     </div>
                     <group>
                         <group>
-                            <field name="partner_name" string="Company Name"/>
                             <!-- Preload all the partner's information -->
-                            <field name="partner_id" string="Customer"
+                            <field name="partner_id" string="Customer" invisible="1"
                                 on_change="on_change_partner(partner_id)"
                                 options='{"create_name_field": "name"}'
                                 context="{'default_name': contact_name, 'default_street': street, 'default_city': city, 'default_state_id': state_id, 'default_zip': zip, 'default_country_id': country_id, 'default_function': function, 'default_phone': phone, 'default_mobile': mobile, 'default_fax': fax, 'default_email': email_from, 'default_user_id': user_id, 'default_section_id': section_id}"/>

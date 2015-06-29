@@ -256,7 +256,8 @@
                     <notebook colspan="4">
                         <page string="Contacts" attrs="{'invisible': [('is_company','=',False), ('child_ids', '=', [])]}" autofocus="autofocus">
                             <field name="child_ids" mode="kanban" context="{'default_email': email, 
-                            'default_phone': phone, 
+                            'default_phone': phone,
+                            'default_skype_id': skype_id,
                             'default_parent_id': active_id, 
                             'default_street': street, 
                             'default_street2': street2, 
@@ -316,6 +317,7 @@
                                                                         <div><a t-if="record.email.raw_value" title="Mail" t-att-href="'mailto:'+record.email.value">
                                                                             <field name="email"/>
                                                                         </a></div>
+                                                                        <div t-if="record.phone.raw_value">City: <field name="city"/></div>
                                                                         <div t-if="record.phone.raw_value">Phone: <field name="phone"/></div>
                                                                         <div t-if="record.mobile.raw_value">Mobile: <field name="mobile"/></div>
                                                                         <div t-if="record.fax.raw_value">Fax: <field name="fax"/></div>
@@ -342,6 +344,7 @@
                                             <field name="email"/>
                                             <field name="phone"/>
                                             <field name="mobile"/>
+                                            <field name="skype_id"/>
                                         </group>
                                         <div>
                                             <field name="use_parent_address"/><label for="use_parent_address"/>
@@ -356,11 +359,12 @@
                                                 <field name="street" placeholder="Street..."/>
                                                 <field name="street2"/>
                                                 <div class="address_format">
-                                                    <field name="city" placeholder="City" style="width: 40%%"/>
-                                                    <field name="state_id" class="oe_no_button" placeholder="State" style="width: 37%%" options='{"no_open": True}'/>
-                                                    <field name="zip" placeholder="ZIP" style="width: 20%%"/>
+                                                    <field name="country_id" placeholder="Country" class="oe_no_button" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                                                    <field name="state_id" context="{'default_country_id':country_id}" class="oe_no_button" placeholder="State" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                                                    <field name="city" context="{'default_state_id':state_id}" placeholder="City" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}" />
+                                                    <field name="zip" context="{'default_city_id':city}" placeholder="Postal code" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+
                                                 </div>
-                                                <field name="country_id" placeholder="Country" class="oe_no_button" options='{"no_open": True}'/>
                                             </div>
                                         </group>
                                         <field name="supplier" invisible="True"/>
@@ -380,7 +384,7 @@
                                 </group>
                                 <group>
                                     <field name="customer"/>
-                                    <field name="category_id" widget="many2many_tags" string="Customer Category"/>
+                                    <field name="category_id" widget="many2many_tags" string="Category"/>
                                     <field name="supplier"/>
                                 </group>
                                 <group>

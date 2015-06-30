@@ -41,7 +41,7 @@
     'test': [
     ],
     'js': [
-#         'static/src/js/show_popup_customer_alert.js',
+        'static/src/js/show_popup_customer_alert.js',
     ],
     'installable': True,
     'auto_install': False,

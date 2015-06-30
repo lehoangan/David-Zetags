@@ -173,6 +173,7 @@ class sale_order(osv.osv):
         'packages': fields.char('Packages #', size=20, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         
         'prepayment_lines': fields.one2many('sale.order.prepayment', 'sale_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
+        # 'alert': fields.related('partner_id', 'alert', string='Alert'),
     }
     
     def _get_default_stage_id(self, cr, uid, context=None):
@@ -271,6 +272,7 @@ class sale_order(osv.osv):
             'fiscal_position': fiscal_position,
             'user_id': dedicated_salesman,
             'carrier_id': part.default_shipping_id.id or False,
+            # 'alert': part.alert or '',
         }
         if pricelist:
             val['pricelist_id'] = pricelist

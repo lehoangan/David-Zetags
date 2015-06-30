@@ -347,6 +347,7 @@
                                             <field name="skype_id"/>
                                         </group>
                                         <div>
+                                            <field name="update_address"/><label for="update_address"/>
                                             <field name="use_parent_address"/><label for="use_parent_address"/>
                                         </div>
                                         <group>

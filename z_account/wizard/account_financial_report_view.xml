@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+     <data>
+
+        <record id="accounting_report_view_inherit" model="ir.ui.view">
+            <field name="name">Accounting Report</field>
+            <field name="model">accounting.report</field>
+            <field name="inherit_id" ref="account.accounting_report_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='enable_filter']" position="before">
+                    <field name="currency"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

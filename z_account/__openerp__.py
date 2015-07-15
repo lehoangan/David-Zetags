@@ -21,18 +21,17 @@
 
 
 {
-    'name': 'Z - Base',
+    'name': 'Z - Account',
     'version': '1.1',
     'category': 'Zetags',
     'description': """
-    Update all Zetags Installed Modules in one click
+        1. Modify Balance Sheet report
      """,
     'author': 'An Le <lehoangan1988@gmail.com>',
     'images': [],
-    'depends': [],
+    'depends': ["account"],
     'data': [
-        'res_users_view.xml',
-        'res_company_view.xml',
+        'wizard/account_financial_report_view.xml',
     ],
     'demo': [],
     'test': [

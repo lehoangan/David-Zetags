@@ -82,6 +82,8 @@
                             <field name="bank" on_change="onchange_bank_id(bank)"/>
                             <field name="bank_name" attrs="{'required': [('company_id','&lt;&gt;',False)]}"/>
                             <field name="bank_bic" placeholder="e.g. GEBABEBB" />
+                            <field name="swift_code"/>
+                            <field name="branch_number"/>
                         </group>
                     </group>
 
@@ -425,6 +427,7 @@
                             	groups="product.group_sale_pricelist"/>
                             <field name="default_shipping_id"
                             	domain="[('account_id.company_id.id','=',company_id)]"/>
+                            <field name="property_shipping_account"/>
                             <field name="via_reseller_id" domain="[('id','!=',active_id)]"/>
                             <field name="b2b_id" domain="[('id','!=',active_id)]"/>
                             <field name="government_id"/>
@@ -479,7 +482,7 @@
 	                        <group>
 	                            <field name="property_account_position" widget="selection"/>
 	                            <!-- Thanh: Add Taxes field -->
-	                            <field name="tax_ids" widget="many2many_tags"/>
+	                            <field name="tax_ids" widget="many2many_tags" domain="[('company_id','=',company_id)]"/>
 	                        </group>
 	                        <group>
 	                            <field name="last_reconciliation_date"/>

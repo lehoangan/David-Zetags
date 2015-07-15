@@ -19,25 +19,23 @@
 #
 ##############################################################################
 
+from openerp.osv import fields, osv
 
-{
-    'name': 'Z - Base',
-    'version': '1.1',
-    'category': 'Zetags',
-    'description': """
-    Update all Zetags Installed Modules in one click
-     """,
-    'author': 'An Le <lehoangan1988@gmail.com>',
-    'images': [],
-    'depends': [],
-    'data': [
-        'res_users_view.xml',
-        'res_company_view.xml',
-    ],
-    'demo': [],
-    'test': [
-    ],
-    'installable': True,
-    'auto_install': False,
-}
+class accounting_report(osv.osv_memory):
+    _inherit = "accounting.report"
+
+    _columns = {
+        'currency': fields.boolean('Secondary Currency'),
+    }
+
+    def _print_report(self, cr, uid, ids, data, context=None):
+        data['form'].update(self.read(cr, uid, ids, ['date_from_cmp',  'debit_credit', 'date_to_cmp',  'fiscalyear_id_cmp', 'period_from_cmp', 'period_to_cmp',  'filter_cmp', 'account_report_id', 'enable_filter', 'label_filter','target_move', 'currency'], context=context)[0])
+        return {
+            'type': 'ir.actions.report.xml',
+            'report_name': 'account.financial.report',
+            'datas': data,
+        }
+
+accounting_report()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

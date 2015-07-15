@@ -34,13 +34,20 @@ class Parser(report_sxw.rml_parse):
         self.ship_by = ''
         self.localcontext.update({
             'display_address': self.display_address,
+            'get_street': self.get_street,
+            'get_street2': self.get_street2,
+            'get_address': self.get_address,
             'get_bill_partner': self.get_bill_partner,
             'get_shipping_partner': self.get_shipping_partner,
             'get_date_order': self.get_date_order,
             'get_carrier': self.get_carrier,
             'get_ship_by': self.get_ship_by,
             'get_taxes': self.get_taxes,
+            'get_line_description': self.get_line_description,
         })
+    
+    def get_line_description(self, description):
+        return description
     
     def display_address(self, partner):
         address = self.pool.get('res.partner')._display_address(self.cr, self.uid, partner)
@@ -77,10 +84,22 @@ class Parser(report_sxw.rml_parse):
                 self.partner_shipping = self.pool.get('sale.order').browse(self.cr, self.uid, res[0]).partner_shipping_id
         return self.partner_shipping
     
+    def get_street(self, partner):
+        return partner.street or ''
+
+    def get_street2(self, partner):
+        return partner.street2 or ''
+    
+    def get_address(self, partner):
+        address = partner.city and partner.city.name + ', ' or ''
+        address += partner.state_id and partner.state_id.name + ', ' or ''
+        address += partner.zip and partner.zip.name or ''
+        return address
+    
     def get_taxes(self, taxes):
         taxes = ''
         for tax in taxes:
-            taxes += tax.name + ', '
+            taxes += tax.name + '%, '
         if len(taxes):
             taxes = taxes[:-2]
         return taxes

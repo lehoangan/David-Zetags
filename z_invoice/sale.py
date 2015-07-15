@@ -487,6 +487,18 @@ sale_order()
 
 class sale_order_line(osv.osv):
     _inherit = "sale.order.line"
+
+    def _prepare_order_line_invoice_line(self, cr, uid, line, account_id=False, context=None):
+        res = super(sale_order_line, self)._prepare_order_line_invoice_line(cr, uid, line, account_id, context)
+        if not res:
+            return res
+
+        uosqty = 1
+        pu = round(line.price_unit * line.product_uom_qty / uosqty,
+                self.pool.get('decimal.precision').precision_get(cr, uid, 'Product Price'))
+        res.update({'price_unit': pu,
+                    'quantity': uosqty})
+        return res
     
     def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
@@ -502,6 +514,8 @@ class sale_order_line(osv.osv):
             tax_obj = self.pool.get('account.tax')
             tax_ids = []
             name_tax = ''
+            if partner.tax_ids:
+                result['value']['tax_id'] = [tax.id for tax in partner.tax_ids]
             for tax_id in result['value']['tax_id']:
                 tax = tax_obj.browse(cr, uid, tax_id)
                 if partner.company_id and partner.company_id != tax.company_id:

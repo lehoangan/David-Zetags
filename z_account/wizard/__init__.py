@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
-#
+#    
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
 #
@@ -15,29 +15,8 @@
 #    GNU Affero General Public License for more details.
 #
 #    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.     
 #
 ##############################################################################
-
-
-{
-    'name': 'Z - Base',
-    'version': '1.1',
-    'category': 'Zetags',
-    'description': """
-    Update all Zetags Installed Modules in one click
-     """,
-    'author': 'An Le <lehoangan1988@gmail.com>',
-    'images': [],
-    'depends': [],
-    'data': [
-        'res_users_view.xml',
-        'res_company_view.xml',
-    ],
-    'demo': [],
-    'test': [
-    ],
-    'installable': True,
-    'auto_install': False,
-}
+import account_financial_report
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -50,6 +50,24 @@ account_voucher()
 
 class account_invoice(osv.osv):
     _inherit = "account.invoice"
+
+    def invoice_print(self, cr, uid, ids, context=None):
+        '''
+        This function prints the invoice and mark it as sent, so that we can see more easily the next step of the workflow
+        '''
+        assert len(ids) == 1, 'This option should only be used for a single id at a time.'
+        self.write(cr, uid, ids, {'sent': True}, context=context)
+        datas = {
+             'ids': ids,
+             'model': 'account.invoice',
+             'form': self.read(cr, uid, ids[0], context=context)
+        }
+        return {
+            'type': 'ir.actions.report.xml',
+            'report_name': 'account.invoice.zetags',
+            'datas': datas,
+            'nodestroy' : True
+        }
     
     def _amount_all(self, cr, uid, ids, name, args, context=None):
         res = {}
@@ -704,16 +722,11 @@ class account_invoice_line(osv.osv):
         result['value']['name'] = res.description or res.name
         if res.packaging_id:
             result['value']['name'] += '\n'+res.packaging_id.name
-        
-        #Thanh: User of parent company just apply tax relating to their country
-#         tax_obj = self.pool.get('account.tax')
-#         company_id = company_id if company_id != None else context.get('company_id',False)
-#         tax_id = result['value']['invoice_line_tax_id']
-#         if tax_id:
-#             new_tax_id = tax_obj.search(cr, uid, [('company_id','=',company_id),('id','in',tax_id)])
-#             result['value'].update({'invoice_line_tax_id': new_tax_id})
-        #Thanh: Filter tax for invoice company (apply for admin also or Parent company
-        
+        if partner_id and type == 'out_invoice':
+            tax_ids = self.pool.get('res.partner').browse(cr, uid, partner_id, context).tax_ids
+            if tax_ids:
+                result['value']['invoice_line_tax_id'] = [tax.id for tax in tax_ids]
+
         return result
     
     _columns = {

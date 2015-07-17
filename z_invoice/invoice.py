@@ -242,43 +242,8 @@ class account_invoice(osv.osv):
                 ctx.update({'lang': partner.lang})
 
             tax_grouped = ait_obj.compute(cr, uid, id, context=ctx)
-            company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id.id
-            cur = inv.currency_id
-            for tax in self.pool.get('account.tax').compute_all(cr, uid, inv.tax_id, inv.shipping_charge, 1, False, inv.partner_id)['taxes']:
-                val={}
-                val['base'] = cur_obj.round(cr, uid, cur, tax['price_unit'])
-                val['invoice_id'] = inv.id
-                val['name'] = tax['name']
-                val['amount'] = tax['amount']
-                val['manual'] = False
-                val['sequence'] = tax['sequence']
-                if inv.type in ('out_invoice','in_invoice'):
-                    val['base_code_id'] = tax['base_code_id']
-                    val['tax_code_id'] = tax['tax_code_id']
-                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['base_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
-                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['tax_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
-                    val['account_id'] = tax['account_collected_id']
-                    val['account_analytic_id'] = tax['account_analytic_collected_id']
-                else:
-                    val['base_code_id'] = tax['ref_base_code_id']
-                    val['tax_code_id'] = tax['ref_tax_code_id']
-                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['ref_base_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
-                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['ref_tax_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
-                    val['account_id'] = tax['account_paid_id']
-                    val['account_analytic_id'] = tax['account_analytic_paid_id']
-
-                key = (val['tax_code_id'], val['base_code_id'], val['account_id'])
-                if not key in tax_grouped:
-                    tax_grouped[key] = val
-                else:
-                    tax_grouped[key]['amount'] += cur_obj.round(cr, uid, cur,val['amount'])
-                    tax_grouped[key]['base'] += cur_obj.round(cr, uid, cur,val['base'])
-                    tax_grouped[key]['base_amount'] += cur_obj.round(cr, uid, cur,val['base_amount'])
-                    tax_grouped[key]['tax_amount'] += cur_obj.round(cr, uid, cur,val['tax_amount'])
-
             for taxe in tax_grouped.values():
                 ait_obj.create(cr, uid, taxe)
-
 
             #anlee:  revert company for user
             if old_company_id:
@@ -295,10 +260,9 @@ class account_invoice(osv.osv):
             currency_id = journal.currency and journal.currency.id or journal.company_id.currency_id.id
             company_id = journal.company_id.id
             result = {'value': {
-#                     'currency_id': currency_id,
-                    'company_id': company_id,
-                    }
-                }
+                                    'company_id': company_id,
+                                }
+                            }
         return result
     #Thanh: Dont get currency from Journal
     
@@ -813,11 +777,49 @@ class account_move_line(osv.osv):
     
 account_move_line()
 
-# class account_invoice_tax(osv.osv):
-#     _inherit = "account.invoice.tax"
-#
-#     _columns = {
-#         'account_id': fields.many2one('account.account', 'Tax Account', required=True, domain="[('type','<>','view'),('type','<>','income'), ('type', '<>', 'closed'), ('company_id', '=', parent.company_id)]"),
-#     }
+class account_invoice_tax(osv.osv):
+    _inherit = "account.invoice.tax"
+
+    def compute(self, cr, uid, invoice_id, context=None):
+        tax_grouped = super(account_invoice_tax, self).compute(cr, uid, invoice_id, context)
+
+        inv = self.pool.get('account.invoice').browse(cr, uid, invoice_id, context=context)
+        if inv.tax_id:
+            cur_obj = self.pool.get('res.currency')
+            cur = inv.currency_id
+            company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id.id
+            for tax in self.pool.get('account.tax').compute_all(cr, uid, inv.tax_id, inv.shipping_charge, 1, False, inv.partner_id)['taxes']:
+                val={}
+                val['base'] = cur_obj.round(cr, uid, cur, tax['price_unit'])
+                val['invoice_id'] = inv.id
+                val['name'] = tax['name']
+                val['amount'] = tax['amount']
+                val['manual'] = False
+                val['sequence'] = tax['sequence']
+                if inv.type in ('out_invoice','in_invoice'):
+                    val['base_code_id'] = tax['base_code_id']
+                    val['tax_code_id'] = tax['tax_code_id']
+                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['base_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['tax_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['account_id'] = tax['account_collected_id']
+                    val['account_analytic_id'] = tax['account_analytic_collected_id']
+                else:
+                    val['base_code_id'] = tax['ref_base_code_id']
+                    val['tax_code_id'] = tax['ref_tax_code_id']
+                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['ref_base_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['ref_tax_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['account_id'] = tax['account_paid_id']
+                    val['account_analytic_id'] = tax['account_analytic_paid_id']
+
+                key = (val['tax_code_id'], val['base_code_id'], val['account_id'])
+                if not key in tax_grouped:
+                    tax_grouped[key] = val
+                else:
+                    tax_grouped[key]['amount'] += cur_obj.round(cr, uid, cur,val['amount'])
+                    tax_grouped[key]['base'] += cur_obj.round(cr, uid, cur,val['base'])
+                    tax_grouped[key]['base_amount'] += cur_obj.round(cr, uid, cur,val['base_amount'])
+                    tax_grouped[key]['tax_amount'] += cur_obj.round(cr, uid, cur,val['tax_amount'])
+        return tax_grouped
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

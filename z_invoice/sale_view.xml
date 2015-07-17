@@ -207,21 +207,33 @@
 	                                <field name="price_subtotal"/>
 	                            </tree>
 	                        </field>
-	                        <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
-	                            <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-	                            <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-	                            <div class="oe_subtotal_footer_separator oe_inline">
-	                                <label for="amount_total" />
-	                                <button name="button_dummy"
-	                                    states="draft,sent" string="(update)" type="object" class="oe_edit_only oe_link"/>
-	                            </div>
-	                            <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-	                        	<field name="deposit_paid" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-	                        	<div class="oe_subtotal_footer_separator oe_inline">
-	                                <label for="balance" />
-                                </div>
-	                        	<field name="balance" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
-	                        </group>
+	                        <group class="oe_right" col="8" colspan="4" name="sale_total">
+                                <group>
+                                    <label string="." style="color: white;"/>
+                                </group>
+                                <group col="2" colspan="4">
+                                    <label string="." style="color: white;"/>
+                                    <newline />
+                                    <field name="tax_id" widget="many2many_tags"
+                                    domain="[('parent_id','=',False),('type_tax_use','&lt;&gt;','purchase')]"/>
+                                </group>
+                                <group class="oe_subtotal_footer oe_right" colspan="2" >
+                                    <field name="amount_untaxed" string="Untaxed Goods Total" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <field name="shipping_charge" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <div class="oe_subtotal_footer_separator oe_inline">
+                                        <label for="amount_total" />
+                                        <button name="button_dummy"
+                                            states="draft,sent" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <field name="deposit_paid" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                    <div class="oe_subtotal_footer_separator oe_inline">
+                                        <label for="balance" />
+                                    </div>
+                                    <field name="balance" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                            </group>
 	                        <div class="oe_clear"/>
 	                        <field name="note" class="oe_inline" placeholder="Terms and conditions..."/>
 	                    </page>
@@ -270,13 +282,9 @@
                 context="{'search_default_customer':1, 'default_customer':1, 'default_is_company':1, 'show_address': 1}" 
                 options="{'always_reload': True}"/>
             </xpath>
-            
-            <xpath expr="//field[@name='amount_untaxed']" position="attributes">
-            	<attribute name="string">Untaxed Goods Total</attribute>
-            </xpath>
 
-            <xpath expr="//group[@class='oe_subtotal_footer oe_right']" position="replace">
-                <group class="oe_right" col="8" colspan="4">
+            <xpath expr="//group[@name='sale_total']" position="replace">
+                <group class="oe_right" col="8" colspan="4" name="sale_total">
                     <group>
                         <label string="." style="color: white;"/>
                     </group>
@@ -286,8 +294,9 @@
                         <field name="tax_id" widget="many2many_tags"
                         domain="[('parent_id','=',False),('type_tax_use','&lt;&gt;','purchase')]"/>
                     </group>
-                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
-                        <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" >
+                        <field name="amount_untaxed" string="Untaxed Goods Total" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <field name="shipping_charge" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                         <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
                         <div class="oe_subtotal_footer_separator oe_inline">
                             <label for="amount_total" />
@@ -295,8 +304,14 @@
                                 states="draft,sent" string="(update)" type="object" class="oe_edit_only oe_link"/>
                         </div>
                         <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <field name="deposit_paid" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline">
+                            <label for="balance" />
+                        </div>
+                        <field name="balance" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
                     </group>
                 </group>
+                <new_line />
             </xpath>
             
         </field>
@@ -308,6 +323,7 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//group[@name='sale_total']" position="after">
+                <new_line />
                 <group style="width: 65%%">
                     <label for="carrier_id"/>
                     <div>

@@ -19,12 +19,8 @@
 #
 ##############################################################################
 
-import time
-
-from openerp.osv import fields, osv
+from openerp.osv import fields, osv, orm
 from openerp.tools.translate import _
-from datetime import datetime
-import openerp.addons.decimal_precision as dp
 from openerp import SUPERUSER_ID
 import netsvc
 

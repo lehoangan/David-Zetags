@@ -23,23 +23,10 @@ import time
 
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
-from datetime import datetime
+import openerp
 import openerp.addons.decimal_precision as dp
 from openerp import netsvc
-
-# class res_partner(osv.osv):
-#     _inherit = "res.partner"
-#     _columns = {
-#     }
-#     
-#     def search(self, cr, uid, args, offset=0, limit=None, order=None,
-#             context=None, count=False):
-#         if context is None:
-#             context = {}
-#         return super(res_partner, self).search(cr, uid, args, offset, limit,
-#                 order, context=context, count=count)
-#         
-# res_partner()
+from openerp.tools import float_compare
 
 class account_voucher(osv.osv):
     _inherit = "account.voucher"
@@ -157,6 +144,7 @@ class account_invoice(osv.osv):
         'journal_id': fields.many2one('account.journal', 'Journal', required=True, readonly=True, states={'draft':[('readonly',False)]},
                                       domain="[('type', 'in', {'out_invoice': ['sale'], 'out_refund': ['sale_refund'], 'in_refund': ['purchase_refund'], 'in_invoice': ['purchase']}.get(type, [])), ('company_id', '=', company_id)]"),
         'shipping_charge': fields.float('Shipping Charge', digits_compute=dp.get_precision('Account'), readonly=True, states={'draft':[('readonly',False)]}),
+        'tax_id': fields.many2many('account.tax', 'invoice_shipping_charge_tax', 'order_id', 'tax_id', 'Taxes', readonly=True, states={'draft': [('readonly', False)]}),
         'delivery_account_id': fields.many2one('account.account', 'Delivery Account', readonly=True, states={'draft': [('readonly', False)]}, domain="[('type','!=','view')]"),
         
         'deposit_paid': fields.function(_get_amount_deposit, digits_compute=dp.get_precision('Account'), string='Deposit Paid',
@@ -174,7 +162,7 @@ class account_invoice(osv.osv):
             multi='all'),
         'amount_tax': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Tax',
             store={
-                'account.invoice': (lambda self, cr, uid, ids, c={}: ids, ['invoice_line'], 20),
+                'account.invoice': (lambda self, cr, uid, ids, c={}: ids, ['invoice_line', 'tax_id'], 20),
                 'account.invoice.tax': (_get_invoice_tax, None, 20),
                 'account.invoice.line': (_get_invoice_line, ['price_unit','invoice_line_tax_id','quantity','discount','invoice_id'], 20),
             },
@@ -207,30 +195,43 @@ class account_invoice(osv.osv):
         'prepayment_lines': fields.one2many('account.invoice.prepayment', 'invoice_id', readonly=True, states={'draft': [('readonly', False)]}),
     }
     
-#     def _check_name(self, cr, uid, ids, context=None):
-#         for inv in self.browse(cr, uid, ids, context=context):
-#             if inv.number:
-#                 exist_ids = self.search(cr, uid, [('id','!=',inv.id),
-#                                                   ('number','=',inv.number),
-#                                                   ('type','=',inv.type),
-#                                                   ('company_id','=',inv.company_id.id),
-#                                                   ])
-#                 if len(exist_ids):
-#                     raise osv.except_osv(_('Error!'), _("Invoice Number '%s' is exist. Please select other Number."%(inv.number)))
-#         return True
-# 
-#     _constraints = [
-#         (_check_name, 'Invoice Number must be unique per Company!', ['number']),
-#     ]
-    
     _sql_constraints = [
         ('number_uniq', 'Check(1=1)', 'Invoice Number must be unique per Company!'),
     ]
+
+    def check_tax_lines(self, cr, uid, inv, compute_taxes, ait_obj):
+        company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id
+        if not inv.tax_line:
+            for tax in compute_taxes.values():
+                ait_obj.create(cr, uid, tax)
+        else:
+            shipping_tax = [(tax.tax_code_id.id, tax.base_code_id.id, tax.account_collected_id.id) for tax in inv.tax_id]
+
+            tax_key = []
+            for tax in inv.tax_line:
+                if tax.manual:
+                    continue
+                key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id)
+                tax_key.append(key)
+                if not key in compute_taxes:
+                    if key in shipping_tax:
+                        continue
+                    else:
+                        raise osv.except_osv(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
+
+                base = compute_taxes[key]['base']
+                precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
+                if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
+                    raise osv.except_osv(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
+            for key in compute_taxes:
+                if not key in tax_key:
+                    raise osv.except_osv(_('Warning!'), _('Taxes are missing!\nClick on compute button.'))
 
     def button_reset_taxes(self, cr, uid, ids, context=None):
         if context is None:
             context = {}
         ctx = context.copy()
+        cur_obj = self.pool.get('res.currency')
         ait_obj = self.pool.get('account.invoice.tax')
         for id in ids:
             cr.execute("DELETE FROM account_invoice_tax WHERE invoice_id=%s AND manual is False", (id,))
@@ -239,8 +240,46 @@ class account_invoice(osv.osv):
             partner = inv.partner_id
             if partner.lang:
                 ctx.update({'lang': partner.lang})
-            for taxe in ait_obj.compute(cr, uid, id, context=ctx).values():
+
+            tax_grouped = ait_obj.compute(cr, uid, id, context=ctx)
+            company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id.id
+            cur = inv.currency_id
+            for tax in self.pool.get('account.tax').compute_all(cr, uid, inv.tax_id, inv.shipping_charge, 1, False, inv.partner_id)['taxes']:
+                val={}
+                val['base'] = cur_obj.round(cr, uid, cur, tax['price_unit'])
+                val['invoice_id'] = inv.id
+                val['name'] = tax['name']
+                val['amount'] = tax['amount']
+                val['manual'] = False
+                val['sequence'] = tax['sequence']
+                if inv.type in ('out_invoice','in_invoice'):
+                    val['base_code_id'] = tax['base_code_id']
+                    val['tax_code_id'] = tax['tax_code_id']
+                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['base_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['tax_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['account_id'] = tax['account_collected_id']
+                    val['account_analytic_id'] = tax['account_analytic_collected_id']
+                else:
+                    val['base_code_id'] = tax['ref_base_code_id']
+                    val['tax_code_id'] = tax['ref_tax_code_id']
+                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['ref_base_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['ref_tax_sign'], context={'date': inv.date_invoice or fields.date.context_today(self, cr, uid, context=context)}, round=False)
+                    val['account_id'] = tax['account_paid_id']
+                    val['account_analytic_id'] = tax['account_analytic_paid_id']
+
+                key = (val['tax_code_id'], val['base_code_id'], val['account_id'])
+                if not key in tax_grouped:
+                    tax_grouped[key] = val
+                else:
+                    tax_grouped[key]['amount'] += cur_obj.round(cr, uid, cur,val['amount'])
+                    tax_grouped[key]['base'] += cur_obj.round(cr, uid, cur,val['base'])
+                    tax_grouped[key]['base_amount'] += cur_obj.round(cr, uid, cur,val['base_amount'])
+                    tax_grouped[key]['tax_amount'] += cur_obj.round(cr, uid, cur,val['tax_amount'])
+
+            for taxe in tax_grouped.values():
                 ait_obj.create(cr, uid, taxe)
+
+
             #anlee:  revert company for user
             if old_company_id:
                 self.pool.get('res.users').write(cr, uid, [uid],{'company_id': old_company_id})
@@ -271,6 +310,9 @@ class account_invoice(osv.osv):
             partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
             if partner.property_product_pricelist:
                 result['value'].update({'currency_id':partner.property_product_pricelist.currency_id.id or False})
+        if partner_id:
+            part = self.pool.get('res.partner').browse(cr, uid, partner_id)
+            result['value'].update({'tax_id': [tax.id for tax in part.tax_ids] or [],})
         return result
     #Thanh: Get currency from Partner's sale pricelist
     

@@ -263,14 +263,7 @@
         		<!-- Thanh: Add new field Order Status -->
             	<field name="stage_id" widget='selection'/>
             </xpath>
-            
-        	<!--<xpath expr="//field[@name='date_order']" position="after">
-        		<field name="partner_contact_id" domain="[('id','child_of',partner_id)]" 
-        		on_change="onchange_partner_contact_id(partner_contact_id)" 
-        		context="{'default_type':'invoice', 'show_address': 1}"
-        		options="{'always_reload': True}"/>
-            </xpath>-->
-            
+
         	<xpath expr="//field[@name='partner_id']" position="replace">
                 <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" 
                 domain="[('customer','=',True),('is_company','=',True)]" 
@@ -281,9 +274,29 @@
             <xpath expr="//field[@name='amount_untaxed']" position="attributes">
             	<attribute name="string">Untaxed Goods Total</attribute>
             </xpath>
-            
-            <xpath expr="//field[@name='amount_untaxed']" position="after">
-            	<field name="shipping_charge" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+
+            <xpath expr="//group[@class='oe_subtotal_footer oe_right']" position="replace">
+                <group class="oe_right" col="8" colspan="4">
+                    <group>
+                        <label string="." style="color: white;"/>
+                    </group>
+                    <group col="2" colspan="4">
+                        <label string="." style="color: white;"/>
+                        <newline />
+                        <field name="tax_id" widget="many2many_tags"
+                        domain="[('parent_id','=',False),('type_tax_use','&lt;&gt;','purchase')]"/>
+                    </group>
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                        <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline">
+                            <label for="amount_total" />
+                            <button name="button_dummy"
+                                states="draft,sent" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                        </div>
+                        <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                    </group>
+                </group>
             </xpath>
             
         </field>

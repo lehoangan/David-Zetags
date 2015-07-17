@@ -32,6 +32,7 @@
     'depends': ["account"],
     'data': [
         'wizard/account_financial_report_view.xml',
+        'report/report_define.xml',
     ],
     'demo': [],
     'test': [

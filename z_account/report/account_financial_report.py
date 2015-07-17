@@ -90,11 +90,11 @@ class report_account_common_zateg(report_account_common):
                         lines.append(vals)
         return lines
 
-from openerp.netsvc import Service
-del Service._services['report.account.financial.report']
+# from openerp.netsvc import Service
+# del Service._services['report.account.financial.report']
 
-report_sxw.report_sxw('report.account.financial.report', 'account.financial.report',
-    '/media/anlee/Data/INIT/Project-Outsource/backup/odoo-7.0/extends/z_account/report/account_financial_report_zetag.rml', parser=report_account_common_zateg, header='internal')
+report_sxw.report_sxw('report.account_financial_report_zetag', 'account.financial.report',
+    'z_account/report/account_financial_report_zetag.rml', parser=report_account_common_zateg, header='internal')
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -74,6 +74,9 @@ class sale_order(osv.osv):
             for line in order.order_line:
                 val1 += line.price_subtotal
                 val += self._amount_line_tax(cr, uid, line, context=context)
+            for c in self.pool.get('account.tax').compute_all(cr, uid, order.tax_id, order.shipping_charge, 1, False, order.partner_id)['taxes']:
+                val += c.get('amount', 0.0)
+
             res[order.id]['amount_tax'] = cur_obj.round(cr, uid, cur, val)
             res[order.id]['amount_untaxed'] = cur_obj.round(cr, uid, cur, val1)
             res[order.id]['amount_total'] = res[order.id]['amount_untaxed'] + res[order.id]['amount_tax'] + order.shipping_charge
@@ -131,6 +134,7 @@ class sale_order(osv.osv):
         'partner_contact_id': fields.many2one('res.partner', 'Contact', readonly=True, required=False, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
 
         'shipping_charge': fields.float('Shipping Charge', digits_compute=dp.get_precision('Account'), readonly=True, states={'draft': [('readonly', False)]}),
+        'tax_id': fields.many2many('account.tax', 'shipping_charge_tax', 'order_id', 'tax_id', 'Taxes', readonly=True, states={'draft': [('readonly', False)]}),
         'delivery_account_id': fields.many2one('account.account', 'Delivery Account', readonly=True, states={'draft': [('readonly', False)]}, domain="[('type','!=','view')]"),
         'shipping_date': fields.date('Shipping Date'),
         'deposit_paid': fields.function(_get_amount_deposit, digits_compute=dp.get_precision('Account'), string='Deposit Paid',
@@ -155,7 +159,7 @@ class sale_order(osv.osv):
             multi='sums', help="The amount without tax.", track_visibility='always'),
         'amount_tax': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Taxes',
             store={
-                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line'], 10),
+                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line', 'tax_id'], 10),
                 'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
             },
             multi='sums', help="The tax amount."),
@@ -272,7 +276,7 @@ class sale_order(osv.osv):
             'fiscal_position': fiscal_position,
             'user_id': dedicated_salesman,
             'carrier_id': part.default_shipping_id.id or False,
-            # 'alert': part.alert or '',
+            'tax_id': [tax.id for tax in part.tax_ids] or [],
         }
         if pricelist:
             val['pricelist_id'] = pricelist
@@ -374,6 +378,7 @@ class sale_order(osv.osv):
             #Thanh: Add more fields
             'partner_contact_id': order.partner_contact_id.id or False,
             'shipping_charge': order.shipping_charge,
+            'tax_id': [(4, tax.id) for tax in order.tax_id],
             'delivery_account_id': order.delivery_account_id.id or False,
             'product_tariff_code_id':order.product_tariff_code_id.id or False,
             'tracking_number':order.tracking_number,

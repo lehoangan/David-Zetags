@@ -514,13 +514,15 @@ class sale_order_line(osv.osv):
         result = super(sale_order_line,self).product_id_change(cr, uid, ids, pricelist, product, qty=qty,
             uom=uom, qty_uos=qty_uos, uos=uos, name=name, partner_id=partner_id,
             lang=lang, update_tax=update_tax, date_order=date_order, packaging=packaging, fiscal_position=fiscal_position, flag=flag, context=context)
+
+        partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
+        tax_obj = self.pool.get('account.tax')
+        tax_ids = []
+        name_tax = ''
+        if partner.tax_ids:
+            result['value']['tax_id'] = [tax.id for tax in partner.tax_ids]
+
         if result['value'].get('tax_id', []):
-            partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
-            tax_obj = self.pool.get('account.tax')
-            tax_ids = []
-            name_tax = ''
-            if partner.tax_ids:
-                result['value']['tax_id'] = [tax.id for tax in partner.tax_ids]
             for tax_id in result['value']['tax_id']:
                 tax = tax_obj.browse(cr, uid, tax_id)
                 if partner.company_id and partner.company_id != tax.company_id:

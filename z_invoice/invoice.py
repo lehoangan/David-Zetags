@@ -811,7 +811,7 @@ class account_invoice_tax(osv.osv):
                     val['account_id'] = tax['account_paid_id']
                     val['account_analytic_id'] = tax['account_analytic_paid_id']
 
-                key = (val['tax_code_id'], val['base_code_id'], val['account_id'])
+                key = (val['tax_code_id'], val['base_code_id'], val['account_id'], val['account_analytic_id'])
                 import logging
                 logging.info('========%s============> %s .........'%(tax_grouped.keys(), key))
                 if not key in tax_grouped.keys():

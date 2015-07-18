@@ -199,35 +199,35 @@ class account_invoice(osv.osv):
         ('number_uniq', 'Check(1=1)', 'Invoice Number must be unique per Company!'),
     ]
 
-    def check_tax_lines(self, cr, uid, inv, compute_taxes, ait_obj):
-        company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id
-        if not inv.tax_line:
-            for tax in compute_taxes.values():
-                ait_obj.create(cr, uid, tax)
-        else:
-            shipping_tax = [(tax.tax_code_id.id, tax.base_code_id.id, tax.account_collected_id.id) for tax in inv.tax_id]
-
-            tax_key = []
-            for tax in inv.tax_line:
-                if tax.manual:
-                    continue
-                key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id)
-                tax_key.append(key)
-                if not key in compute_taxes:
-                    if key in shipping_tax:
-                        continue
-                    else:
-                        raise osv.except_osv(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
-
-                base = compute_taxes[key]['base']
-                precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
-                if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
-                    raise osv.except_osv(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
-            for key in compute_taxes:
-                import logging
-                logging.info('========%s============> %s .........'%(tax_key, key))
-                if not key in tax_key:
-                    raise osv.except_osv(_('Warning!'), _('Taxes are missing!\nClick on compute button.'))
+    # def check_tax_lines(self, cr, uid, inv, compute_taxes, ait_obj):
+    #     company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id
+    #     if not inv.tax_line:
+    #         for tax in compute_taxes.values():
+    #             ait_obj.create(cr, uid, tax)
+    #     else:
+    #         shipping_tax = [(tax.tax_code_id.id, tax.base_code_id.id, tax.account_collected_id.id) for tax in inv.tax_id]
+    #
+    #         tax_key = []
+    #         for tax in inv.tax_line:
+    #             if tax.manual:
+    #                 continue
+    #             key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id, tax.account_analytic_id and tax.account_analytic_id.id or False)
+    #             tax_key.append(key)
+    #             if not key in compute_taxes:
+    #                 if key in shipping_tax:
+    #                     continue
+    #                 else:
+    #                     raise osv.except_osv(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
+    #
+    #             base = compute_taxes[key]['base']
+    #             precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
+    #             if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
+    #                 raise osv.except_osv(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
+    #         for key in compute_taxes:
+    #             import logging
+    #             logging.info('========%s============> %s .........'%(tax_key, key))
+    #             if not key in tax_key:
+    #                 raise osv.except_osv(_('Warning!'), _('Taxes are missing!\nClick on compute button.'))
 
     def button_reset_taxes(self, cr, uid, ids, context=None):
         if context is None:

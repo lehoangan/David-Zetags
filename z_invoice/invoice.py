@@ -224,6 +224,8 @@ class account_invoice(osv.osv):
                 if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
                     raise osv.except_osv(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
             for key in compute_taxes:
+                import logging
+                logging.info('========%s============> %s .........'%(tax_key, key))
                 if not key in tax_key:
                     raise osv.except_osv(_('Warning!'), _('Taxes are missing!\nClick on compute button.'))
 
@@ -812,8 +814,6 @@ class account_invoice_tax(osv.osv):
                     val['account_analytic_id'] = tax['account_analytic_paid_id']
 
                 key = (val['tax_code_id'], val['base_code_id'], val['account_id'], val['account_analytic_id'])
-                import logging
-                logging.info('========%s============> %s .........'%(tax_grouped.keys(), key))
                 if not key in tax_grouped.keys():
                     tax_grouped[key] = val
                 else:

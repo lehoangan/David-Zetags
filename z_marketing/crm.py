@@ -19,12 +19,7 @@
 #
 ##############################################################################
 
-import time
-
 from openerp.osv import fields, osv
-from openerp.tools.translate import _
-from datetime import datetime
-import openerp.addons.decimal_precision as dp
 
 class marketing_method(osv.osv):
     _name = "marketing.method"
@@ -46,7 +41,8 @@ marketing_method_line()
 class crm_lead(osv.osv):
     _inherit = "crm.lead"
     _columns = {
-        'method_line_id': fields.many2one('marketing.method.line', 'Source', required=False, select=True)
+        'method_line_id': fields.many2one('marketing.method.line', 'Source', required=False, select=True),
+        'website': fields.char('Website', size=100),
     }
     
 crm_lead()

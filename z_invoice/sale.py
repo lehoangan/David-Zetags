@@ -217,30 +217,39 @@ class sale_order(osv.osv):
     #Thanh: Get customized Template print
     def print_pf_invoice(self, cr, uid, ids, context=None):
         assert len(ids) == 1, 'This option should only be used for a single id at a time'
+        data = self.browse(cr, uid, ids[0])
         datas = {
                  'model': 'sale.order',
                  'ids': ids,
                  'form': self.read(cr, uid, ids[0], context=context),
         }
-        return {'type': 'ir.actions.report.xml', 'report_name': 'report_sale_order', 'datas': datas, 'nodestroy': True}
+
+        return {'type': 'ir.actions.report.xml',
+                'report_name': 'report_sale_order',
+                'datas': datas, 'nodestroy': True,
+                'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
     
     def print_picking_slip(self, cr, uid, ids, context=None):
         assert len(ids) == 1, 'This option should only be used for a single id at a time'
+        data = self.browse(cr, uid, ids[0])
         datas = {
                  'model': 'sale.order',
                  'ids': ids,
                  'form': self.read(cr, uid, ids[0], context=context),
         }
-        return {'type': 'ir.actions.report.xml', 'report_name': 'report_picking_slip', 'datas': datas, 'nodestroy': True}
+        return {'type': 'ir.actions.report.xml', 'report_name': 'report_picking_slip', 'datas': datas, 'nodestroy': True,
+                'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
     
     def print_shipping_invoice(self, cr, uid, ids, context=None):
         assert len(ids) == 1, 'This option should only be used for a single id at a time'
+        data = self.browse(cr, uid, ids[0])
         datas = {
                  'model': 'sale.order',
                  'ids': ids,
                  'form': self.read(cr, uid, ids[0], context=context),
         }
-        return {'type': 'ir.actions.report.xml', 'report_name': 'report_shipping_invoice', 'datas': datas, 'nodestroy': True}
+        return {'type': 'ir.actions.report.xml', 'report_name': 'report_shipping_invoice', 'datas': datas, 'nodestroy': True,
+                'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
     
     def _check_name(self, cr, uid, ids, context=None):
         for sale in self.browse(cr, uid, ids, context=context):
@@ -493,17 +502,17 @@ sale_order()
 class sale_order_line(osv.osv):
     _inherit = "sale.order.line"
 
-    def _prepare_order_line_invoice_line(self, cr, uid, line, account_id=False, context=None):
-        res = super(sale_order_line, self)._prepare_order_line_invoice_line(cr, uid, line, account_id, context)
-        if not res:
-            return res
-
-        uosqty = 1
-        pu = round(line.price_unit * line.product_uom_qty / uosqty,
-                self.pool.get('decimal.precision').precision_get(cr, uid, 'Product Price'))
-        res.update({'price_unit': pu,
-                    'quantity': uosqty})
-        return res
+    # def _prepare_order_line_invoice_line(self, cr, uid, line, account_id=False, context=None):
+    #     res = super(sale_order_line, self)._prepare_order_line_invoice_line(cr, uid, line, account_id, context)
+    #     if not res:
+    #         return res
+    #
+    #     uosqty = 1
+    #     pu = round(line.price_unit * line.product_uom_qty / uosqty,
+    #             self.pool.get('decimal.precision').precision_get(cr, uid, 'Product Price'))
+    #     res.update({'price_unit': pu,
+    #                 'quantity': uosqty})
+    #     return res
     
     def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,

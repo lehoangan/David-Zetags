@@ -102,6 +102,9 @@
 		            	<xpath expr="//field[@name='type']" position="before">
 		            		<field name="method_line_id"/>
 		                </xpath>
+						<xpath expr="//field[@name='email_from']" position="after">
+		            		<field name="website" widget="url" placeholder="e.g. www.openerp.com"/>
+		                </xpath>
 		            </field>
 		        </record>
         

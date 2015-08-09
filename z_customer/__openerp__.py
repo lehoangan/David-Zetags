@@ -43,6 +43,9 @@
     'js': [
         'static/src/js/show_popup_customer_alert.js',
     ],
+    'css' : [
+        "static/src/css/base.css",
+    ],
     'installable': True,
     'auto_install': False,
 }

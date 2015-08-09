@@ -31,7 +31,8 @@
     'depends': ['z_base','purchase','z_invoice',],
     'data': [
          "security/ir.model.access.csv",
-         "purchase_view.xml",         
+         "purchase_view.xml",
+         "invoice_view.xml",
          'menu.xml',
     ],
     'demo': [],

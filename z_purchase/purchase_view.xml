@@ -19,6 +19,32 @@
                 <xpath expr="//tree[@string='Purchase Order Lines']" position="attributes">
                     <attribute name="editable"/>
                 </xpath>
+
+                <xpath expr="//group[@class='oe_subtotal_footer oe_right']" position="replace">
+                    <group class="oe_right" col="8" colspan="4" name="sale_total">
+                        <group>
+                            <label string="." style="color: white;"/>
+                        </group>
+                        <group col="2" colspan="4">
+                            <label string="." style="color: white;"/>
+                            <newline />
+                            <field name="tax_id" widget="many2many_tags"
+                            domain="[('parent_id','=',False),('type_tax_use','=','purchase'), ('company_id', '=', company_id)]"/>
+                        </group>
+                        <group class="oe_subtotal_footer oe_right" colspan="2" >
+                            <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="shipping_charge" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <div class="oe_subtotal_footer_separator oe_inline">
+                                <label for="amount_total"/>
+                                <button name="button_dummy"
+                                    states="draft" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                            </div>
+                            <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </group>
+                <new_line />
+            </xpath>
             </field>
         </record>
 

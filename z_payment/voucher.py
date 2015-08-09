@@ -135,11 +135,12 @@ class account_voucher(osv.osv):
 
     def onchange_journal(self, cr, uid, ids, journal_id, line_ids, tax_id, partner_id, date, amount, ttype, company_id, context=None):
         res = super(account_voucher, self).onchange_journal(cr, uid, ids, journal_id, line_ids, tax_id, partner_id, date, amount, ttype, company_id, context)
+        if not res:
+            res = {'value': {}}
         if partner_id:
             partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
             if partner.company_id:
                 res['value'].update({'company_id': partner.company_id.id})
-        print '========',res
         return res
 
     #Thanh: Add bank_fee_deducted and discount_allowed to onchange for total_to_apply

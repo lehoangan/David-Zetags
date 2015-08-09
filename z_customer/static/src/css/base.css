@@ -1,0 +1,9 @@
+@charset "UTF-8";
+.openerp .oe_topbar .oe_topbar_name {
+  max-width: 250px;
+  overflow: hidden;
+  display: inline-block;
+  max-height: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -96,12 +96,15 @@ class Parser(report_sxw.rml_parse):
         address += partner.zip and partner.zip.name or ''
         return address
     
-    def get_taxes(self, taxes):
+    def get_taxes(self, lst_taxes):
         taxes = ''
-        for tax in taxes:
-            taxes += tax.name + '%, '
-        if len(taxes):
-            taxes = taxes[:-2]
+        for tax in lst_taxes:
+            if not taxes:
+                taxes = tax.description
+            else:
+                taxes = '%, %'%(taxes, tax.description)
+        # if len(taxes):
+        #     taxes = taxes[:-2]
         return taxes
 
 

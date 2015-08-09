@@ -175,6 +175,12 @@ class product_product(osv.osv):
     
 product_product()
 
+class product_pricelist(osv.osv):
+    _inherit = "product.pricelist"
+    _columns = {
+        'rate': fields.float('Rate', digits=(12,6)),
+    }
+
 class mrp_bom(osv.osv):
     _inherit = 'mrp.bom'
     

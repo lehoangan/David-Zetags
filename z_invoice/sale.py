@@ -108,6 +108,10 @@ class sale_order(osv.osv):
         return result.keys()
     
     _columns = {
+        'country_id1':fields.related('partner_id', 'country_id', string='Country', type='many2one', relation='res.country'),
+        'image': fields.related('country_id1', 'flag', string='Image', type='boolean'),
+        'country_id2':fields.related('company_id', 'country_id', string='Country', type='many2one', relation='res.country'),
+        'image_control': fields.related('country_id2', 'flag', string='Flag', type='boolean'),
         'color': fields.integer('Color Index'),
         'order_status': fields.selection([
             ('NEW', 'NEW'),
@@ -159,14 +163,14 @@ class sale_order(osv.osv):
             multi='sums', help="The amount without tax.", track_visibility='always'),
         'amount_tax': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Taxes',
             store={
-                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line', 'tax_id'], 10),
+                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line','shipping_charge','tax_id'], 10),
                 'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
             },
             multi='sums', help="The tax amount."),
                 
         'amount_total': fields.function(_amount_all, digits_compute=dp.get_precision('Account'), string='Total',
             store={
-                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line','shipping_charge'], 10),
+                'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['order_line','shipping_charge','tax_id'], 10),
                 'sale.order.line': (_get_order, ['price_unit', 'tax_id', 'discount', 'product_uom_qty'], 10),
             },
             multi='sums', help="The total amount."),
@@ -523,6 +527,12 @@ class sale_order_line(osv.osv):
         result = super(sale_order_line,self).product_id_change(cr, uid, ids, pricelist, product, qty=qty,
             uom=uom, qty_uos=qty_uos, uos=uos, name=name, partner_id=partner_id,
             lang=lang, update_tax=update_tax, date_order=date_order, packaging=packaging, fiscal_position=fiscal_position, flag=flag, context=context)
+
+        #compute price base on rate of pricelist
+        if pricelist and result['value']['price_unit']:
+            rate = self.pool.get('product.pricelist').browse(cr, uid, pricelist, context).rate
+            if rate:
+                result['value']['price_unit'] = result['value']['price_unit'] * rate
 
         partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
         tax_obj = self.pool.get('account.tax')

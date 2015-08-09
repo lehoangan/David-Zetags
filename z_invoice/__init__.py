@@ -23,4 +23,5 @@ import invoice
 import stock
 import report
 import voucher
+import procurement
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

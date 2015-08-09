@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		
+		<record id="view_invoice_supplier_form_modify" model="ir.ui.view">
+			<field name="name">view.supplier.invoice.form.modify</field>
+			<field name="model">account.invoice</field>
+			<field name="inherit_id" ref="account.invoice_supplier_form"/>
+			<field name="arch" type="xml">
+                <xpath expr="//field[@name='check_total']" position="after">
+                    <field name="include_tax" on_change="onchange_include_tax(include_tax, invoice_line, context)"/>
+				</xpath>
+
+                <xpath expr="//field[@name='price_subtotal']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+				</xpath>
+
+                <xpath expr="//field[@name='price_subtotal']" position="before">
+                    <field name="price_subtotaltax"/>
+				</xpath>
+
+				<xpath expr="//div[@style='width: 50%%']" position="replace">
+				</xpath>
+
+				<xpath expr="//group[@class='oe_subtotal_footer oe_right']" position="replace">
+					<table style="width: 100%%;">
+						<td style="width: 44%%;">
+							<field name="tax_line">
+								<tree editable="bottom" string="Taxes">
+									<field name="name"/>
+									<field name="account_id" groups="account.group_account_invoice"/>
+									<field name="account_analytic_id" domain="[('type','&lt;&gt;','view'), ('company_id', '=', parent.company_id)]" groups="analytic.group_analytic_accounting"/>
+									<field name="base" on_change="base_change(base,parent.currency_id,parent.company_id,parent.date_invoice)" readonly="1"/>
+									<field name="amount" on_change="amount_change(amount,parent.currency_id,parent.company_id,parent.date_invoice)"/>
+
+									<field invisible="True" name="base_amount"/>
+									<field invisible="True" name="tax_amount"/>
+									<field name="factor_base" invisible="True"/>
+									<field name="factor_tax" invisible="True"/>
+								</tree>
+							</field>
+							<group>
+								<field name="product_tariff_code_id" class="oe_inline"/>
+								<field name="tracking_number" class="oe_inline"/>
+								<field name="weight"/>
+								<field name="packages" class="oe_inline"/>
+							</group>
+						</td>
+						<td style="width: 1%%;">
+
+						</td>
+						<td style="width: 55%%;">
+							<group class="oe_subtotal_footer oe_right">
+								<field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+								<field name="shipping_charge" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+								<div>
+									<label for="amount_tax"/>
+									<button name="button_reset_taxes" states="draft,proforma2" string="(update)" class="oe_link oe_edit_only" type="object" help="Recompute taxes and total"/>
+								</div>
+								<field name="amount_tax" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+								<field name="amount_total" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+								<field name="residual" groups="account.group_account_user" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+								<field name="reconciled" invisible="1"/>
+							</group>
+							<div style="width: 40%%; float: left;">
+								<label for="tax_id" />
+								<field name="tax_id" widget="many2many_tags"
+								domain="[('parent_id','=',False),('type_tax_use','&lt;&gt;','purchase')]"/>
+							</div>
+						</td>
+					</table>
+				</xpath>
+
+			</field>
+		</record>
+	        
+    </data>
+</openerp>
+
+

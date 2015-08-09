@@ -191,6 +191,7 @@ class account_invoice(osv.osv):
         'tracking_number': fields.char('Tracking Number', size=50),
         'weight': fields.float('Weight', digits=(16,2)),
         'packages': fields.char('Packages #', size=20),
+        'include_tax': fields.boolean('Include Tax'),
         
         'prepayment_lines': fields.one2many('account.invoice.prepayment', 'invoice_id', readonly=True, states={'draft': [('readonly', False)]}),
     }
@@ -199,35 +200,62 @@ class account_invoice(osv.osv):
         ('number_uniq', 'Check(1=1)', 'Invoice Number must be unique per Company!'),
     ]
 
-    # def check_tax_lines(self, cr, uid, inv, compute_taxes, ait_obj):
-    #     company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id
-    #     if not inv.tax_line:
-    #         for tax in compute_taxes.values():
-    #             ait_obj.create(cr, uid, tax)
-    #     else:
-    #         shipping_tax = [(tax.tax_code_id.id, tax.base_code_id.id, tax.account_collected_id.id) for tax in inv.tax_id]
-    #
-    #         tax_key = []
-    #         for tax in inv.tax_line:
-    #             if tax.manual:
-    #                 continue
-    #             key = (tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id, tax.account_analytic_id and tax.account_analytic_id.id or False)
-    #             tax_key.append(key)
-    #             if not key in compute_taxes:
-    #                 if key in shipping_tax:
-    #                     continue
-    #                 else:
-    #                     raise osv.except_osv(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
-    #
-    #             base = compute_taxes[key]['base']
-    #             precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
-    #             if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
-    #                 raise osv.except_osv(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
-    #         for key in compute_taxes:
-    #             import logging
-    #             logging.info('========%s============> %s .........'%(tax_key, key))
-    #             if not key in tax_key:
-    #                 raise osv.except_osv(_('Warning!'), _('Taxes are missing!\nClick on compute button.'))
+    def onchange_include_tax(self, cr, uid, ids, include_tax, invoice_line, context):
+        if not include_tax or not invoice_line:
+            return {'value': {}}
+        ait_obj = self.pool.get('account.tax')
+        ail_obi = self.pool.get('account.invoice.line')
+
+        for line in invoice_line:
+            if line[0] != 0:
+                ivl = ail_obi.browse(cr, uid, line[1], context)
+                new_tax_ids = []
+                old_tax_ids = []
+                for tax in ivl.invoice_line_tax_id:
+                    if not tax.price_include and tax.amount:
+                        tax_ids = ait_obj.search(cr, uid, [('type_tax_use', 'in', (tax.type_tax_use, 'all')),
+                                                 ('type', '=', tax.type),
+                                                ('price_include', '=', True),
+                                                 ('amount', '=', tax.amount),
+                                                 ('company_id', '=', tax.company_id and tax.company_id.id or False)])
+                        if not tax_ids:
+                            raise openerp.exceptions.Warning(_('You must define tax include %s first.'%(tax.amount*100)))
+                        new_tax_ids.append(tax_ids[0])
+                        old_tax_ids.append(tax.id)
+                if new_tax_ids:
+                    amount_tax = ivl.price_unit
+                    for tax in self.pool.get('account.tax').compute_all(cr, uid, ait_obj.browse(cr, uid, old_tax_ids), \
+                                                                        ivl.price_unit, 1, False, ivl.invoice_id.partner_id)['taxes']:
+                        amount_tax += tax['amount']
+                    ivl.write({'invoice_line_tax_id': [(6, 0, new_tax_ids)], 'price_unit': amount_tax})
+            else:
+                origin_tax_ids = line[2].get('invoice_line_tax_id', [])
+                new_tax_ids = []
+                old_tax_ids = []
+                if origin_tax_ids:
+                    for taxs in origin_tax_ids:
+                        for tax_id in taxs[2]:
+                            tax = ait_obj.browse(cr, uid, tax_id)
+                            if not tax.price_include and tax.amount:
+                                tax_ids = ait_obj.search(cr, uid, [('type_tax_use', 'in', (tax.type_tax_use, 'all')),
+                                                         ('type', '=', tax.type),
+                                                         ('price_include', '=', True),
+                                                         ('amount', '=', tax.amount),
+                                                         ('company_id', '=', tax.company_id and tax.company_id.id or False)])
+                                if not tax_ids:
+                                    raise openerp.exceptions.Warning(_('You must define tax include %s first.'%(tax.amount*100)))
+                                new_tax_ids.append(tax_ids[0])
+                                old_tax_ids.append(tax_id)
+                    if new_tax_ids:
+                        line[2]['invoice_line_tax_id'] = [[6, False, new_tax_ids]]
+
+                    amount_tax = line[2].get('price_unit', 0)
+                    for tax in self.pool.get('account.tax').compute_all(cr, uid, ait_obj.browse(cr, uid, old_tax_ids), \
+                                                                        line[2].get('price_unit', 0), 1, False, False)['taxes']:
+                        amount_tax += tax['amount']
+                    line[2]['price_unit'] = amount_tax
+
+        return {'value': {'invoice_line': invoice_line}}
 
     def button_reset_taxes(self, cr, uid, ids, context=None):
         if context is None:
@@ -736,28 +764,56 @@ class account_invoice_line(osv.osv):
         res = self.pool.get('product.product').browse(cr, uid, product, context=context)
 
         result['value']['name'] = res.description or res.name
+
+        if partner_id:
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context)
+            if partner.property_expense_account:
+                result['value']['account_id'] = partner.property_expense_account.id
+
         if res.packaging_id:
             result['value']['name'] += '\n'+res.packaging_id.name
-        if partner_id and type == 'out_invoice':
+        if partner_id:
             tax_ids = self.pool.get('res.partner').browse(cr, uid, partner_id, context).tax_ids
+            accoutn_type = ('purchase', 'all')
+            if type == 'out_invoice':
+                accoutn_type = ('sale', 'all')
             if tax_ids:
-                result['value']['invoice_line_tax_id'] = [tax.id for tax in tax_ids]
+                result['value']['invoice_line_tax_id'] = [tax.id for tax in tax_ids if tax.type_tax_use in accoutn_type]
 
         return result
+
+    def _amount_line_tax(self, cr, uid, ids, prop, unknow_none, unknow_dict):
+        res = {}
+        tax_obj = self.pool.get('account.tax')
+        cur_obj = self.pool.get('res.currency')
+        for line in self.browse(cr, uid, ids):
+            price = line.price_unit * (1-(line.discount or 0.0)/100.0)
+            taxes = tax_obj.compute_all(cr, uid, line.invoice_line_tax_id, price, line.quantity, product=line.product_id, partner=line.invoice_id.partner_id)
+            res[line.id] = taxes['total']
+            if line.invoice_id.include_tax:
+                res[line.id] = taxes['total_included']
+            if line.invoice_id:
+                cur = line.invoice_id.currency_id
+                res[line.id] = cur_obj.round(cr, uid, cur, res[line.id])
+        return res
     
     _columns = {
         'uos_id': fields.many2one('product.uom', 'Unit', ondelete='set null', select=True),
         'price_unit': fields.float('Price', required=True, digits_compute= dp.get_precision('Product Price')),
         'quantity': fields.float('QTY', digits_compute= dp.get_precision('Product Unit of Measure'), required=True),
         'discount': fields.float('Disc%', digits_compute= dp.get_precision('Discount')),
+        'price_subtotaltax': fields.function(_amount_line_tax, string='Amount', type="float",
+            digits_compute= dp.get_precision('Account'), store=True),
         'invoice_line_tax_id': fields.many2many('account.tax', 'account_invoice_line_tax', 'invoice_line_id', 'tax_id', 'Tax', domain=[('parent_id','=',False)]),
     }
     
     def default_get(self, cr, uid, fields, context=None):
         result = super(account_invoice_line, self).default_get(cr, uid, fields, context=context)
-        if context.get('invoice_partner_id',False):
-            partner = self.pool.get('res.partner').browse(cr, uid, context['invoice_partner_id'])
-            result.update({'discount':partner.fixed_discount})
+        if context.get('partner_id',False):
+            partner = self.pool.get('res.partner').browse(cr, uid, context['partner_id'])
+            result.update({'discount': partner.fixed_discount})
+            if partner.property_expense_account:
+                result.update({'account_id': partner.property_expense_account.id})
         return result
     
 account_invoice_line
@@ -826,6 +882,8 @@ class account_invoice_tax(osv.osv):
                 if not key in tax_grouped.keys():
                     if key2 in tax_grouped.keys():
                         key = key2
+                if not key in tax_grouped.keys() and not key2 in tax_grouped.keys() and tax_grouped.keys() and len(tax_grouped.keys()[0]) == 3:
+                    key = key2
 
                 if not key in tax_grouped.keys():
                     tax_grouped[key] = val

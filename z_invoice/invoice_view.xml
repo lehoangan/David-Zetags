@@ -92,24 +92,6 @@
 				</xpath>
 			</field>
 		</record>
-
-		<record id="view_invoice_supplier_form_modify" model="ir.ui.view">
-			<field name="name">view.supplier.invoice.form.modify</field>
-			<field name="model">account.invoice</field>
-			<field name="inherit_id" ref="account.invoice_supplier_form"/>
-			<field name="arch" type="xml">
-				 <xpath expr="//field[@name='tax_line']" position="after">
-                    <group>
-                        <field name="product_tariff_code_id" class="oe_inline"/>
-                        <field name="tracking_number" class="oe_inline"/>
-                        <field name="weight"/>
-                        <field name="packages" class="oe_inline"/>
-                    </group>
-                </xpath>
-
-			</field>
-		</record>
-	        
     </data>
 </openerp>
 

@@ -456,6 +456,8 @@
                     <field name="stage_id"/>
                     <field name="color"/>
                     <field name="state"/>
+                    <field name="image"/>
+                    <field name="image_control"/>
                     <field name="message_unread" invisible="1"/>
                     <field name="name" string="Pro Forma Invoice #"/>
                     <field name="date_order"/>
@@ -478,9 +480,11 @@
                                 <div class="oe_kanban_content">
                                     <div>
                                         <b><field name="name"/></b>
+                                        <img t-att-src="'data:image/png;base64,'+record.image_control.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: -3px;; margin-bottom: -4px;float: right;  height: 20px;  width: 20px;"/>
                                     </div>
                                     <div>
                                         <field name="partner_id"/>
+                                        <img t-att-src="'data:image/png;base64,'+record.image.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: 3px;float: right;  height: 20px;  width: 20px;"/>
                                     </div>
                                 </div>
                                 <div class="oe_clear"></div>

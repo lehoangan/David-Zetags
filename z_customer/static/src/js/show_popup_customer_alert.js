@@ -8,7 +8,7 @@ openerp.z_customer = function(instance){
             if (this.datarecord.alert) {
                 alert(_.str.sprintf(_t("%s"), _.str.trim(this.datarecord.alert)));
             } else {
-                if (this.datarecord.partner_id) {
+                if (this.datarecord.partner_id && this.datarecord.partner_id[0]) {
                     new instance.web.Model('res.partner').call('read', [this.datarecord.partner_id[0], ['alert']]).then(function (results) {
                                  if (results['alert']) {
                                      alert(_.str.sprintf(_t("%s"), _.str.trim(results['alert'])));
@@ -24,7 +24,7 @@ openerp.z_customer = function(instance){
             if (this.datarecord.alert) {
                 alert(_.str.sprintf(_t("%s"), _.str.trim(this.datarecord.alert)));
             } else {
-                if (this.datarecord.partner_id) {
+                if (this.datarecord.partner_id && this.datarecord.partner_id[0]) {
                     new instance.web.Model('res.partner').call('read', [this.datarecord.partner_id[0], ['alert']]).then(function (results) {
                                  if (results['alert']) {
                                      alert(_.str.sprintf(_t("%s"), _.str.trim(results['alert'])));
@@ -56,7 +56,7 @@ openerp.z_customer = function(instance){
             if (this.view.datarecord.alert) {
                 alert(_.str.sprintf(_t("%s"), _.str.trim(this.view.datarecord.alert)));
             } else {
-                if (this.view.datarecord.partner_id) {
+                if (this.view.datarecord.partner_id && this.view.datarecord.partner_id[0]) {
                     new instance.web.Model('res.partner').call('read', [this.view.datarecord.partner_id[0], ['alert']]).then(function (results) {
                                  if (results['alert']) {
                                      alert(_.str.sprintf(_t("%s"), _.str.trim(results['alert'])));

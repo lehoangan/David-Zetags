@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+
+        <record id="product_pricelist_view_inherit" model="ir.ui.view">
+            <field name="name">product.pricelist.form</field>
+            <field name="model">product.pricelist</field>
+            <field name="inherit_id" ref="product.product_pricelist_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="rate"/>
+                </xpath>
+            </field>
+        </record>
 		
 <!-- Packaging -->
 		<record id="view_packaging_tree" model="ir.ui.view">

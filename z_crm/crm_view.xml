@@ -38,6 +38,8 @@
                 <header>
                     <button name="%(crm.action_crm_lead2opportunity_partner)d" string="Convert to Opportunity" type="action"
                             states="draft,open,pending" help="Convert to Opportunity" class="oe_highlight"/>
+                    <button name="make_customer_from_lead" string="Make Customer - Remove Lead" type="object"
+                            states="draft"/>
                     <button name="case_reset" string="Reset" type="object"
                             states="cancel"/>
                     <button name="case_cancel" string="Cancel Case" type="object"

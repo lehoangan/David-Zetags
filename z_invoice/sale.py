@@ -293,6 +293,15 @@ class sale_order(osv.osv):
         }
         if pricelist:
             val['pricelist_id'] = pricelist
+
+        val.update({'tax_id': [tax.id for tax in part.tax_ids] or [],})
+        if part.country_id and part.country_id.company_id:
+            user_company = self.pool.get('res.users').browse(cr, uid, uid).company_id
+            if user_company != part.country_id.company_id:
+                return {'value': {'partner_id': False}, 'warning': {
+                                                                    'title': _("Access Error"),
+                                                                    'message': _("You must login to %s to invoice this customer."%part.country_id.company_id.name),
+                                                                    },}
         return {'value': val}
     
     def onchange_partner_contact_id(self, cr, uid, ids, partner_contact_id, context=None):

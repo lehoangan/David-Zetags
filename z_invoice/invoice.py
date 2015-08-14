@@ -803,7 +803,7 @@ class account_invoice_line(osv.osv):
         'quantity': fields.float('QTY', digits_compute= dp.get_precision('Product Unit of Measure'), required=True),
         'discount': fields.float('Disc%', digits_compute= dp.get_precision('Discount')),
         'price_subtotaltax': fields.function(_amount_line_tax, string='Amount', type="float",
-            digits_compute= dp.get_precision('Account'), store=True),
+            digits_compute= dp.get_precision('Account')),
         'invoice_line_tax_id': fields.many2many('account.tax', 'account_invoice_line_tax', 'invoice_line_id', 'tax_id', 'Tax', domain=[('parent_id','=',False)]),
     }
     

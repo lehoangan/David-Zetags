@@ -480,11 +480,11 @@
                                 <div class="oe_kanban_content">
                                     <div>
                                         <b><field name="name"/></b>
-                                        <img t-att-src="'data:image/png;base64,'+record.image_control.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: -3px;; margin-bottom: -4px;float: right;  height: 20px;  width: 20px;"/>
+                                        <img t-att-src="'data:image/png;base64,'+record.image_control.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: -3px;; margin-bottom: -4px;float: right;  height: 16px;  width: 22px;"/>
                                     </div>
                                     <div>
                                         <field name="partner_id"/>
-                                        <img t-att-src="'data:image/png;base64,'+record.image.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: 3px;float: right;  height: 20px;  width: 20px;"/>
+                                        <img t-att-src="'data:image/png;base64,'+record.image.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: 3px;float: right;  height: 16px;  width: 22px;"/>
                                     </div>
                                 </div>
                                 <div class="oe_clear"></div>

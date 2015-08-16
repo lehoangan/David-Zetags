@@ -765,15 +765,14 @@ class account_invoice_line(osv.osv):
 
         result['value']['name'] = res.description or res.name
 
-        if partner_id:
-            partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context)
-            if partner.property_expense_account:
-                result['value']['account_id'] = partner.property_expense_account.id
-
         if res.packaging_id:
             result['value']['name'] += '\n'+res.packaging_id.name
         if partner_id:
-            tax_ids = self.pool.get('res.partner').browse(cr, uid, partner_id, context).tax_ids
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context)
+            if partner.property_expense_account and type == 'in_invoice':
+                result['value']['account_id'] = partner.property_expense_account.id
+
+            tax_ids = partner.tax_ids
             accoutn_type = ('purchase', 'all')
             if type == 'out_invoice':
                 accoutn_type = ('sale', 'all')

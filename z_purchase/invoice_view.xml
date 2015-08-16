@@ -11,6 +11,10 @@
                     <field name="include_tax" on_change="onchange_include_tax(include_tax, invoice_line, context)"/>
 				</xpath>
 
+                <xpath expr="//tree[@string='Invoice lines']" position="attributes">
+                    <attribute name="editable"/>
+                </xpath>
+
                 <xpath expr="//field[@name='price_subtotal']" position="attributes">
                     <attribute name="invisible">True</attribute>
 				</xpath>

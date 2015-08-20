@@ -31,7 +31,7 @@
     2) Add new menu Contacts below menu Customers:
         - Filter Contacts only
        """,
-    'author': 'Le Truong Thanh <thanh.lt1689@gmail.com>',
+    'author': 'Le Hoang An <lehoangan1988@gmail.com>',
     'images': [],
     'depends': ['z_base','account','base_vat','product','sale','z_localization','z_shipping_cost'],
     'data': [

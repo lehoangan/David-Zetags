@@ -297,7 +297,7 @@ class sale_order(osv.osv):
         val.update({'tax_id': [tax.id for tax in part.tax_ids] or [],})
         if part.country_id and part.country_id.company_id:
             user_company = self.pool.get('res.users').browse(cr, uid, uid).company_id
-            if user_company != part.country_id.company_id:
+            if user_company != part.company_id:
                 return {'value': {'partner_id': False}, 'warning': {
                                                                     'title': _("Access Error"),
                                                                     'message': _("You must login to %s to invoice this customer."%part.country_id.company_id.name),

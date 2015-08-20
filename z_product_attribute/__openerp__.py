@@ -34,7 +34,7 @@
          + Lookup new Attributes Group
          + Then for Attributes value lookup newly created Attributes value: Atribute = Colour Value = green, red, yellow"   
     """,
-    'author': 'Le Truong Thanh <thanh.lt1689@gmail.com>',
+    'author': 'Le Hoang An <lehoangan1988@gmail.com>',
     'images': [],
     'depends': ['z_base','z_product','product_manufacturer'],
     'data': [

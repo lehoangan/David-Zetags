@@ -26,7 +26,7 @@
     'category': 'Zetags',
     'description': """
     """,
-    'author': 'Le Truong Thanh <thanh.lt1689@gmail.com>',
+    'author': 'Le Hoang An <lehoangan1988@gmail.com>',
     'images': [],
     'depends': ['z_base',
                 'z_crm'],

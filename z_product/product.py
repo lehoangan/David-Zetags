@@ -50,7 +50,7 @@ packaging()
 class product_template(osv.osv):
     _inherit = "product.template"
     _columns = {
-        'description': fields.char('Description', size=50, translate=True),
+        'description': fields.char('Description', size=60, translate=True),
     }
     
 product_template()

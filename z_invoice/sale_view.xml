@@ -117,7 +117,7 @@
 	                </h1>
 	                <group>
 	                    <group>
-	                        <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" domain="[('customer','=',True)]" context="{'search_default_customer':1, 'show_address': 1}" options='{"always_reload": True}'/>
+	                        <field name="partner_id" on_change="onchange_partner_id(partner_id, context)" domain="[('customer','=',True)]" context="{'search_default_customer':1, 'show_address': 1}" options='{"always_reload": True, "limit": 20}'/>
 	                        <field name="client_order_ref"/>
 	                        <field name="partner_invoice_id" groups="sale.group_delivery_invoice_address" context="{'parent_company_id': partner_id, 'show_street_city': 1, 'default_type':'invoice', 'show_address': 1}" options="{'always_reload': True}"/>
 	                        <field name="partner_shipping_id" groups="sale.group_delivery_invoice_address" context="{'parent_company_id': partner_id, 'show_street_city': 1, 'default_type':'delivery', 'show_address': 1}" options="{'always_reload': True}"/>

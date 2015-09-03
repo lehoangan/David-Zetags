@@ -37,6 +37,9 @@
     'demo': [],
     'test': [
     ],
+    'js': [
+        'static/src/js/form.js',
+    ],
     'installable': True,
     'auto_install': False,
 }

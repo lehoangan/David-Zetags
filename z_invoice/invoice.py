@@ -56,6 +56,24 @@ class account_invoice(osv.osv):
             'nodestroy' : True
         }
     
+    def _get_payment_ref(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        voucher_line_obj = self.pool.get('account.voucher.line')
+        for invoice in self.browse(cr, uid, ids, context=context):
+            res[invoice.id] = ''
+            if invoice.move_id:
+                voucher_line_ids = voucher_line_obj.search(cr, uid, [('move_line_id.move_id', '=', invoice.move_id.id),
+                                                                     ('amount', '>', 0)])
+                if voucher_line_ids:
+                    ref = ''
+                    for line in voucher_line_obj.browse(cr, uid, voucher_line_ids):
+                        if not ref:
+                            ref = line.voucher_id.number
+                        else:
+                            ref = '%s - %s'%(ref, line.voucher_id.number)
+                    res[invoice.id] = ref
+        return res
+    
     def _amount_all(self, cr, uid, ids, name, args, context=None):
         res = {}
         for invoice in self.browse(cr, uid, ids, context=context):
@@ -194,12 +212,32 @@ class account_invoice(osv.osv):
         'include_tax': fields.boolean('Include Tax'),
         
         'prepayment_lines': fields.one2many('account.invoice.prepayment', 'invoice_id', readonly=True, states={'draft': [('readonly', False)]}),
+        'reference': fields.function(_get_payment_ref, string='Payment Ref', type='char'),
     }
     
     _sql_constraints = [
         ('number_uniq', 'Check(1=1)', 'Invoice Number must be unique per Company!'),
     ]
-
+    
+    def openen_payment_ref(self, cr, uid, ids, context=None):
+        voucher_line_obj = self.pool.get('account.voucher.line')
+        mod_obj = self.pool.get('ir.model.data')
+        for invoice in self.browse(cr, uid, ids, context):
+            voucher_ids = []
+            if invoice.move_id:
+                voucher_line_ids = voucher_line_obj.search(cr, uid, [('move_line_id.move_id', '=', invoice.move_id.id),
+                                                                     ('amount', '>', 0)])
+                if voucher_line_ids:
+                    for line in voucher_line_obj.browse(cr, uid, voucher_line_ids):
+                        voucher_ids += [line.voucher_id.id]
+        action_model, action_id = mod_obj.get_object_reference(cr, uid, 'account_voucher', "action_vendor_payment")
+        if action_model:
+            action_pool = self.pool.get(action_model)
+            action = action_pool.read(cr, uid, action_id, context=context)
+            action['domain'] = "[('id','in', [" + ','.join(map(str, voucher_ids)) + "])]"
+            return action
+        return
+    
     def onchange_include_tax(self, cr, uid, ids, include_tax, invoice_line, context):
         if not include_tax or not invoice_line:
             return {'value': {}}
@@ -601,7 +639,10 @@ class account_invoice(osv.osv):
             
             new_move_name = move_obj.browse(cr, uid, move_id, context=ctx).name
             # make the invoice point to that move
-            self.write(cr, uid, [inv.id], {'move_id': move_id,'period_id':period_id, 'move_name':new_move_name, 'supplier_invoice_number':inv.number}, context=ctx)
+            if not inv.supplier_invoice_number:
+                self.write(cr, uid, [inv.id], {'move_id': move_id,'period_id':period_id, 'move_name':new_move_name, 'supplier_invoice_number':inv.number}, context=ctx)
+            else:
+                self.write(cr, uid, [inv.id], {'move_id': move_id,'period_id':period_id, 'move_name':new_move_name}, context=ctx)
             # Pass invoice in context in method post: used if you want to get the same
             # account move reference when creating the same invoice after a cancelled one:
             move_obj.post(cr, uid, [move_id], context=ctx)
@@ -759,14 +800,6 @@ class account_invoice_line(osv.osv):
             context = {}
         result = super(account_invoice_line,self).product_id_change(cr, uid, ids, product, uom_id, qty=qty, name=name, type=type, partner_id=partner_id, fposition_id=fposition_id, price_unit=price_unit, currency_id=currency_id, context=context, company_id=company_id)
         
-        if not product:
-            return result
-        res = self.pool.get('product.product').browse(cr, uid, product, context=context)
-
-        result['value']['name'] = res.description or res.name
-
-        if res.packaging_id:
-            result['value']['name'] += '\n'+res.packaging_id.name
         if partner_id:
             partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context)
             if partner.property_expense_account and type == 'in_invoice':
@@ -778,7 +811,15 @@ class account_invoice_line(osv.osv):
                 accoutn_type = ('sale', 'all')
             if tax_ids:
                 result['value']['invoice_line_tax_id'] = [tax.id for tax in tax_ids if tax.type_tax_use in accoutn_type]
+        
+        if not product:
+            return result
+        res = self.pool.get('product.product').browse(cr, uid, product, context=context)
 
+        result['value']['name'] = res.description or res.name
+
+        if res.packaging_id:
+            result['value']['name'] += '\n'+res.packaging_id.name
         return result
 
     def _amount_line_tax(self, cr, uid, ids, prop, unknow_none, unknow_dict):
@@ -813,6 +854,13 @@ class account_invoice_line(osv.osv):
             result.update({'discount': partner.fixed_discount})
             if partner.property_expense_account:
                 result.update({'account_id': partner.property_expense_account.id})
+            
+            tax_ids = partner.tax_ids
+            accoutn_type = ('purchase', 'all')
+            if context.get('type', '') == 'out_invoice':
+                accoutn_type = ('sale', 'all')
+            if tax_ids:
+                result.update({'invoice_line_tax_id': [tax.id for tax in tax_ids if tax.type_tax_use in accoutn_type]})
         return result
     
 account_invoice_line

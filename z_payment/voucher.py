@@ -169,7 +169,7 @@ class account_voucher(osv.osv):
         try:
             total_to_apply = amount + bank_fee_deducted + discount_allowed
         except Exception, ex:
-            total_to_apply = 0.0
+            total_to_apply = amount
             
         res = super(account_voucher, self).onchange_amount(cr, uid, ids, total_to_apply, rate, partner_id, journal_id, currency_id, ttype, date, payment_rate_currency_id, company_id, context=context)
         res['value']['total_to_apply'] = total_to_apply

@@ -128,6 +128,17 @@
             </field>
         </record>
         
+        <record model="ir.ui.view" id="view_vendor_payment_form_inherit">
+            <field name="name">account.voucher.payment.form</field>
+            <field name="inherit_id" ref="account_voucher.view_vendor_payment_form"/>
+            <field name="model">account.voucher</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount']" position="attributes">
+            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, context)</attribute>
+                </xpath>
+            </field>
+        </record>
+        
     </data>
 </openerp>
 

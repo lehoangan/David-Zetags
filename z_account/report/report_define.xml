@@ -9,5 +9,13 @@
             name="account_financial_report_zetag"
             rml="z_account/report/account_financial_report_zetag.rml"
             string="Finacial Report"/>
+        
+         <report auto="False" 
+		         id="account_account_balance_zetag" 
+		         menu="False" 
+		         model="account.account" 
+		         name="account.account.balance.zetag" 
+		         rml="z_account/report/account_balance_zetag.rml" 
+		         string="Trial Balance"/>
     </data>
 </openerp>

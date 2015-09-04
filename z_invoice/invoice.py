@@ -44,6 +44,7 @@ class account_invoice(osv.osv):
         '''
         assert len(ids) == 1, 'This option should only be used for a single id at a time.'
         self.write(cr, uid, ids, {'sent': True}, context=context)
+        data = self.browse(cr, uid, ids[0])
         datas = {
              'ids': ids,
              'model': 'account.invoice',
@@ -53,7 +54,8 @@ class account_invoice(osv.osv):
             'type': 'ir.actions.report.xml',
             'report_name': 'account.invoice.zetags',
             'datas': datas,
-            'nodestroy' : True
+            'nodestroy' : True,
+            'name': '%s/%s/%s'%(data.number, data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')
         }
     
     def _get_payment_ref(self, cr, uid, ids, name, args, context=None):

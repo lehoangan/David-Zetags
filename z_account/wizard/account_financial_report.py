@@ -38,4 +38,18 @@ class accounting_report(osv.osv_memory):
 
 accounting_report()
 
+class account_balance_report(osv.osv_memory):
+    _inherit = 'account.balance.report'
+
+    _columns = {
+        'currency': fields.boolean('Secondary Currency'),
+    }
+
+    def _print_report(self, cr, uid, ids, data, context=None):
+        data = self.pre_print_report(cr, uid, ids, data, context=context)
+        data['form'].update(self.read(cr, uid, ids, ['currency'], context=context)[0])
+        return {'type': 'ir.actions.report.xml', 'report_name': 'account.account.balance.zetag', 'datas': data}
+
+account_balance_report()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

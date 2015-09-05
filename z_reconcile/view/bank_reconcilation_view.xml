@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		<record id="View_bank_reconcilation_tree" model="ir.ui.view">
+            <field name="name">bank.reconcilation.tree</field>
+            <field name="model">bank.reconcilation</field>
+            <field name="arch" type="xml">
+                <tree colors="blue:state == 'draft';black:state == 'posted'" string="Bank Reconciliations">
+                    <field name="account_id"/>
+                    <field name="date"/>
+                    <field name="name"/>
+                    <field name="opening_balance"/>
+                    <field name="expected_balance"/>
+                    <field name="closing_balance"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="View_bank_reconcilation_form" model="ir.ui.view">
+            <field name="name">bank.reconcilation.form</field>
+            <field name="model">bank.reconcilation</field>
+            <field name="arch" type="xml">
+                <form string="Bank Reconciliations" version="7.0">
+                <header>
+                    <button name="button_reconcile" string="Reconcile" type="object" class="oe_highlight" groups="account.group_account_invoice"/>
+                   <!--  <button name="button_cancel" states="posted" string="Cancel Entry" type="object" groups="account.group_account_invoice"/>
+                    <field name="state" widget="statusbar"/> -->
+                </header>
+                <sheet string="Bank Reconciliations" >
+                    <label for="name" class="oe_edit_only"/>
+                    <h1>
+                        <field name="name"/>
+                    </h1>
+                    <group>
+                        <group>
+                            <field name="account_id" on_change="ocnhage_date_account(account_id, date)"/>
+		                    <field name="date" on_change="ocnhage_date_account(account_id, date)"/>
+                        </group>
+                        <group>
+                            <field name="opening_balance"/>
+		                    <field name="expected_balance"/>
+		                    <field name="closing_balance"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Journal Items">
+                            <field name="line_id" widget="one2many_list">
+                                <tree editable="top" string="Journal Items">
+                                    <field name="choose"/>
+                                    <field name="move_line_id"/>
+                                    <field name="date"/>
+                                    <field name="partner_id"/>
+                                    <field name="account_id"/>
+                                    <field name="debit"/>
+                                    <field name="credit"/>
+                                    <field name="currency_id"/>
+                                    <field name="tax_code_id"/>
+                                    <field name="state"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <record id="action_bank_reconcile" model="ir.actions.act_window">
+            <field name="name">Bank Reconciliations</field>
+            <field name="res_model">bank.reconcilation</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="View_bank_reconcilation_tree"/>
+        </record>
+        <menuitem
+            icon="STOCK_JUSTIFY_FILL"
+            action="action_bank_reconcile"
+            id="menu_action_bank_reconcile"
+            parent="account.menu_finance_bank_and_cash"
+            groups="account.group_account_user"
+            sequence="5"/>
+
+    </data>
+</openerp>
+
+

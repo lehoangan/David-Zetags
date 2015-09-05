@@ -21,4 +21,5 @@
 import ir_ui_menu
 import res_users
 import res_company
+import controllers
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

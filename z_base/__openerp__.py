@@ -29,7 +29,7 @@
      """,
     'author': 'An Le <lehoangan1988@gmail.com>',
     'images': [],
-    'depends': [],
+    'depends': ['web'],
     'data': [
         'res_users_view.xml',
         'res_company_view.xml',

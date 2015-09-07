@@ -45,6 +45,10 @@ class Parser(report_sxw.rml_parse):
             'get_taxes': self.get_taxes,
             'get_line_description': self.get_line_description,
         })
+
+    def set_context(self, objects, data, ids, report_type=None):
+        self.report_name = 'abc'
+        return super(Parser, self).set_context(objects, data, ids, report_type=report_type)
     
     def get_line_description(self, description):
         return description

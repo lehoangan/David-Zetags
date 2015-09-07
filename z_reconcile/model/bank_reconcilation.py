@@ -30,7 +30,7 @@ from openerp.tools import float_compare
 class bank_reconcilation(osv.osv):
     _name = "bank.reconcilation"
     _columns = {
-        'name': fields.char('Description', 100),
+        'name': fields.char('Description', 100, required=True),
         'account_id': fields.many2one('account.account', 'Account', domain=[('z_reconcile', '=', True)]),
         'date': fields.date('Date'),
         'opening_balance': fields.float('Opening Balance'),
@@ -43,7 +43,35 @@ class bank_reconcilation(osv.osv):
         if not account_id and not date:
             return {'value': {}}
         vals = {}
-        sql = ''
+        condition = ''
+        if account_id:
+            condition += ' ml.account_id = %s'%account_id
+            if date:
+                condition += '''AND ml.date <= '%s' '''%date
+        elif date:
+            condition += ''' ml.date <= '%s' '''%date
+        sql = '''SELECT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
+                        ml.credit, ml.currency_id, ml.tax_code_id, ml.state
+                  FROM account_move_line ml
+                  WHERE %s
+
+            '''%condition
+
+        cr.execute(sql)
+        datas = cr.dictfetchall()
+        res = []
+        for data in datas:
+            res.append({'move_line_id': data['id'],
+                        'date': data['date'],
+                        'partner_id': data['partner_id'] and data['partner_id'] or False,
+                        'account_id': data['account_id'] and data['account_id'] or False,
+                        'debit': data['debit'] or 0,
+                        'credit': data['credit'] or 0,
+                        'currency_id': data['currency_id'] and data['currency_id'] or False,
+                        'tax_code_id': data['tax_code_id'] and data['tax_code_id'] or False,
+                        'state': data['state'],
+                        })
+        vals.update({'line_id': res})
         return {'value': vals}
     
     def button_reconcile(self, cr, uid, ids, context=None):
@@ -55,7 +83,7 @@ bank_reconcilation()
 class bank_reconcilation_line(osv.osv):
     _name = "bank.reconcilation.line"
     _columns = {
-        'order_id': fields.many2one('bank.reconcilation', 'Parent'),
+        'order_id': fields.many2one('bank.reconcilation', 'Parent', ondelete='cascade'),
         'move_line_id': fields.many2one('account.move.line', 'Move Items', domain="[('account_id', '=', parent.account_id)]"),
         'date': fields.related('move_line_id', 'date',string='Date', type='date'),
         'partner_id': fields.related('move_line_id', 'partner_id',string='Partner', type='many2one', relation="res.partner"),

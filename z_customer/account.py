@@ -29,18 +29,18 @@ class account_account(osv.osv):
     _columns = {
     }
     
-    def search(self, cr, uid, args, offset=0, limit=None, order=None,
-            context=None, count=False):
-        if context is None:
-            context = {}
-        if context.get('filter_by_pricelist_currency',False):
-            pricelist = self.pool.get('product.pricelist').browse(cr, uid, context['filter_by_pricelist_currency'])
-            if pricelist.currency_id != self.pool.get('res.users').browse(cr, uid, uid, context).company_id.currency_id:
-                args.append(('currency_id','=', pricelist.currency_id.id))
-            else:
-                args.append(('currency_id','=', False))
-        return super(account_account, self).search(cr, uid, args, offset, limit,
-                order, context=context, count=count)
+    # def search(self, cr, uid, args, offset=0, limit=None, order=None,
+    #         context=None, count=False):
+    #     if context is None:
+    #         context = {}
+    #     if context.get('filter_by_pricelist_currency',False):
+    #         pricelist = self.pool.get('product.pricelist').browse(cr, uid, context['filter_by_pricelist_currency'])
+    #         if pricelist.currency_id != self.pool.get('res.users').browse(cr, uid, uid, context).company_id.currency_id:
+    #             args.append(('currency_id','=', pricelist.currency_id.id))
+    #         else:
+    #             args.append(('currency_id','=', False))
+    #     return super(account_account, self).search(cr, uid, args, offset, limit,
+    #             order, context=context, count=count)
         
 account_account()
 

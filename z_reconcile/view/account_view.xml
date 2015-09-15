@@ -19,7 +19,7 @@
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//tree/field[@name='state']" position="after">
-                    <field name="z_reconcile"/>
+                    <field name="z_reconciled"/>
                 </xpath>
                 
                 <xpath expr="//tree/field[@name='reconcile_id']" position="attributes">

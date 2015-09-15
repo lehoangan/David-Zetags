@@ -31,6 +31,7 @@ class account_move_line(osv.osv):
     _inherit = "account.move.line"
     _columns = {
         'z_reconcile': fields.related('account_id', 'z_reconcile',string='Z-Reconcile', type='boolean'),
+        'z_reconciled': fields.boolean('Bank Reconcile'),
     }
 
 

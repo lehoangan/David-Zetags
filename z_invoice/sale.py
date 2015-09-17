@@ -257,6 +257,8 @@ class sale_order(osv.osv):
     
     def _check_name(self, cr, uid, ids, context=None):
         for sale in self.browse(cr, uid, ids, context=context):
+            if sale.state in ('invoice_except', 'cancel'):
+                continue
             if sale.name:
                 exist_ids = self.search(cr, uid, [('id','!=',sale.id),('name','=',sale.name),('company_id','=',sale.shop_id.company_id.id)])
                 if len(exist_ids):

@@ -478,14 +478,28 @@
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
-                                    <div>
-                                        <b><field name="name"/></b>
-                                        <img t-att-src="'data:image/png;base64,'+record.image_control.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: -3px;; margin-bottom: -4px;float: right;  height: 16px;  width: 22px;"/>
-                                    </div>
-                                    <div>
-                                        <field name="partner_id"/>
-                                        <img t-att-src="'data:image/png;base64,'+record.image.raw_value" class="oe_avatar oe_kanban_avatar_smallbox" style="margin-top: 3px;float: right;  height: 16px;  width: 22px;"/>
-                                    </div>
+                                    <table>
+                                        <tr style="height: 16px;">
+                                            <td>
+                                                <b><field name="name"/></b>
+                                            </td>
+                                            <td>
+                                                <img t-att-src="'data:image/png;base64,'+record.image_control.raw_value"
+                                                 class="oe_avatar oe_kanban_avatar_smallbox"
+                                                 style="margin-top: -3px;; margin-bottom: -4px;float: right;  height: 16px;  width: 22px;"/>
+                                            </td>
+                                        </tr>
+                                        <tr style="height: 16px;">
+                                            <td>
+                                                <b><field name="partner_id"/></b>
+                                            </td>
+                                            <td>
+                                                <img t-att-src="'data:image/png;base64,'+record.image.raw_value"
+                                                     class="oe_avatar oe_kanban_avatar_smallbox"
+                                                     style="margin-top: 3px;float: right;  height: 16px;  width: 22px;"/>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </div>
                                 <div class="oe_clear"></div>
                             </div>

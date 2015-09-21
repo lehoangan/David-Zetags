@@ -131,24 +131,29 @@ class bank_reconcilation(osv.osv):
                          'opening_balance': old_obj.closing_balance})
 
         #get line detail
-        condition = ''
+        condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND'
         if account_id:
             condition += ' ml.account_id = %s'%account_id
             if date:
                 condition += '''AND ml.date <= '%s' '''%date
         elif date:
             condition += ''' ml.date <= '%s' '''%date
-        sql = '''SELECT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
-                        ml.credit, ml.currency_id, ml.tax_code_id, ml.state
-                 FROM account_move_line ml
-                 WHERE move_id in (
-                                        SELECT DISTINCT ml.move_id
-                                        FROM account_move_line ml
-                                        WHERE %s
-                                        )
-                        AND ml.account_id <> %s AND (ml.z_reconciled is NULL or ml.z_reconciled = FALSE)
-
-            '''%(condition, account_id)
+        # sql = '''SELECT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
+        #                 ml.credit, ml.currency_id, ml.tax_code_id, ml.state
+        #          FROM account_move_line ml
+        #          WHERE move_id in (
+        #                                 SELECT DISTINCT ml.move_id
+        #                                 FROM account_move_line ml
+        #                                 WHERE %s
+        #                                 )
+        #                 AND ml.account_id <> %s AND (ml.z_reconciled is NULL or ml.z_reconciled = FALSE)
+        #
+        #     '''%(condition, account_id)
+        sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
+                      ml.credit, ml.currency_id, ml.tax_code_id, ml.state
+                FROM account_move_line ml
+                WHERE %s
+            '''%(condition)
 
         cr.execute(sql)
         datas = cr.dictfetchall()

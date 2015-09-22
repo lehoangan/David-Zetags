@@ -30,13 +30,20 @@ from openerp.tools import float_compare
 class bank_reconcilation(osv.osv):
     _name = "bank.reconcilation"
 
+    def _default_last_date(self, cr, uid, context=None):
+        res = False
+        old_ids = self.search(cr, uid, [('state', '=', 'reconciled')], order="id desc", limit=1)
+        if old_ids:
+            res = self.browse(cr, uid, old_ids[0]).date
+
+        return res
+
     def _get_last_reconcile_date(self, cr, uid, ids, name, args, context=None):
         res = {}
         for obj in self.browse(cr, uid, ids, context):
             res[obj.id] = False
             old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
-                                  ('date', '<=', obj.date),
-                                  ('id', '!=', obj.id)], order="id desc", limit=1)
+                                            ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
                 res[obj.id] = self.browse(cr, uid, old_ids[0]).date
 
@@ -47,10 +54,9 @@ class bank_reconcilation(osv.osv):
         for obj in self.browse(cr, uid, ids, context):
             res[obj.id] = False
             old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
-                                  ('date', '<=', obj.date),
-                                  ('id', '!=', obj.id)], order="id desc", limit=1)
+                                            ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
-                res[obj.id] = self.browse(cr, uid, old_ids[0]).closing_balance
+                res[obj.id] = self.browse(cr, uid, old_ids[0]).calculated_balance
 
         return res
 
@@ -63,7 +69,13 @@ class bank_reconcilation(osv.osv):
     def _compute_calculated_balance(self, cr, uid, ids, name, args, context=None):
         res = {}
         for obj in self.browse(cr, uid, ids, context):
-            res[obj.id] = 0
+            opening_balance = 0
+            old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
+                                            ('id', '!=', obj.id)], order="id desc", limit=1)
+            if old_ids:
+                opening_balance = self.browse(cr, uid, old_ids[0]).calculated_balance
+
+            res[obj.id] = opening_balance
             for line in obj.line_id:
                 if line.choose:
                     res[obj.id] += line.debit - line.credit
@@ -95,14 +107,15 @@ class bank_reconcilation(osv.osv):
     }
     _defaults={
         'state': 'draft',
+        'last_reconcile_date': _default_last_date
     }
 
-    def onchange_line_id(self, cr, uid, ids, line_id, context=None):
+    def onchange_line_id(self, cr, uid, ids, line_id, opening_balance, context=None):
         if not line_id:
             return {'value': {}}
 
         result = {}
-        total = 0
+        total = opening_balance
         for line in line_id:
             if line[2] and line[2].get('choose', False):
                 if line[1]:
@@ -118,69 +131,56 @@ class bank_reconcilation(osv.osv):
         return {'value': result}
 
     def onchange_date_account(self, cr, uid, ids, account_id, date, context=None):
-        if not account_id and not date:
+        if not account_id:
             return {'value': {}}
         vals = {}
         #default last reconcile date + 'Opening Balance
         old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
-                                  ('date', '<=', date),
-                                  ('id', 'not in', ids)], order="id desc", limit=1)
+                                        ('id', 'not in', ids)], order="id desc", limit=1)
         if old_ids:
             old_obj = self.browse(cr, uid, old_ids[0])
             vals.update({'last_reconcile_date': old_obj.date,
-                         'opening_balance': old_obj.closing_balance})
+                         'opening_balance': old_obj.calculated_balance})
 
-        #get line detail
-        condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND'
-        if account_id:
-            condition += ' ml.account_id = %s'%account_id
-            if date:
-                condition += '''AND ml.date <= '%s' '''%date
-        elif date:
-            condition += ''' ml.date <= '%s' '''%date
-        # sql = '''SELECT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
-        #                 ml.credit, ml.currency_id, ml.tax_code_id, ml.state
-        #          FROM account_move_line ml
-        #          WHERE move_id in (
-        #                                 SELECT DISTINCT ml.move_id
-        #                                 FROM account_move_line ml
-        #                                 WHERE %s
-        #                                 )
-        #                 AND ml.account_id <> %s AND (ml.z_reconciled is NULL or ml.z_reconciled = FALSE)
-        #
-        #     '''%(condition, account_id)
-        sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
-                      ml.credit, ml.currency_id, ml.tax_code_id, ml.state
-                FROM account_move_line ml
-                WHERE %s
-            '''%(condition)
+        if date:
+            #get line detail
+            condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND'
+            if account_id:
+                condition += ' ml.account_id = %s'%account_id
+                if date:
+                    condition += '''AND ml.date <= '%s' '''%date
+            elif date:
+                condition += ''' ml.date <= '%s' '''%date
+            sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,
+                          ml.credit, ml.currency_id, ml.tax_code_id, ml.state
+                    FROM account_move_line ml
+                    WHERE %s
+                '''%(condition)
 
-        cr.execute(sql)
-        datas = cr.dictfetchall()
-        res = []
-        for data in datas:
-            res.append({'move_line_id': data['id'],
-                        'date': data['date'],
-                        'partner_id': data['partner_id'] and data['partner_id'] or False,
-                        'account_id': data['account_id'] and data['account_id'] or False,
-                        'debit': data['debit'] or 0,
-                        'credit': data['credit'] or 0,
-                        'currency_id': data['currency_id'] and data['currency_id'] or False,
-                        'tax_code_id': data['tax_code_id'] and data['tax_code_id'] or False,
-                        'state': data['state'],
-                        })
-        vals.update({'line_id': res})
+            cr.execute(sql)
+            datas = cr.dictfetchall()
+            res = []
+            for data in datas:
+                res.append({'move_line_id': data['id'],
+                            'date': data['date'],
+                            'partner_id': data['partner_id'] and data['partner_id'] or False,
+                            'account_id': data['account_id'] and data['account_id'] or False,
+                            'debit': data['debit'] or 0,
+                            'credit': data['credit'] or 0,
+                            'currency_id': data['currency_id'] and data['currency_id'] or False,
+                            'tax_code_id': data['tax_code_id'] and data['tax_code_id'] or False,
+                            'state': data['state'],
+                            })
+            vals.update({'line_id': res})
         return {'value': vals}
 
     def button_reconcile(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):
-            total = 0
             move_ids = []
             for line in obj.line_id:
                 if line.choose:
                     move_ids.append(line.move_line_id.id)
-                    total += (line.debit - line.credit)
-            if total != obj.statement_balance:
+            if obj.calculated_balance != obj.statement_balance:
                 raise osv.except_osv(_('Error!'), _('Your balance does not reconcile. Calculated and Statement Balances must reconcile'))
             if not move_ids:
                 raise osv.except_osv(_('Error!'), _('Please choose entry to reconciliation'))

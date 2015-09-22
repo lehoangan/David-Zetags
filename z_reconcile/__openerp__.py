@@ -34,6 +34,8 @@
         "security/ir.model.access.csv",
         "view/account_view.xml",
         "view/bank_reconcilation_view.xml",
+        "report/define_report.xml",
+        "wizard/bank_general_leger_view.xml",
     ],
     'demo': [],
     'test': [

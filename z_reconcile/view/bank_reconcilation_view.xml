@@ -43,12 +43,11 @@
                             <field name="opening_balance" readonly="1"/>
 		                    <field name="calculated_balance" readonly="1"/>
 		                    <field name="statement_balance"/>
-                            <field name="closing_balance"/>
                         </group>
                     </group>
                     <notebook>
                         <page string="Journal Items">
-                            <field name="line_id" widget="one2many_list" on_change="onchange_line_id(line_id, context)">
+                            <field name="line_id" widget="one2many_list" on_change="onchange_line_id(line_id, opening_balance, context)">
                                 <tree editable="top" string="Journal Items">
                                     <field name="choose"/>
                                     <field name="move_line_id"/>

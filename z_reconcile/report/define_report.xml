@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Customer Invoice -->
+			<record id="bank_generel_ledger_report" model="ir.actions.report.xml">
+		        <field name="name">bank.general.leger</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">bank.general.leger.wizard</field>
+		        <field name="report_name">bank.general.leger</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_reconcile/report/bank_general_ledger.py</field>
+		        <field name="report_rml">z_reconcile/report/bank_general_ledger.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+    </data>
+</openerp>

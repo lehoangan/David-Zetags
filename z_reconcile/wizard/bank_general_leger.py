@@ -26,7 +26,7 @@ class bank_general_leger_wizard(osv.osv_memory):
     _columns = {
         'date_start': fields.date('Date Start', required=True),
         'date_stop': fields.date('Date Stop', required=True),
-        'account_id': fields.many2one('account.account', 'Account', required=True, domain="[('company_id','=',company_id)]"),
+        'account_id': fields.many2one('account.account', 'Account', required=True, domain="[('company_id','=',company_id),('z_reconcile', '=', True)]"),
         'company_id': fields.many2one('res.company', 'Company', required=True),
     }
     _defaults = {

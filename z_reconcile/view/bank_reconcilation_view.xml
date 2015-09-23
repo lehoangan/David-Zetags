@@ -43,6 +43,7 @@
                             <field name="opening_balance" readonly="1"/>
 		                    <field name="calculated_balance" readonly="1"/>
 		                    <field name="statement_balance"/>
+                            <field name="company_id" invisible="True"/>
                         </group>
                     </group>
                     <notebook>

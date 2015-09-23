@@ -83,7 +83,7 @@ class bank_reconcilation(osv.osv):
 
     _columns = {
         'name': fields.char('Description', 100, required=True, readonly=True, states={'draft': [('readonly', False)]}),
-        'account_id': fields.many2one('account.account', 'Account', domain=[('z_reconcile', '=', True)], readonly=True, states={'draft': [('readonly', False)]}),
+        'account_id': fields.many2one('account.account', 'Account', domain="[('company_id','=',company_id),('z_reconcile', '=', True)]", readonly=True, states={'draft': [('readonly', False)]}),
         'date': fields.date('Date', readonly=True, states={'draft': [('readonly', False)]}),
         'last_reconcile_date': fields.function(_get_last_reconcile_date, type='date', string='Reconcile Date',
             store={
@@ -104,10 +104,12 @@ class bank_reconcilation(osv.osv):
             }),
         'line_id': fields.one2many('bank.reconcilation.line', 'order_id', 'Detail', readonly=True, states={'draft': [('readonly', False)]}),
         'state': fields.selection([('draft','Draft'), ('reconciled', 'Reconciled')], 'State', readonly=True),
+        'company_id': fields.many2one('res.company', 'Company', required=True),
     }
     _defaults={
         'state': 'draft',
-        'last_reconcile_date': _default_last_date
+        'last_reconcile_date': _default_last_date,
+        'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'account.account', context=c),
     }
 
     def onchange_line_id(self, cr, uid, ids, line_id, opening_balance, context=None):

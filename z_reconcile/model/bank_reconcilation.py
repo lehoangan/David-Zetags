@@ -84,8 +84,8 @@ class bank_reconcilation(osv.osv):
     _columns = {
         'name': fields.char('Description', 100, required=True, readonly=True, states={'draft': [('readonly', False)]}),
         'account_id': fields.many2one('account.account', 'Account', domain="[('company_id','=',company_id),('z_reconcile', '=', True)]", readonly=True, states={'draft': [('readonly', False)]}),
-        'date': fields.date('Date', readonly=True, states={'draft': [('readonly', False)]}),
-        'last_reconcile_date': fields.function(_get_last_reconcile_date, type='date', string='Reconcile Date',
+        'date': fields.date('Reconcile Date', readonly=True, states={'draft': [('readonly', False)]}),
+        'last_reconcile_date': fields.function(_get_last_reconcile_date, type='date', string='Last Reconciled',
             store={
                 'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids, ['date'], 20),
             }),
@@ -112,6 +112,13 @@ class bank_reconcilation(osv.osv):
         'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'account.account', context=c),
     }
 
+    def unlink(self, cr, uid, ids, context=None):
+        objects = self.read(cr, uid, ids, ['state'])
+        for t in objects:
+            if t['state'] != 'draft':
+                raise osv.except_osv(_('Invalid action !'), _('Cannot delete reconciled bank !'))
+        return super(bank_reconcilation, self).unlink(cr, uid, ids, context)
+
     def onchange_line_id(self, cr, uid, ids, line_id, opening_balance, context=None):
         if not line_id:
             return {'value': {}}
@@ -133,7 +140,7 @@ class bank_reconcilation(osv.osv):
         return {'value': result}
 
     def onchange_date_account(self, cr, uid, ids, account_id, date, context=None):
-        if not account_id:
+        if not account_id or not date:
             return {'value': {}}
         vals = {}
         #default last reconcile date + 'Opening Balance

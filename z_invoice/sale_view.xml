@@ -183,7 +183,8 @@
 	                                </div>
 	                            </form>
 	                            <tree string="Sales Order Lines" editable="bottom">
-	                                <field name="sequence" widget="handle"/>
+                                    <button name="action_show_popup_product_detail" string="Product Detail" type="object" icon="STOCK_REDO"/>
+	                                <field name="sequence" widget="handle" invisible="1"/>
 	                                <field name="state" invisible="1"/>
 	                                <field name="th_weight" invisible="1"/>
 	                                <field name="product_id"

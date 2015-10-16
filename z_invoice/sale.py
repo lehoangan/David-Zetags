@@ -195,7 +195,7 @@ class sale_order(osv.osv):
         'stage_id': _get_default_stage_id,
         'color': 0,
     }
-    
+
     def _read_group_order_status(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):
         access_rights_uid = access_rights_uid or uid
         stage_obj = self.pool.get('sale.order.stage')
@@ -516,6 +516,27 @@ sale_order()
 
 class sale_order_line(osv.osv):
     _inherit = "sale.order.line"
+
+    def action_show_popup_product_detail(self, cr, uid, ids, context=None):
+        ir_model_data = self.pool.get('ir.model.data')
+        form_id = False
+        try:
+            form_id = ir_model_data.get_object_reference(cr, uid, 'z_product_attribute', 'popup_detail_product_view')[1]
+        except ValueError:
+            form_id = False
+        ctx = dict(context)
+        product = self.browse(cr, uid, ids[0], context).product_id
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'product.product',
+            'views': [(form_id, 'form')],
+            'view_id': form_id,
+            'res_id': product and product.id or False,
+            'target': 'new',
+            'context': ctx,
+        }
 
     # def _prepare_order_line_invoice_line(self, cr, uid, line, account_id=False, context=None):
     #     res = super(sale_order_line, self)._prepare_order_line_invoice_line(cr, uid, line, account_id, context)

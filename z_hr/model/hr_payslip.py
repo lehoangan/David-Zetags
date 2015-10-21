@@ -26,11 +26,27 @@ from openerp.tools.translate import _
 from datetime import datetime
 import openerp.addons.decimal_precision as dp
 from openerp.tools import float_compare
+import netsvc
 
 class hr_payslip(osv.osv):
     _inherit = "hr.payslip"
     _columns = {
     }
+
+    def action_revert_done(self, cr, uid, ids, context=None):
+        if not len(ids):
+            return False
+        for slip in self.browse(cr, uid, ids, context):
+            self.write(cr, uid, [slip.id], {'state': 'cancel'})
+            if slip.move_id:
+                slip.move_id.button_cancel()
+                slip.move_id.unlink()
+            wf_service = netsvc.LocalService("workflow")
+            # Deleting the existing instance of workflow
+            wf_service.trg_delete(uid, 'hr.payslip', slip.id, cr)
+            wf_service.trg_create(uid, 'hr.payslip', slip.id, cr)
+            wf_service.trg_validate(uid, 'hr.payslip', slip.id, 'cancel_sheet', cr)
+        return True
 
     def hr_verify_sheet(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):

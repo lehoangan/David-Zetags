@@ -31,7 +31,8 @@
     'depends': ['hr',
                 'hr_payroll'],
     'data': [
-
+        "view/hr_payslip_view.xml",
+        "view/hr_payslip_workflow.xml",
     ],
     'demo': [],
     'test': [

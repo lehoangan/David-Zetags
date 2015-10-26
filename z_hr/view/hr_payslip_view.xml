@@ -10,6 +10,9 @@
                     <xpath expr="//button[@string='Refund']" position="replace">
                         <button string="Unreconcile" name="action_revert_done" type="object" states="done"/>
                     </xpath>
+                    <field name="name" position="after">
+                        <field name="paid_date"/>
+                    </field>
                 </field>
         </record>
 

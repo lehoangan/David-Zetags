@@ -31,6 +31,7 @@ import netsvc
 class hr_payslip(osv.osv):
     _inherit = "hr.payslip"
     _columns = {
+        'paid_date': fields.date('Paid Date'),
     }
 
     def action_revert_done(self, cr, uid, ids, context=None):
@@ -53,6 +54,23 @@ class hr_payslip(osv.osv):
             if not obj.line_ids:
                 self.compute_sheet(cr, uid, [obj.id], context)
         return self.write(cr, uid, ids, {'state': 'verify'}, context=context)
+
+    def process_sheet(self, cr, uid, ids, context=None):
+        res = super(hr_payslip, self).process_sheet(cr, uid, ids, context=context)
+        period_pool = self.pool.get('account.period')
+        for payslip in self.browse(cr, uid, ids, context):
+            if payslip.move_id and payslip.paid_date:
+                period_ids = period_pool.find(cr, uid, payslip.paid_date, context)
+                payslip.move_id.button_cancel()
+                for move in payslip.move_id.line_id:
+                    move.write({'date': payslip.paid_date,
+                                'period_id': period_ids[0],
+                                })
+                payslip.move_id.write({'date': payslip.paid_date,
+                                        'period_id': period_ids[0],})
+                payslip.move_id.button_validate()
+
+        return res
 
 
 hr_payslip()

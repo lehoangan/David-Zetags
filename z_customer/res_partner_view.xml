@@ -434,7 +434,7 @@
                             	groups="product.group_sale_pricelist"/>
                             <field name="default_shipping_id"
                             	domain="[('account_id.company_id.id','=',company_id)]"/>
-                            <field name="property_shipping_account"/>
+                            <field name="shipping_account"/>
                             <field name="via_reseller_id" domain="[('id','!=',active_id)]"/>
                             <field name="b2b_id" domain="[('id','!=',active_id)]"/>
                             <field name="government_id"/>

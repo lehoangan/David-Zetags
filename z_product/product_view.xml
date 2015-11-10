@@ -68,7 +68,29 @@
         
         <menuitem action="action_product_tariff_code" id="menu_action_product_tariff_code" parent="base.menu_product" sequence="12"/>
         
-<!-- Modify Product Views -->		
+<!-- Modify Product Views -->
+        <record id="hr_expense.view_product_hr_expense_form" model="ir.ui.view">
+            <field name="name">product.product.expense.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <div name="options" position="inside">
+
+                </div>
+            </field>
+        </record>
+        <record id="purchase.view_product_supplier_inherit" model="ir.ui.view">
+            <field name="name">product.normal.supplier.form.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <group name="procurement" position="after">
+                     <separator string="Suppliers"/>
+                     <field name="seller_ids" context="{'uom_id': uom_id}"/>
+                </group>
+            </field>
+        </record>
+
 		<record id="product.product_normal_form_view" model="ir.ui.view">
             <field name="name">product.normal.form</field>
             <field name="model">product.product</field>
@@ -88,10 +110,18 @@
                             <label for="packaging_id" class="oe_edit_only"/>
                             <h2><field name="packaging_id"/></h2>
                             <div name="options" groups="base.group_user">
-                            	<field name="hide"/>
-                                <label for="hide"/>
-                                <field name="sale_ok"/>
-                                <label for="sale_ok"/>
+                                <div>
+                                    <field name="sale_ok"/>
+                                    <label for="sale_ok"/>
+                                    <field name="purchase_ok" style="margin-left: 53px;"/>
+                                    <label for="purchase_ok"/>
+                                </div>
+                                <div>
+                                    <field name="hr_expense_ok"/>
+                                    <label for="hr_expense_ok"/>
+                                    <field name="hide" style="margin-left: 20px;"/>
+                                    <label for="hide"/>
+                                </div>
                             </div>
                         </div>
                         <div>

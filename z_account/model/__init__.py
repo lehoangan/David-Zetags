@@ -19,4 +19,5 @@
 #
 ##############################################################################
 import account_move
+import forex_voucher
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -33,6 +33,7 @@
     'data': [
         'wizard/account_financial_report_view.xml',
         'report/report_define.xml',
+        'view/forex_voucher_view.xml',
     ],
     'demo': [],
     'test': [

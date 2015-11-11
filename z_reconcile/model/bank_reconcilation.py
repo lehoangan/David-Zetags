@@ -222,7 +222,10 @@ class bank_reconcilation_line(osv.osv):
     _columns = {
         'order_id': fields.many2one('bank.reconcilation', 'Parent', ondelete='cascade'),
         'move_line_id': fields.many2one('account.move.line', 'Move Items', domain="[('account_id', '=', parent.account_id)]"),
-        'date': fields.related('move_line_id', 'date',string='Date', type='date'),
+        'date': fields.related('move_line_id', 'date',string='Date', type='date',
+                               store={
+                                        'bank.reconcilation.line': (lambda self, cr, uid, ids, c={}: ids, ['move_line_id'], 10),
+                                    }),
         'partner_id': fields.related('move_line_id', 'partner_id',string='Partner', type='many2one', relation="res.partner"),
         'account_id': fields.related('move_line_id', 'account_id',string='Account', type='many2one', relation="account.account"),
         'debit': fields.related('move_line_id', 'debit',string='Debit', type='float'),
@@ -232,6 +235,7 @@ class bank_reconcilation_line(osv.osv):
         'state': fields.related('move_line_id', 'state',string='Status', type='selection', selection=[('draft','Unbalanced'), ('valid','Balanced')]),
         'choose': fields.boolean('Select'),
     }
+    _order = "date desc"
 
 
 bank_reconcilation()

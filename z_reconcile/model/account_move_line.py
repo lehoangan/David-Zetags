@@ -34,6 +34,19 @@ class account_move_line(osv.osv):
         'z_reconciled': fields.boolean('Bank Reconcile'),
     }
 
+    def unlink(self, cr, uid, ids, context=None):
+        if type(ids) == type(1):
+            ids = [ids]
+        reconcile = self.pool.get('bank.reconcilation.line')
+        reconcile_ids = reconcile.search(cr, uid, [('move_line_id', 'in', ids)])
+        if reconcile_ids:
+            for obj in reconcile.browse(cr, uid, reconcile_ids):
+                if obj.order_id.state == 'draft' or not obj.choose:
+                    obj.unlink()
+                else:
+                    raise osv.except_osv(_('Error!'), _('Please remove this entry in bank reconcile "%s" first')%obj.order_id.name)
+        return super(account_move_line, self).unlink(cr, uid, ids, context)
+
 
 account_move_line()
 

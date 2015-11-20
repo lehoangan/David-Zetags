@@ -127,7 +127,7 @@
                         <div>
                         	<field name="image" widget="image" options='{"size": [400, 170]}'/>
                         </div>
-                        <div class="oe_right oe_button_box" name="buttons">
+                        <div class="oe_right" name="buttons" style="margin-top: 5px; margin-right: 60px;">
                         	
                         </div>
                         <notebook>

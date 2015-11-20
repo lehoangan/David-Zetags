@@ -217,38 +217,29 @@
 
                     <group>
                         <group>
-                            <label for="type" attrs="{'invisible': [('parent_id','=', False)]}"/>
-                            <div attrs="{'invisible': [('parent_id','=', False)]}" name="div_type">
-                                <field class="oe_inline"
-                                    name="type"/>
-                            </div>
+                            <field class="oe_inline"  attrs="{'invisible': [('parent_id','=', False)]}"
+                                name="type"/>
 
-                            <label for="street" string="Address"/>
-                            <div>
+                            <label for="street" string="Address" invisible="1"/>
+                            <div invisible="1">
                                 <field name="use_parent_address" class="oe_edit_only oe_inline"
                                        on_change="onchange_address(use_parent_address, parent_id)"
                                        attrs="{'invisible': [('parent_id','=', False),('use_parent_address','=',False)]}"/>
                                 <label for="use_parent_address" class="oe_edit_only" attrs="{'invisible': [('parent_id','=', False),('use_parent_address','=',False)]}"/>
                                 <button name="open_parent" type="object" string="(edit company address)" class="oe_link oe_edit_only"
                                         attrs="{'invisible': ['|',('parent_id','=', False),('use_parent_address','=',False)]}"/>
-                                <field name="street" placeholder="Street..."  attrs="{'readonly': [('use_parent_address','=',True)]}"/>
-                                <field name="street2"  attrs="{'readonly': [('use_parent_address','=',True)]}"/>
-                            	
-                            	<field name="country_id" placeholder="Country" class="oe_no_button" options='{"no_open": True}' on_change="onchange_country_id(company_id,country_id,property_product_pricelist)" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
-                                <field name="state_id" context="{'default_country_id':country_id}" class="oe_no_button" placeholder="State" options='{"no_open": True}' on_change="onchange_state(state_id)" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
-                                <field name="city" context="{'default_state_id':state_id}" placeholder="City" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}" on_change="onchange_city(city)"/>
-                                <field name="zip" context="{'default_city_id':city}" placeholder="Postal code" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}"/>
-                                
                             </div>
-                            <label for="website"/>
-                            <div>
-                                <field name="website" class="oe_inline" widget="url" placeholder="e.g. http://www.zetags.com"/>
-                            </div>
-                            <label for="company_id"/>
-                            <div>
-                                <field name="company_id" class="oe_inline" string="Controlling Office" groups="base.group_multi_company" widget="selection"
-                                on_change="onchange_company_id(company_id, property_product_pricelist, country_id)"/>
-                            </div>
+
+                            <field name="street" placeholder="Street..."  attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                            <field name="street2"  attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+
+                            <field name="country_id" placeholder="Country" options='{"no_open": True}' on_change="onchange_country_id(company_id,country_id,property_product_pricelist)" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                            <field name="state_id" context="{'default_country_id':country_id}" placeholder="State" options='{"no_open": True}' on_change="onchange_state(state_id)" attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                            <field name="city" context="{'default_state_id':state_id}" placeholder="City" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}" on_change="onchange_city(city)"/>
+                            <field name="zip" context="{'default_city_id':city}" placeholder="Postal code" options='{"no_open": True}' attrs="{'readonly': [('use_parent_address','=',True)]}"/>
+                            <field name="website" widget="url" placeholder="e.g. http://www.zetags.com"/>
+                            <field name="company_id" string="Controlling Office" groups="base.group_multi_company" widget="selection"
+                            on_change="onchange_company_id(company_id, property_product_pricelist, country_id)"/>
                         </group>
                         <group>
                             <field name="function" placeholder="e.g. Sales Director"

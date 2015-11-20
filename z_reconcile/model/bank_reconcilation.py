@@ -235,7 +235,7 @@ class bank_reconcilation_line(osv.osv):
         'state': fields.related('move_line_id', 'state',string='Status', type='selection', selection=[('draft','Unbalanced'), ('valid','Balanced')]),
         'choose': fields.boolean('Select'),
     }
-    _order = "date desc"
+    _order = "date asc"
 
 
 bank_reconcilation()

@@ -144,33 +144,13 @@ class account_invoice(osv.osv):
         return invoice_ids
     
     def _get_amount_deposit(self, cr, uid, ids, field_name, arg, context=None):
+        cur_obj = self.pool.get('res.currency')
         res = {}
         for order in self.browse(cr, uid, ids, context=context):
             res[order.id] = 0
             for line in order.prepayment_lines:
                 res[order.id] += line.amount
         return res
-
-    def _get_date_paid(self, cr, uid, ids, field_name, arg, context=None):
-        res = {}
-        for order in self.browse(cr, uid, ids, context=context):
-            max_date = False
-            for line in order.payment_ids:
-                if not max_date or line.date > max_date:
-                     max_date = line.date
-            res[order.id] = max_date
-        return res
-
-    def _search_date_paid(self, cr, uid, obj, name, args, context=None):
-      res = []
-      ids = obj.search(cr,uid,[('state', '=', 'paid')]) # ids of visits
-      for arg in args:
-          for invoice in self.browse(cr, uid, ids): # foreach visit
-              for payment in invoice.payment_ids:
-                  formula = ''' '%s' %s '%s' '''%(payment.date, arg[1], arg[2])
-                  if eval(formula):
-                    res.append(invoice.id)
-      return [('id','in', res)]
     
     def _get_order_from_deposit(self, cr, uid, ids, context=None):
         result = {}
@@ -186,8 +166,7 @@ class account_invoice(osv.osv):
         'shipping_charge': fields.float('Shipping Charge', digits_compute=dp.get_precision('Account'), readonly=True, states={'draft':[('readonly',False)]}),
         'tax_id': fields.many2many('account.tax', 'invoice_shipping_charge_tax', 'order_id', 'tax_id', 'Taxes', readonly=True, states={'draft': [('readonly', False)]}),
         'delivery_account_id': fields.many2one('account.account', 'Delivery Account', readonly=True, states={'draft': [('readonly', False)]}, domain="[('type','!=','view')]"),
-        'date_paid': fields.function(_get_date_paid,fnct_search=_search_date_paid, type="date", string='Paid Date'),
-
+        
         'deposit_paid': fields.function(_get_amount_deposit, digits_compute=dp.get_precision('Account'), string='Deposit Paid',
             store={
                 'account.invoice': (lambda self, cr, uid, ids, c={}: ids, ['prepayment_lines'], 10),

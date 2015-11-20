@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <record id="z_invoice_tree" model="ir.ui.view">
-            <field name="name">account.invoice.tree</field>
-            <field name="model">account.invoice</field>
-            <field name="inherit_id" ref="account.invoice_tree"/>
-			<field name="arch" type="xml">
-                <xpath expr="//field[@name='date_due']" position="after">
-                    <field name="date_paid"/>
-				</xpath>
-
-				<xpath expr="//field[@name='currency_id']" position="after">
-					<field name="amount_tax" string="Tax Paid"/>
-				</xpath>
-            </field>
-        </record>
 		
 		<record id="view_invoice_form_zinvoice_modify" model="ir.ui.view">
 			<field name="name">view.invoice.form.zinvoice.modify</field>

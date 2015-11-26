@@ -19,7 +19,7 @@
                 <drawString x="16.9cm" y="26.8cm">Based On: [[ data['form']['based_on'].title() ]]</drawString>
                 <setFont name="DejaVu Sans Bold" size="10"/>
                 <drawCentredString x="11.1cm" y="28.3cm">[[ company.partner_id.name ]]</drawCentredString>
-                <drawCentredString x="11.1cm" y="27.9cm">VAT Report (Detailed)</drawCentredString>
+                <drawCentredString x="11.1cm" y="27.9cm">TAX Report (Detailed)</drawCentredString>
                 <!--stroke color="#000000"/-->
                 <!--lines>1.0cm 28.1cm 20.1cm 28.1cm</lines-->
             </pageGraphics>

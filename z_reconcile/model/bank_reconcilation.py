@@ -164,6 +164,7 @@ class bank_reconcilation(osv.osv):
                           ml.credit, ml.currency_id, ml.tax_code_id, ml.state
                     FROM account_move_line ml
                     WHERE %s
+                    ORDER BY ml.date ASC
                 '''%(condition)
 
             cr.execute(sql)

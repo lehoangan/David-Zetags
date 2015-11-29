@@ -420,7 +420,7 @@
                 <page string="Sales &amp; Purchases" position="inside">
                     <group>
                         <group name="pricelists" attrs="{'invisible': [('is_company','=',False),('parent_id','!=',False)]}">
-                            <field name="property_product_pricelist" 
+                            <field name="property_product_pricelist" attrs="{'invisible': [('customer','!=',True)]}"
                             	domain="[('company_id','in',[company_id,False]),('type','=','sale')]"
                             	groups="product.group_sale_pricelist"/>
                             <field name="default_shipping_id"
@@ -445,7 +445,7 @@
             <field name="priority">36</field>
             <field name="arch" type="xml">
                 <field name="property_product_pricelist" position="after">
-                    <field name="property_product_pricelist_purchase" 
+                    <field name="property_product_pricelist_purchase"
                     	domain="[('company_id','in',[company_id,False]),('type','=','purchase')]"
                     	groups="product.group_purchase_pricelist"/>
                 </field>
@@ -605,6 +605,19 @@
                 </xpath>
             </field>
         </record>
+        <record id="stock.view_partner_property_form" model="ir.ui.view">
+        <field name="name">res.partner.stock.property.form.inherit</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="product.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <group name="pricelists" position="after">
+                <group groups="stock.group_locations">
+                    <field name="property_stock_customer" domain="[('usage','=','customer')]" attrs="{'invisible': [('customer','!=',True)]}"/>
+                    <field name="property_stock_supplier" domain="[('usage','=','supplier')]" attrs="{'invisible': [('supplier','!=',True)]}"/>
+                </group>
+            </group>
+        </field>
+    </record>
     </data>
 </openerp>
 

@@ -73,6 +73,39 @@ class product_product(osv.osv):
             if line.main_product_id:
                 result[line.main_product_id.id] = True
         return result.keys()
+
+    def _get_list_price(self, cr, uid, ids, field_names, arg=None, context=None):
+        result = {}
+        if not ids: return result
+        pricelis_ids = self.pool.get('product.pricelist').search(cr, uid, [('show', '=', True)])
+        show_price = self.pool.get('show.product.price')
+        for id in ids:
+
+            all_ids = []
+            for pricelist_id in pricelis_ids:
+                show_ids = show_price.search(cr, uid, [('product_id', '=', id), ('pricelist_id', '=', pricelist_id)])
+                if not show_ids:
+                    show_id = show_price.create(cr, uid, {
+                        'product_id': id,
+                        'pricelist_id': pricelist_id
+                    })
+                    show_ids += [show_id]
+                all_ids += show_ids
+
+            result.setdefault(id, all_ids)
+        return result
+
+    def _get_list_price_text(self, cr, uid, ids, field_names, arg=None, context=None):
+        result = {}
+        if not ids: return result
+
+        for prod in self.browse(cr, uid, ids, context):
+            all_ids = []
+            for pricelist in prod.price_ids:
+                all_ids.append('%s: %s'%(pricelist.pricelist_id.name, pricelist.price))
+
+            result.update({prod.id: '\n'.join(all_ids)})
+        return result
     
     _columns = {
         'ean13': fields.char('Barcode', size=30, help="International Article Number used for product identification."),
@@ -89,6 +122,9 @@ class product_product(osv.osv):
                     'product.product': (lambda self, cr, uid, ids, c={}: ids, ['component_ids'], 20),
                     'mrp.bom': (_get_product, ['product_id','product_uom','product_qty'], 30),
                 }),
+        'price_ids': fields.function(_get_list_price, method=True, type='one2many', relation='show.product.price',
+                                     string='List Price'),
+        'price_text': fields.function(_get_list_price_text, method=True, type='text', string='List Price'),
     }
     
     def _check_ean_key(self, cr, uid, ids, context=None):
@@ -183,6 +219,7 @@ class product_pricelist(osv.osv):
     _inherit = "product.pricelist"
     _columns = {
         'rate': fields.float('Rate', digits=(12,6)),
+        'show': fields.boolean('Show in Multi Currency List'),
     }
 
     def price_get_multi(self, cr, uid, pricelist_ids, products_by_qty_by_partner, context=None):

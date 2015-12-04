@@ -485,16 +485,16 @@
 	                        <group>
 	                            <field name="last_reconciliation_date"/>
 	                        </group>
-	                        <group>
-	                            <field name="property_account_receivable" 
+	                        <group attrs="{'invisible': [('customer','!=',True)]}">
+	                            <field name="property_account_receivable"
 	                            	context="{'filter_by_pricelist_currency':property_product_pricelist}"
 	                            	domain="[('company_id','=',company_id),('type', '=', 'receivable')]"
 	                            	groups="account.group_account_invoice"/>
-	                            <field name="credit"/>
+	                            <field name="credit" />
 	                            <field name="fixed_discount"/>
 	                        </group>
-	                        <group>
-	                            <field name="property_account_payable" 
+	                        <group  attrs="{'invisible': [('supplier','!=',True)]}">
+	                            <field name="property_account_payable"
 	                            	context="{'filter_by_pricelist_currency':property_product_pricelist}"
 	                            	domain="[('company_id','=',company_id),('type', '=', 'payable')]"
 	                            	groups="account.group_account_invoice"/>

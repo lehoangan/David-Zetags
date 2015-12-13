@@ -40,13 +40,13 @@ class show_product_price(osv.osv):
                         'uom': uom,
                         'date': time.strftime(DEFAULT_SERVER_DATE_FORMAT),
                         })[pricelist]
-            res[lstprice.id] = price * (lstprice.pricelist_id.rate or 1)
+            res[lstprice.id] = round(price, 2)
         return res
 
     _columns = {
         'product_id': fields.many2one('product.product', 'Product', required=True),
         'pricelist_id': fields.many2one('product.pricelist', 'PriceList', required=True),
-        'price': fields.function(_get_price, string='Price', method=True, type='float'),
+        'price': fields.function(_get_price, string='Price', method=True, type='float', digits=(16, 2)),
     }
     
 show_product_price()

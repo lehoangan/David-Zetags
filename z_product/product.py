@@ -102,7 +102,7 @@ class product_product(osv.osv):
         for prod in self.browse(cr, uid, ids, context):
             all_ids = []
             for pricelist in prod.price_ids:
-                all_ids.append('%s: %s'%(pricelist.pricelist_id.name, pricelist.price))
+                all_ids.append('%s: %s'%(pricelist.pricelist_id.name, '{0:.2f}'.format(pricelist.price)))
 
             result.update({prod.id: '\n'.join(all_ids)})
         return result

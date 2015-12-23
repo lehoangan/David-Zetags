@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+			<record id="report_tax_statement_id" model="ir.actions.report.xml">
+		        <field name="name">Tax Report</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">account.vat.invoices</field>
+		        <field name="report_name">report_tax_statement</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_account_vat_report/report/tax_report.py</field>
+		        <field name="report_rml">z_account_vat_report/report/tax_report.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+    </data>
+</openerp>

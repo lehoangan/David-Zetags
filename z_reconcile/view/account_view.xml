@@ -22,7 +22,7 @@
                     <field name="z_reconciled" invisible="1"/>
                 </xpath>
                 
-                <xpath expr="//tree/field[@name='invoice_id']" position="attributes">
+                <xpath expr="//tree/field[@name='invoice']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
 

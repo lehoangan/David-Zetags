@@ -31,7 +31,7 @@ class Parser(report_sxw.rml_parse, common_report_header):
         res = {}
         self.an_period_ids = []
         self.company_id = data['form']['company_id']
-        self.state = data['form']['based_on']
+        self.type = data['form']['based_on']
         period_obj = self.pool.get('account.period')
         self.display_detail = data['form']['display_detail']
         res['periods'] = ''

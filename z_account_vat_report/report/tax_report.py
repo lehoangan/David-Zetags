@@ -115,7 +115,7 @@ class Parser(report_sxw.rml_parse, common_report_header):
                             break
 
                 for tax in invoice.tax_line:
-                    amount = (tax.base + invoice.shipping_charge) * rate
+                    amount = tax.base * rate
                     mtax = tax.amount * rate
                     if tax.name not in result.keys():
                         result.update({tax.name: {
@@ -181,9 +181,9 @@ class Parser(report_sxw.rml_parse, common_report_header):
                             'ref': invoice.number,
                             'detail': ','.join(details),
                             'tax': tax_name or '',
-                            'sale': type == ('out_invoice', 'out_refund') and tax.base + invoice.shipping_charge or '',
+                            'sale': type == ('out_invoice', 'out_refund') and tax.base or '',
                             'tax_sale': type == ('out_invoice', 'out_refund') and tax.amount or '',
-                            'purchase': type != ('out_invoice', 'out_refund') and tax.base + invoice.shipping_charge or '',
+                            'purchase': type != ('out_invoice', 'out_refund') and tax.base or '',
                             'tax_purchase': type != ('out_invoice', 'out_refund') and tax.amount or '',
                             'currency': invoice.currency_id.name,
                         }]

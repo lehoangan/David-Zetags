@@ -31,6 +31,7 @@ class Parser(report_sxw.rml_parse, common_report_header):
         res = {}
         self.an_period_ids = []
         self.company_id = data['form']['company_id']
+        self.state = data['form']['based_on']
         period_obj = self.pool.get('account.period')
         self.display_detail = data['form']['display_detail']
         res['periods'] = ''
@@ -96,10 +97,13 @@ class Parser(report_sxw.rml_parse, common_report_header):
         invoice_obj = self.pool.get('account.invoice')
         result = {}
         for type in [('out_invoice', 'out_refund'),('in_invoice', 'in_refund')]:
+            state = ('state', 'not in', ['draft', 'cancel', 'proforma', 'proforma2'])
+            if self.type == 'payments':
+                state = ('state', '=', 'paid')
             invoice_ids = invoice_obj.search(cr, uid, [('type', 'in', type),
                                                        ('period_id', 'in', period_list),
                                                        ('company_id', '=', self.company_id),
-                                                       ('state', 'not in', ['draft', 'cancel', 'proforma', 'proforma2'])],
+                                                       state],
                                                         order='date_invoice desc')
 
             for invoice in invoice_obj.browse(cr, uid, invoice_ids):
@@ -155,10 +159,13 @@ class Parser(report_sxw.rml_parse, common_report_header):
         invoice_obj = self.pool.get('account.invoice')
         result = []
         for type in [('out_invoice', 'out_refund'),('in_invoice', 'in_refund')]:
+            state = ('state', 'not in', ['draft', 'cancel', 'proforma', 'proforma2'])
+            if self.type == 'payments':
+                state = ('state', '=', 'paid')
             invoice_ids = invoice_obj.search(cr, uid, [('type', 'in', type),
                                                        ('period_id', 'in', period_list),
                                                        ('company_id', '=', self.company_id),
-                                                       ('state', 'not in', ['draft', 'cancel', 'proforma', 'proforma2'])],
+                                                       state],
                                                         order='date_invoice desc')
 
             for invoice in invoice_obj.browse(cr, uid, invoice_ids):

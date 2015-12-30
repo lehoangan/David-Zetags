@@ -43,6 +43,7 @@ class bank_reconcilation(osv.osv):
         for obj in self.browse(cr, uid, ids, context):
             res[obj.id] = False
             old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
+                                            ('company_id', '=', obj.company_id.id),
                                             ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
                 res[obj.id] = self.browse(cr, uid, old_ids[0]).date
@@ -54,6 +55,7 @@ class bank_reconcilation(osv.osv):
         for obj in self.browse(cr, uid, ids, context):
             res[obj.id] = False
             old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
+                                            ('company_id', '=', obj.company_id.id),
                                             ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
                 res[obj.id] = self.browse(cr, uid, old_ids[0]).calculated_balance
@@ -71,6 +73,7 @@ class bank_reconcilation(osv.osv):
         for obj in self.browse(cr, uid, ids, context):
             opening_balance = 0
             old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
+                                            ('company_id', '=', obj.company_id.id),
                                             ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
                 opening_balance = self.browse(cr, uid, old_ids[0]).calculated_balance
@@ -139,12 +142,13 @@ class bank_reconcilation(osv.osv):
         result.update({'calculated_balance': total})
         return {'value': result}
 
-    def onchange_date_account(self, cr, uid, ids, account_id, date, context=None):
+    def onchange_date_account(self, cr, uid, ids, account_id, date, company_id, context=None):
         if not account_id or not date:
             return {'value': {}}
         vals = {}
         #default last reconcile date + 'Opening Balance
         old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
+                                        ('company_id', '=', company_id),
                                         ('id', 'not in', ids)], order="id desc", limit=1)
         if old_ids:
             old_obj = self.browse(cr, uid, old_ids[0])

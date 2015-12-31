@@ -239,6 +239,7 @@ class bank_reconcilation_line(osv.osv):
         'account_id': fields.related('move_line_id', 'account_id',string='Account', type='many2one', relation="account.account"),
         'debit': fields.related('move_line_id', 'debit',string='Debit', type='float'),
         'credit': fields.related('move_line_id', 'credit',string='Credit', type='float'),
+        'amount_currency': fields.related('move_line_id', 'amount_currency',string='Amount Currency', type='float'),
         'currency_id': fields.related('move_line_id', 'currency_id',string='Curremcy', type='many2one', relation="res.currency"),
         'tax_code_id': fields.related('move_line_id', 'tax_code_id',string='Tax Account', type='many2one', relation="account.tax.code"),
         'state': fields.related('move_line_id', 'state',string='Status', type='selection', selection=[('draft','Unbalanced'), ('valid','Balanced')]),

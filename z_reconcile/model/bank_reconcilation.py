@@ -168,7 +168,7 @@ class bank_reconcilation(osv.osv):
                     condition += '''AND ml.date <= '%s' '''%date
             elif date:
                 condition += ''' ml.date <= '%s' '''%date
-            sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit,, ml.amount_currency
+            sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit, ml.amount_currency,
                           ml.credit, ml.currency_id, ml.tax_code_id, ml.state
                     FROM account_move_line ml
                     WHERE %s

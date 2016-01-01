@@ -84,7 +84,10 @@ class bank_reconcilation(osv.osv):
             res[obj.id] = opening_balance
             for line in obj.line_id:
                 if line.choose:
-                    res[obj.id] += line.debit - line.credit
+                    if line.amount_currency:
+                        res[obj.id] += line.amount_currency
+                    else:
+                        res[obj.id] += line.debit - line.credit
         return res
 
     _columns = {
@@ -135,20 +138,30 @@ class bank_reconcilation(osv.osv):
             if line[2] and line[2].get('choose', False):
                 if line[1]:
                     obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
-                    total += (obj.debit - obj.credit)
+                    if obj.amount_currency:
+                        total += obj.amount_currency
+                    else:
+                        total += (obj.debit - obj.credit)
                 else:
-                    total += (line[2].get('debit', 0) - line[2].get('credit', 0))
+                    if line[2].get('amount_currency', 0):
+                        total += line[2].get('amount_currency', 0)
+                    else:
+                        total += (line[2].get('debit', 0) - line[2].get('credit', 0))
             elif line[1]:
                 obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
                 if obj.choose:
-                    total += (obj.debit - obj.credit)
+                    if obj.amount_currency:
+                        total += obj.amount_currency
+                    else:
+                        total += (obj.debit - obj.credit)
         result.update({'calculated_balance': total})
         return {'value': result}
 
     def onchange_date_account(self, cr, uid, ids, account_id, date, company_id, context=None):
         if not account_id or not date:
             return {'value': {}}
-        vals = {}
+        vals = {'last_reconcile_date': False,
+                'opening_balance': 0}
         #default last reconcile date + 'Opening Balance
         old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
                                         ('company_id', '=', company_id),

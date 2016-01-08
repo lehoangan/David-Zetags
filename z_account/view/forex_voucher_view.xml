@@ -54,17 +54,23 @@
                 </header>
                 <sheet string="Forex Voucher">
                     <group col="4" colspan="4">
-                        <field name="partner_id"/>
-                        <field name="date" on_change="onchange_date(date, currency_id, payment_rate_currency_id, 1, company_id, context)"/>
-                        <field name="journal_id" widget="selection" />
-                        <field name="name" colspan="2"/>
-                        <field name="company_id" widget="selection" groups="base.group_multi_company"/>
-                        <field name="reference"/>
-                        <field name="currency_id" groups="base.group_multi_currency" on_change="onchange_currency_id(currency_id, payment_rate_currency_id, date, context)"/>
-                        <field name="payment_rate"/>
-                        <field name="number"/>
+                        <group>
+                            <field name="number"/>
+                            <field name="journal_id" widget="selection" />
+                            <field name="reference"/>
+                            <field name="currency_id" groups="base.group_multi_currency" on_change="onchange_currency_id(currency_id, payment_rate_currency_id, date, context)"/>
+                            <field name="company_id" widget="selection" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="partner_id"/>
+                            <field name="date" on_change="onchange_date(date, currency_id, payment_rate_currency_id, 1, company_id, context)"/>
+                            <field name="name" colspan="2"/>
+                            <field name="payment_rate"/>
+                            <field name="move_id"/>
+                        </group>
                         <field name="payment_rate_currency_id" invisible="1"/>
                         <field name="period_id" invisible="1"/>
+
                     </group>
                     <notebook>
                         <page string="Bill Information">
@@ -84,7 +90,7 @@
                         <label string="TO CURRENCY"/>
                         <field name="total_amount" widget="monetary" nolabel="1" options="{'currency_field': 'payment_rate_currency_id'}" on_change="onchange_amount(amount, total_amount, context)"/>
                         <field name="computed_rate"/>
-                        <button name="apply_exchange" string="Apply Exchange" type="object"/>
+                        <button name="apply_exchange" states="draft" string="Apply Exchange" type="object"/>
                     </group>
                     </sheet>
                     <div class="oe_chatter">

@@ -124,6 +124,10 @@ class account_voucher(osv.osv):
         
         'company_currency_id': fields.related('company_id','currency_id', type='many2one', relation='res.currency', string='Company Currency', readonly=True),
     }
+    _defaults = {
+        'bank_fee_deducted': 0,
+        'discount_allowed': 0,
+    }
 
     def action_move_line_create(self, cr, uid, ids, context=None):
         order = self.browse(cr, uid, ids[0])

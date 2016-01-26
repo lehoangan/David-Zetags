@@ -48,7 +48,7 @@
                     </group>
                     <notebook>
                         <page string="Journal Items">
-                            <field name="line_id" widget="one2many_list" on_change="onchange_line_id(line_id, opening_balance, context)">
+                            <field name="line_id" widget="one2many_list" on_change="onchange_line_id(account_id, line_id, opening_balance, context)">
                                 <tree editable="top" string="Journal Items">
                                     <field name="choose"/>
                                     <field name="move_line_id"/>

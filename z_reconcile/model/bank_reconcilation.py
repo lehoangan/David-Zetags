@@ -72,8 +72,13 @@ class bank_reconcilation(osv.osv):
 
     def _compute_calculated_balance(self, cr, uid, ids, name, args, context=None):
         res = {}
+        currency_obj = self.pool.get('res.currency')
+
         for obj in self.browse(cr, uid, ids, context):
             opening_balance = 0
+            account = obj.account_id
+            currency_id = account.currency_id and account.currency_id.id or False
+
             old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
                                             ('company_id', '=', obj.company_id.id),
                                             ('account_id', '=', obj.account_id.id),
@@ -84,10 +89,18 @@ class bank_reconcilation(osv.osv):
             res[obj.id] = opening_balance
             for line in obj.line_id:
                 if line.choose:
-                    if line.amount_currency:
-                        res[obj.id] += line.amount_currency
+                    if not currency_id:
+                        res[obj.id] += (line.debit - line.credit)
                     else:
-                        res[obj.id] += line.debit - line.credit
+                        if line.currency_id and line.currency_id.id == currency_id:
+                            res[obj.id] += line.amount_currency
+                        else:
+                            ptype_src = line.account_id.company_id.id
+                            total_company = (line.debit - line.credit)
+                            res[obj.id] += currency_obj.compute(cr, uid,
+                                        ptype_src, currency_id,
+                                        total_company, round=False,
+                                        context=context)
         return res
 
     _columns = {
@@ -128,36 +141,70 @@ class bank_reconcilation(osv.osv):
                 raise osv.except_osv(_('Invalid action !'), _('Cannot delete reconciled bank !'))
         return super(bank_reconcilation, self).unlink(cr, uid, ids, context)
 
-    def onchange_line_id(self, cr, uid, ids, line_id, opening_balance, context=None):
-        if not line_id:
+    def onchange_line_id(self, cr, uid, ids, account_id, line_id, opening_balance, context=None):
+        print '==========='
+        if not line_id or not account_id:
             return {'value': {}}
 
         result = {}
         total = opening_balance
+        currency_obj = self.pool.get('res.currency')
+        account = self.pool.get('account.account').browse(cr, uid, account_id, context)
+        currency_id = account.currency_id and account.currency_id.id or False
+        if currency_id and account.company_id.currency_id.id == currency_id:
+            currency_id = False
+
         for line in line_id:
             if line[2] and line[2].get('choose', False):
                 if line[1]:
                     obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
-                    if obj.amount_currency:
-                        total += obj.amount_currency
-                    else:
+                    if not currency_id:
                         total += (obj.debit - obj.credit)
-                else:
-                    if line[2].get('amount_currency', 0):
-                        total += line[2].get('amount_currency', 0)
                     else:
+                        if obj.currency_id and obj.currency_id.id == currency_id:
+                            total += obj.amount_currency
+                        else:
+                            ptype_src = obj.account_id.company_id.id
+                            total_company = (obj.debit - obj.credit)
+                            total += currency_obj.compute(cr, uid,
+                                        ptype_src, currency_id,
+                                        total_company, round=False,
+                                        context=context)
+
+                else:
+                    if not currency_id:
                         total += (line[2].get('debit', 0) - line[2].get('credit', 0))
+                    else:
+                        if line[2].get('currency_id', False) and line[2]['currency_id'] == currency_id:
+                            total += line[2].get('amount_currency', 0)
+                        else:
+                            ptype_src = account.company_id.id
+                            total_company = (line[2].get('debit', 0) - line[2].get('credit', 0))
+                            total += currency_obj.compute(cr, uid,
+                                        ptype_src, currency_id,
+                                        total_company, round=False,
+                                        context=context)
+
             elif line[1]:
                 obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
                 if obj.choose:
-                    if obj.amount_currency:
-                        total += obj.amount_currency
-                    else:
+                    if not currency_id:
                         total += (obj.debit - obj.credit)
+                    else:
+                        if obj.currency_id and obj.currency_id.id == currency_id:
+                            total += obj.amount_currency
+                        else:
+                            ptype_src = obj.account_id.company_id.id
+                            total_company = (obj.debit - obj.credit)
+                            total += currency_obj.compute(cr, uid,
+                                        ptype_src, currency_id,
+                                        total_company, round=False,
+                                        context=context)
         result.update({'calculated_balance': total})
         return {'value': result}
 
     def onchange_date_account(self, cr, uid, ids, account_id, date, company_id, context=None):
+        print '-------------------'
         if not account_id or not date:
             return {'value': {}}
         vals = {'last_reconcile_date': False,

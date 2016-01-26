@@ -25,12 +25,34 @@ from openerp.osv import fields, osv
 from openerp.tools.translate import _
 from datetime import datetime
 import openerp.addons.decimal_precision as dp
+from lxml import etree
 
 class account_voucher(osv.osv):
     _inherit = "account.voucher"
     _columns = {
     }
-    
+
+    def default_get(self, cr, uid, fields_list, context=None):
+        defaults = super(account_voucher, self).default_get(cr, uid, fields_list, context=context)
+        if defaults.get('type', '') == 'payment':
+            defaults.update({'reference': time.strftime('%Y%m%d')})
+        return defaults
+
+    def fields_view_get(self, cr, uid, view_id=None, view_type=False, context=None, toolbar=False, submenu=False):
+        mod_obj = self.pool.get('ir.model.data')
+        if context is None: context = {}
+
+        res = super(account_voucher, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context, toolbar=toolbar, submenu=submenu)
+        doc = etree.XML(res['arch'])
+
+        nodes = doc.xpath("//field[@name='journal_id']")
+        for node in nodes:
+            node.set('domain', "[('type','in',['bank', 'cash']),('company_id', '=', company_id)]")
+            node.set('widget', "many2one")
+            node.set('options', "{'no_open': True,'no_create_edit': True, 'no_create': True,'no_quick_create': True}")
+        res['arch'] = etree.tostring(doc)
+        return res
+
     def _check_amount(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context=context):
             if obj:

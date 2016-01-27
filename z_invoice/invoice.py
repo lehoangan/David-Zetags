@@ -549,7 +549,7 @@ class account_invoice(osv.osv):
             #Thanh: create Move for Shipping Charge Entry
             shipping_moves = []
             shipping_amount = 0.0
-            if inv.shipping_charge and inv.type in ['out_invoice','out_refund']:
+            if inv.shipping_charge:# and inv.type in ['out_invoice','out_refund']:
                 if not inv.delivery_account_id:
                     raise osv.except_osv(_('Delivery Account Missing!'),
                         _('Please select Delivery Account!'))
@@ -560,9 +560,9 @@ class account_invoice(osv.osv):
                 if inv.currency_id.id != company_currency:
                     company_amount_currency = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, inv.shipping_charge, context=ctx)
                     
-                if inv.type in ['out_invoice']:
+                if inv.type in ['out_invoice','in_invoice']:
                     shipping_charge_currency = -1 * shipping_charge_currency
-                if inv.type in ['out_refund']:
+                if inv.type in ['out_refund','in_refund']:
                     shipping_charge_currency = shipping_charge_currency
                     
                 shipping_moves += [(0,0, {
@@ -571,8 +571,8 @@ class account_invoice(osv.osv):
                         'quantity': False,
                         'ref': name,
                         'date': inv.date_invoice,
-                        'debit': inv.type in ['out_refund'] and company_amount_currency or 0.0,
-                        'credit': inv.type in ['out_invoice'] and company_amount_currency or 0.0,
+                        'debit': inv.type in ['out_refund', 'in_invoice'] and company_amount_currency or 0.0,
+                        'credit': inv.type in ['out_invoice', 'in_refund'] and company_amount_currency or 0.0,
                         'account_id': inv.delivery_account_id.id,
                         'amount_currency': diff_currency_p \
                                 and shipping_charge_currency or False,
@@ -586,14 +586,24 @@ class account_invoice(osv.osv):
             if len(shipping_moves):
                 for move_line in line:
                     if inv.account_id.id == move_line[2]['account_id']:
-                        if move_line[2]['debit']:
-                            for shipping_move in shipping_moves:
-                                move_line[2]['debit'] += shipping_move[2]['credit']
-                                move_line[2]['debit'] -= shipping_move[2]['debit']
+                        if inv.type in ['out_invoice','out_refund']:
+                            if move_line[2]['debit']:
+                                for shipping_move in shipping_moves:
+                                    move_line[2]['debit'] += shipping_move[2]['credit']
+                                    move_line[2]['debit'] -= shipping_move[2]['debit']
+                            else:
+                                for shipping_move in shipping_moves:
+                                    move_line[2]['credit'] += shipping_move[2]['debit']
+                                    move_line[2]['credit'] -= shipping_move[2]['credit']
                         else:
-                            for shipping_move in shipping_moves:
-                                move_line[2]['credit'] += shipping_move[2]['debit']
-                                move_line[2]['credit'] -= shipping_move[2]['credit']
+                            if move_line[2]['debit']:
+                                for shipping_move in shipping_moves:
+                                    move_line[2]['debit'] += shipping_move[2]['credit']
+                                    move_line[2]['debit'] -= shipping_move[2]['debit']
+                            else:
+                                for shipping_move in shipping_moves:
+                                    move_line[2]['credit'] += shipping_move[2]['debit']
+                                    move_line[2]['credit'] -= shipping_move[2]['credit']
                         
                         if inv.currency_id.id != company_currency:
                             amount_currency = cur_obj.compute(cr, uid, company_currency, inv.currency_id.id, move_line[2]['debit'] or move_line[2]['credit'], context=ctx)
@@ -605,7 +615,7 @@ class account_invoice(osv.osv):
                             
                             move_line[2]['amount_currency'] = amount_currency
             #Thanh: update Invoice Entry
-            
+            print line
             move = {
                 #Thanh: Pass invoice number to Journal
                 'name': inv.number or '/',

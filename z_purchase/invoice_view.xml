@@ -97,6 +97,7 @@
 								</tree>
 							</field>
 							<group>
+					            <field name="delivery_account_id" class="oe_inline"/>
 								<field name="product_tariff_code_id" class="oe_inline"/>
 								<field name="tracking_number" class="oe_inline"/>
 								<field name="weight"/>

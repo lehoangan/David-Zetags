@@ -27,12 +27,47 @@ from datetime import datetime
 import openerp.addons.decimal_precision as dp
 from openerp.tools import float_compare
 
+class account_move(osv.osv):
+    _inherit = "account.move"
+    _columns = {
+    }
+
+    def onchange_date(self, cr, uid, ids, date, context=None):
+        if not date:
+            return {'value': {'period_id': False}}
+
+        periods = self.pool.get('account.period').find(cr, uid, dt=date, context=context)
+        if periods:
+            return {'value': {'period_id': periods[0]}}
+        return {'value': {'period_id': False}}
+account_move()
+
 class account_move_line(osv.osv):
     _inherit = "account.move.line"
+
+    def _get_status(self, cursor, user, ids, name, arg, context=None):
+        res = {}
+        for line_id in ids:
+            res[line_id] = False
+        for line in self.browse(cursor, user, ids, context):
+            res[line.id] = line.state
+            if line.z_reconciled and line.state == 'valid':
+                res[line.id] = 'reconcile'
+        return res
+
     _columns = {
         'z_reconcile': fields.related('account_id', 'z_reconcile',string='Z-Reconcile', type='boolean'),
         'z_reconciled': fields.boolean('Bank Reconcile'),
+        'fcstate': fields.function(_get_status, type='selection',
+                                   selection=[('draft','Unbalanced'), ('valid','Balanced'), ('reconcile', 'Reconciled')],
+                                   string='Status', readonly=True),
     }
+
+    def write(self, cr, uid, ids, vals, context=None):
+        for obj in self.browse(cr, uid, ids, context):
+            if obj.fcstate == 'reconcile':
+                raise osv.except_osv(_('Error!'), _('Please remove this entry in bank reconcilefirst'))
+        return super(account_move_line, self).write(cr, uid, ids, vals, context)
 
     def unlink(self, cr, uid, ids, context=None):
         if type(ids) == type(1):

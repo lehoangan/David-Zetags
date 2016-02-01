@@ -102,7 +102,7 @@ class product_product(osv.osv):
         for prod in self.browse(cr, uid, ids, context):
             all_ids = []
             for pricelist in prod.price_ids:
-                all_ids.append('%s: %s'%(pricelist.pricelist_id.name, pricelist.price))
+                all_ids.append('%s: %s'%(pricelist.pricelist_id.name, '{0:.2f}'.format(pricelist.price)))
 
             result.update({prod.id: '\n'.join(all_ids)})
         return result
@@ -304,7 +304,7 @@ class product_pricelist(osv.osv):
                     partner_args = ()
 
                 cr.execute(
-                    'SELECT i.*, pl.currency_id '
+                    'SELECT i.*, pl.currency_id, pl.rate as z_rate '
                     'FROM product_pricelist_item AS i, '
                         'product_pricelist_version AS v, product_pricelist AS pl '
                     'WHERE (product_tmpl_id IS NULL OR product_tmpl_id = %s) '
@@ -376,6 +376,8 @@ class product_pricelist(osv.osv):
                                 price = max(price, price_limit+res['price_min_margin'])
                             if res['price_max_margin']:
                                 price = min(price, price_limit+res['price_max_margin'])
+                            if res['z_rate']:
+                                price = rounding(price * res['z_rate'], res['price_round'])
                             break
 
                     else:

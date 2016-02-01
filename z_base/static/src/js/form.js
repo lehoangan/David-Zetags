@@ -2,7 +2,7 @@
 
 openerp.z_base = function (instance) {
 	instance.web.form.CompletionFieldMixin.init = function () {
-        this.limit = 20;
+        this.limit = 10;
         this.orderer = new instance.web.DropMisordered();
 	    
 	};

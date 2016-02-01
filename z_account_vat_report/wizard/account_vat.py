@@ -75,6 +75,23 @@ class account_vat_invoices(osv.osv_memory):
             'header':False,
         }
 
+    def create_vat_odt(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+        datas = {'ids': context.get('active_ids', [])}
+        datas['model'] = 'account.tax.code'
+        datas['form'] = self.read(cr, uid, ids, context=context)[0]
+        for field in datas['form'].keys():
+            if isinstance(datas['form'][field], tuple):
+                datas['form'][field] = datas['form'][field][0]
+        datas['form']['company_id'] = self.pool.get('account.tax.code').browse(cr, uid, [datas['form']['chart_tax_id']], context=context)[0].company_id.id
+        return {
+            'type': 'ir.actions.report.xml',
+            'report_name': 'report_tax_statement',
+            'datas': datas,
+            'header':False,
+        }
+
 account_vat_invoices()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

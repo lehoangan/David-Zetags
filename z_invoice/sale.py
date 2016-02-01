@@ -561,10 +561,10 @@ class sale_order_line(osv.osv):
             lang=lang, update_tax=update_tax, date_order=date_order, packaging=packaging, fiscal_position=fiscal_position, flag=flag, context=context)
 
         #compute price base on rate of pricelist
-        if pricelist and result['value'].get('price_unit'):
-            rate = self.pool.get('product.pricelist').browse(cr, uid, pricelist, context).rate
-            if rate:
-                result['value']['price_unit'] = result['value']['price_unit'] * rate
+        # if pricelist and result['value'].get('price_unit'):
+        #     rate = self.pool.get('product.pricelist').browse(cr, uid, pricelist, context).rate
+        #     if rate:
+        #         result['value']['price_unit'] = result['value']['price_unit'] * rate
 
         partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
         tax_obj = self.pool.get('account.tax')

@@ -35,6 +35,7 @@ This module provides invoices details on VAT report
  ],
  'data': [
      "wizard/account_vat_view.xml",
+     "report/define_report.xml",
  ],
  'installable': True,
 }

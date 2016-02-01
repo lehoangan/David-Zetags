@@ -63,11 +63,11 @@ class account_move_line(osv.osv):
                                    string='Status', readonly=True),
     }
 
-    def write(self, cr, uid, ids, vals, context=None):
+    def write(self, cr, uid, ids, vals, context=None, check=True, update_check=True):
         for obj in self.browse(cr, uid, ids, context):
             if obj.fcstate == 'reconcile':
                 raise osv.except_osv(_('Error!'), _('Please remove this entry in bank reconcilefirst'))
-        return super(account_move_line, self).write(cr, uid, ids, vals, context)
+        return super(account_move_line, self).write(cr, uid, ids, vals, context, check, update_check)
 
     def unlink(self, cr, uid, ids, context=None):
         if type(ids) == type(1):

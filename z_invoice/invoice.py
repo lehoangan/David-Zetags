@@ -615,7 +615,7 @@ class account_invoice(osv.osv):
                             
                             move_line[2]['amount_currency'] = amount_currency
             #Thanh: update Invoice Entry
-            print line
+
             move = {
                 #Thanh: Pass invoice number to Journal
                 'name': inv.number or '/',

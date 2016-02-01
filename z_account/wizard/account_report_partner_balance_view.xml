@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+     <data>
+
+        <record id="account_partner_balance_view" model="ir.ui.view">
+            <field name="name">Partner Transaction Report</field>
+            <field name="model">account.partner.balance</field>
+            <field name="inherit_id" ref="account.account_partner_balance_view" />
+            <field name="arch" type="xml">
+            <data>
+            <xpath expr="//field[@name='display_partner']" position="after">
+                <field name="currency_id"/>
+                <field name="partner_id"/>
+                <newline/>
+            </xpath>
+            </data>
+            </field>
+        </record>
+
+         <record id="account.action_account_partner_balance" model="ir.actions.act_window">
+             <field name="name">Partner Transaction Report</field>
+       </record>
+
+        <menuitem icon="STOCK_PRINT"
+            name="Partner Transaction Report"
+            action="account.action_account_partner_balance"
+            id="account.menu_account_partner_balance_report"
+            parent="account.next_id_22"/>
+
+     </data>
+ </openerp>

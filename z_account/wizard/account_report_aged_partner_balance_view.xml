@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+     <data>
+
+        <record id="account_aged_balance_view" model="ir.ui.view">
+            <field name="name">Aged Partner Balance</field>
+            <field name="model">account.aged.trial.balance</field>
+            <field name="inherit_id" ref="account.account_aged_balance_view" />
+            <field name="arch" type="xml">
+
+                <separator string="Aged Partner Balance" position="replace">
+                    <separator string="Partner Aged Trial Balance" />
+                </separator>
+                <field name="direction_selection" position="after">
+                    <field name="currency_id"/>
+                </field>
+
+            </field>
+        </record>
+
+         <record id="account.action_account_aged_balance_view" model="ir.actions.act_window">
+             <field name="name">Partner Aged Trial Balance</field>
+         </record>
+
+         <menuitem icon="STOCK_PRINT"
+            name="Partner Aged Trial Balance"
+            action="account.action_account_aged_balance_view"
+            id="account.menu_aged_trial_balance"
+            parent="account.next_id_22"/>
+
+    </data>
+</openerp>

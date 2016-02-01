@@ -26,10 +26,11 @@ class accounting_report(osv.osv_memory):
 
     _columns = {
         'currency': fields.boolean('Secondary Currency'),
+        'partner_id': fields.many2one('res.partner', 'Partner'),
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):
-        data['form'].update(self.read(cr, uid, ids, ['date_from_cmp',  'debit_credit', 'date_to_cmp',  'fiscalyear_id_cmp', 'period_from_cmp', 'period_to_cmp',  'filter_cmp', 'account_report_id', 'enable_filter', 'label_filter','target_move', 'currency'], context=context)[0])
+        data['form'].update(self.read(cr, uid, ids, ['currency','partner_id', 'date_from_cmp',  'debit_credit', 'date_to_cmp',  'fiscalyear_id_cmp', 'period_from_cmp', 'period_to_cmp',  'filter_cmp', 'account_report_id', 'enable_filter', 'label_filter','target_move', 'currency'], context=context)[0])
         return {
             'type': 'ir.actions.report.xml',
             'report_name': 'account_financial_report_zetag',
@@ -43,11 +44,12 @@ class account_balance_report(osv.osv_memory):
 
     _columns = {
         'currency': fields.boolean('Secondary Currency'),
+        'partner_id': fields.many2one('res.partner', 'Partner'),
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['currency'], context=context)[0])
+        data['form'].update(self.read(cr, uid, ids, ['currency','partner_id'], context=context)[0])
         return {'type': 'ir.actions.report.xml', 'report_name': 'account.account.balance.zetag', 'datas': data}
 
 account_balance_report()

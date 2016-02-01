@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='enable_filter']" position="before">
                     <field name="currency"/>
+                <field name="partner_id"/>
                 </xpath>
             </field>
         </record>
@@ -21,6 +22,7 @@
             <data>
             <xpath expr="//field[@name='display_account']" position="after">
                 <field name="currency"/>
+                <field name="partner_id"/>
                 <newline/>
             </xpath>
             </data>

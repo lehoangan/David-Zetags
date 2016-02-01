@@ -762,6 +762,36 @@ class account_invoice(osv.osv):
         #Thanh: Update for more custom Fields
 
         return invoice_data
+
+    def line_get_convert(self, cr, uid, x, part, date, context=None):
+        result = super(account_invoice, self).line_get_convert(cr, uid, x, part, date, context)
+        if x.get('tax_id', False):
+            result.update({'tax_id': x['tax_id']})
+        return result
+
+    def check_tax_lines(self, cr, uid, inv, compute_taxes, ait_obj):
+        company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id
+        if not inv.tax_line:
+            for tax in compute_taxes.values():
+                ait_obj.create(cr, uid, tax)
+        else:
+            tax_key = []
+            for tax in inv.tax_line:
+                if tax.manual:
+                    continue
+                if not tax.tax_id:
+                    raise osv.except_osv(_('Warning!'), _('Please re-compute tax !'))
+                key = (tax.tax_id.id, tax.tax_code_id.id, tax.base_code_id.id, tax.account_id.id, tax.account_analytic_id and tax.account_analytic_id.id or False)
+                tax_key.append(key)
+                if not key in compute_taxes:
+                    raise osv.except_osv(_('Warning!'), _('Global taxes defined, but they are not in invoice lines !'))
+                base = compute_taxes[key]['base']
+                precision = self.pool.get('decimal.precision').precision_get(cr, uid, 'Account')
+                if float_compare(abs(base - tax.base), company_currency.rounding, precision_digits=precision) == 1:
+                    raise osv.except_osv(_('Warning!'), _('Tax base different!\nClick on compute to update the tax base.'))
+            for key in compute_taxes:
+                if not key in tax_key:
+                    raise osv.except_osv(_('Warning!'), _('Taxes are missing!\nClick on compute button.'))
     
     def _auto_init(self, cr, context=None):
         super(account_invoice, self)._auto_init(cr, context)
@@ -895,9 +925,59 @@ account_move_line()
 class account_invoice_tax(osv.osv):
     _inherit = "account.invoice.tax"
 
-    def compute(self, cr, uid, invoice_id, context=None):
-        tax_grouped = super(account_invoice_tax, self).compute(cr, uid, invoice_id, context)
+    _columns = {
+        'tax_id': fields.many2one('account.tax', 'Tax'),
+    }
 
+    def compute(self, cr, uid, invoice_id, context=None):
+        tax_grouped = {}
+        tax_obj = self.pool.get('account.tax')
+        cur_obj = self.pool.get('res.currency')
+        inv = self.pool.get('account.invoice').browse(cr, uid, invoice_id, context=context)
+        cur = inv.currency_id
+        company_currency = self.pool['res.company'].browse(cr, uid, inv.company_id.id).currency_id.id
+        for line in inv.invoice_line:
+            for tax in tax_obj.compute_all(cr, uid, line.invoice_line_tax_id, (line.price_unit* (1-(line.discount or 0.0)/100.0)), line.quantity, line.product_id, inv.partner_id)['taxes']:
+                val={}
+                val['invoice_id'] = inv.id
+                val['tax_id'] = tax['id']
+                val['name'] = tax['name']
+                val['amount'] = tax['amount']
+                val['manual'] = False
+                val['sequence'] = tax['sequence']
+                val['base'] = cur_obj.round(cr, uid, cur, tax['price_unit'] * line['quantity'])
+
+                if inv.type in ('out_invoice','in_invoice'):
+                    val['base_code_id'] = tax['base_code_id']
+                    val['tax_code_id'] = tax['tax_code_id']
+                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['base_sign'], context={'date': inv.date_invoice or time.strftime('%Y-%m-%d')}, round=False)
+                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['tax_sign'], context={'date': inv.date_invoice or time.strftime('%Y-%m-%d')}, round=False)
+                    val['account_id'] = tax['account_collected_id'] or line.account_id.id
+                    val['account_analytic_id'] = tax['account_analytic_collected_id']
+                else:
+                    val['base_code_id'] = tax['ref_base_code_id']
+                    val['tax_code_id'] = tax['ref_tax_code_id']
+                    val['base_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['base'] * tax['ref_base_sign'], context={'date': inv.date_invoice or time.strftime('%Y-%m-%d')}, round=False)
+                    val['tax_amount'] = cur_obj.compute(cr, uid, inv.currency_id.id, company_currency, val['amount'] * tax['ref_tax_sign'], context={'date': inv.date_invoice or time.strftime('%Y-%m-%d')}, round=False)
+                    val['account_id'] = tax['account_paid_id'] or line.account_id.id
+                    val['account_analytic_id'] = tax['account_analytic_paid_id']
+
+                key = (val['tax_id'], val['tax_code_id'], val['base_code_id'], val['account_id'], val['account_analytic_id'])
+                if not key in tax_grouped:
+                    tax_grouped[key] = val
+                else:
+                    tax_grouped[key]['amount'] += val['amount']
+                    tax_grouped[key]['base'] += val['base']
+                    tax_grouped[key]['base_amount'] += val['base_amount']
+                    tax_grouped[key]['tax_amount'] += val['tax_amount']
+
+        for t in tax_grouped.values():
+            t['base'] = cur_obj.round(cr, uid, cur, t['base'])
+            t['amount'] = cur_obj.round(cr, uid, cur, t['amount'])
+            t['base_amount'] = cur_obj.round(cr, uid, cur, t['base_amount'])
+            t['tax_amount'] = cur_obj.round(cr, uid, cur, t['tax_amount'])
+
+        #tax for shipping
         inv = self.pool.get('account.invoice').browse(cr, uid, invoice_id, context=context)
         if inv.tax_id:
             cur_obj = self.pool.get('res.currency')
@@ -907,6 +987,7 @@ class account_invoice_tax(osv.osv):
                 val={}
                 val['base'] = cur_obj.round(cr, uid, cur, tax['price_unit'])
                 val['invoice_id'] = inv.id
+                val['tax_id'] = tax['id']
                 val['name'] = tax['name']
                 val['amount'] = tax['amount']
                 val['manual'] = False
@@ -926,8 +1007,8 @@ class account_invoice_tax(osv.osv):
                     val['account_id'] = tax['account_paid_id']
                     val['account_analytic_id'] = tax['account_analytic_paid_id']
 
-                key = (val['tax_code_id'], val['base_code_id'], val['account_id'], val['account_analytic_id'])
-                key2 = (val['tax_code_id'], val['base_code_id'], val['account_id'])
+                key = (val['tax_id'], val['tax_code_id'], val['base_code_id'], val['account_id'], val['account_analytic_id'])
+                key2 = (val['tax_id'], val['tax_code_id'], val['base_code_id'], val['account_id'])
                 if not key in tax_grouped.keys():
                     if key2 in tax_grouped.keys():
                         key = key2
@@ -942,6 +1023,28 @@ class account_invoice_tax(osv.osv):
                     tax_grouped[key]['base_amount'] += cur_obj.round(cr, uid, cur,val['base_amount'])
                     tax_grouped[key]['tax_amount'] += cur_obj.round(cr, uid, cur,val['tax_amount'])
         return tax_grouped
+
+    def move_line_get(self, cr, uid, invoice_id):
+        res = []
+        cr.execute('SELECT * FROM account_invoice_tax WHERE invoice_id=%s', (invoice_id,))
+        for t in cr.dictfetchall():
+            if not t['amount'] \
+                    and not t['tax_code_id'] \
+                    and not t['tax_amount']:
+                continue
+            res.append({
+                'type':'tax',
+                'name':t['name'],
+                'price_unit': t['amount'],
+                'quantity': 1,
+                'price': t['amount'] or 0.0,
+                'account_id': t['account_id'],
+                'tax_id': t['tax_id'],
+                'tax_code_id': t['tax_code_id'],
+                'tax_amount': t['tax_amount'],
+                'account_analytic_id': t['account_analytic_id'],
+            })
+        return res
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

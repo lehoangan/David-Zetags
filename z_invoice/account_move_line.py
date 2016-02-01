@@ -19,35 +19,28 @@
 #
 ##############################################################################
 
+import time
 
-{
-    'name': 'Z - Invoice',
-    'version': '1.1',
-    'category': 'Zetags',
-    'description': """
-    """,
-    'author': 'Le Hoang An <lehoangan1988@gmail.com>',
-    'images': [],
-    'depends': ['z_base','sale','account','account_cancel',
-                'account_voucher','stock','sale_stock',
-                'report_aeroo',
-                'z_shipping_cost','z_product','z_product_attribute','z_customer'],
-    'data': [
-         "security/ir.model.access.csv",
-         "sale_report.xml",
-         "sale_view.xml",
-         "invoice_view.xml",
-         "voucher_view.xml",
-         "account_move_view.xml",
-         "delivery_order_view.xml",
-         "stock_report.xml",
-         "account_report.xml",
-         'menu.xml',
-    ],
-    'demo': [],
-    'test': [
-    ],
-    'installable': True,
-    'auto_install': False,
-}
+from openerp.osv import fields, osv
+from openerp.tools.translate import _
+from datetime import datetime
+import openerp.addons.decimal_precision as dp
+from openerp.tools import float_compare
+
+class account_move_line(osv.osv):
+    _inherit = "account.move.line"
+    _columns = {
+        'tax_id': fields.many2one('account.tax', 'Tax'),
+    }
+
+    def onchange_tax_id(self, cr, uid, ids, tax_id, context=None):
+        if not tax_id:
+            return {'value': {}}
+
+        tax_obj = self.pool.get('account.tax').browse(cr, uid, tax_id, context)
+        return {'value': {'tax_code_id': tax_obj.tax_code_id and tax_obj.tax_code_id.id or False}}
+
+account_move_line()
+
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

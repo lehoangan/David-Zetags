@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+         <record id="view_tax_move_form_inherit" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field[@name='tax_code_id']" position="before">
+                    <field name="tax_id" on_change="onchange_tax_id(tax_id, context)"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
+
+

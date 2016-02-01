@@ -34,6 +34,11 @@ class account_balance_zetag(account_balance):
         })
         self.context = context
 
+    def set_context(self, objects, data, ids, report_type=None):
+        if data['form'].get('partner_id', False):
+            self.context.update({'partner_id': data['form']['partner_id'][0]})
+        return super(account_balance_zetag, self).set_context(objects, data, ids, report_type=report_type)
+
     def get_lines_zateg(self, form, ids=None, done=None):
         def _process_child(accounts, disp_acc, parent):
                 account_rec = [acct for acct in accounts if acct['id']==parent][0]

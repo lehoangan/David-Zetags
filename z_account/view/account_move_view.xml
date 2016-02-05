@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_move_form_inherit" model="ir.ui.view">
+            <field name="name">account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']" position="attributes">
+	       			<attribute name="class">fields_zetag_class</attribute>
+	       		</xpath>
+
+	       		<xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']/tree[@string='Journal Items']" position="attributes">
+	       			<attribute name="class">tree_zetag_class</attribute>
+	       		</xpath>
+            </field>
+        </record>
+        
+
+    </data>
+</openerp>
+
+

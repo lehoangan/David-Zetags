@@ -1,0 +1,17 @@
+.tree_zetag_class {
+overflow: auto;
+float: left;
+width: 1024px;
+position:absolute;
+height:300px;
+}
+.fields_zetag_class .oe_view_manager_view_list {width:auto; height:300px;}
+.tree_zetag_class > table{
+/* độ rộng của table */
+width: auto;
+z-index: -1 !important;
+}
+
+.tree_zetag_class > table [data-id="account_id"]{
+width: 300px ; /* độ rộng của từng cột */
+}

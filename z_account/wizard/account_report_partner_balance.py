@@ -25,7 +25,7 @@ class account_partner_balance(osv.osv_memory):
     _inherit = 'account.partner.balance'
     _columns = {
         'currency_id': fields.many2one('res.currency', 'Currency'),
-        'partner_id': fields.many2one('res.partner', 'Partner'),
+        'partner_id': fields.many2one('res.partner', 'Filter Partner'),
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):

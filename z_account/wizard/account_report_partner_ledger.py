@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
-#    
+#
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
 #
@@ -15,11 +15,30 @@
 #    GNU Affero General Public License for more details.
 #
 #    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.     
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import account_financial_report
-import account_report_aged_partner_balance
-import account_report_partner_balance
-import account_report_partner_ledger
+
+from openerp.osv import fields, osv
+
+class account_partner_ledger(osv.osv_memory):
+    _inherit = 'account.partner.ledger'
+    _columns = {
+        'currency_id': fields.many2one('res.currency', 'Currency'),
+        'partner_id': fields.many2one('res.partner', 'Filter Partner'),
+    }
+
+    def _print_report(self, cr, uid, ids, data, context=None):
+        if context is None:
+            context = {}
+        data = self.pre_print_report(cr, uid, ids, data, context=context)
+        data['form'].update(self.read(cr, uid, ids, ['display_partner', 'currency_id', 'partner_id'])[0])
+        return {
+            'type': 'ir.actions.report.xml',
+            'report_name': 'account.partner.balance',
+            'datas': data,
+    }
+
+account_partner_ledger()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

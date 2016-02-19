@@ -20,25 +20,32 @@
 ##############################################################################
 
 import time
-from account.report.account_partner_balance import partner_balance
+from account.report.account_partner_ledger import third_party_ledger
 from openerp.report import report_sxw
 
-class partner_balance_zateg(partner_balance):
+class partner_ledger_zateg(third_party_ledger):
 
     def __init__(self, cr, uid, name, context=None):
-        super(partner_balance_zateg, self).__init__(cr, uid, name, context=context)
-        self.account_ids = []
-        self.localcontext.update( {
+        super(partner_ledger_zateg, self).__init__(cr, uid, name, context=context)
+        self.init_bal_sum = 0.0
+        self.localcontext.update({
             'time': time,
-            'get_fiscalyear': self._get_fiscalyear,
-            'get_journal': self._get_journal,
-            'get_filter': self._get_filter,
-            'get_account': self._get_account,
-            'get_start_date':self._get_start_date,
-            'get_end_date':self._get_end_date,
+            'lines': self.lines,
+            'sum_debit_partner': self._sum_debit_partner,
+            'sum_credit_partner': self._sum_credit_partner,
+            'get_currency': self._get_currency,
             'get_start_period': self.get_start_period,
             'get_end_period': self.get_end_period,
+            'get_account': self._get_account,
+            'get_filter': self._get_filter,
+            'get_start_date': self._get_start_date,
+            'get_end_date': self._get_end_date,
+            'get_fiscalyear': self._get_fiscalyear,
+            'get_journal': self._get_journal,
             'get_partners':self._get_partners,
+            'get_intial_balance':self._get_intial_balance,
+            'display_initial_balance':self._display_initial_balance,
+            'display_currency':self._display_currency,
             'get_target_move': self._get_target_move,
         })
 
@@ -56,11 +63,17 @@ class partner_balance_zateg(partner_balance):
                 data['form']['used_context'].update({'partner_id': data['form']['partner_id'][0]})
             else:
                 data['form'].update({'used_context': {'partner_id': data['form']['partner_id'][0]}})
-        return super(partner_balance_zateg, self).set_context(objects, data, ids, report_type=report_type)
+        return super(partner_ledger_zateg, self).set_context(objects, data, ids, report_type=report_type)
 
 from openerp.netsvc import Service
-del Service._services['report.account.partner.balance']
+del Service._services['report.account.third_party_ledger']
+del Service._services['report.account.third_party_ledger_other']
 
-report_sxw.report_sxw('report.account.partner.balance', 'res.partner', 'account/report/account_partner_balance.rml',parser=partner_balance_zateg, header="internal")
+report_sxw.report_sxw('report.account.third_party_ledger', 'res.partner',
+        'addons/account/report/account_partner_ledger.rml',parser=partner_ledger_zateg,
+        header='internal')
 
+report_sxw.report_sxw('report.account.third_party_ledger_other', 'res.partner',
+        'addons/account/report/account_partner_ledger_other.rml',parser=partner_ledger_zateg,
+        header='internal')
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

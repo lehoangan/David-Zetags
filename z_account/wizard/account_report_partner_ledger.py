@@ -32,12 +32,18 @@ class account_partner_ledger(osv.osv_memory):
         if context is None:
             context = {}
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['display_partner', 'currency_id', 'partner_id'])[0])
+        data['form'].update(self.read(cr, uid, ids, ['initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id'])[0])
+        if data['form']['page_split']:
+            return {
+                'type': 'ir.actions.report.xml',
+                'report_name': 'account.third_party_ledger',
+                'datas': data,
+        }
         return {
-            'type': 'ir.actions.report.xml',
-            'report_name': 'account.partner.balance',
-            'datas': data,
-    }
+                'type': 'ir.actions.report.xml',
+                'report_name': 'account.third_party_ledger_other',
+                'datas': data,
+        }
 
 account_partner_ledger()
 

@@ -47,7 +47,7 @@ class account_voucher(osv.osv):
 
         nodes = doc.xpath("//field[@name='journal_id']")
         for node in nodes:
-            node.set('domain', "[('type','in',['bank', 'cash']),('company_id', '=', company_id)]")
+            # node.set('domain', "[('type','in',['bank', 'cash']),('company_id', '=', company_id)]")
             node.set('widget', "many2one")
             node.set('options', "{'no_open': True,'no_create_edit': True, 'no_create': True,'no_quick_create': True}")
         res['arch'] = etree.tostring(doc)

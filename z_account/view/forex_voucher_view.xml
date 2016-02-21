@@ -56,7 +56,7 @@
                     <group col="4" colspan="4">
                         <group>
                             <field name="number"/>
-                            <field name="journal_id" widget="selection" />
+                            <field name="journal_id" domain="['|',('company_id', '=', company_id), ('company_id', '=', False)]"/>
                             <field name="reference"/>
                             <field name="currency_id" groups="base.group_multi_currency" on_change="onchange_currency_id(currency_id, payment_rate_currency_id, date, context)"/>
                             <field name="company_id" widget="selection" groups="base.group_multi_company"/>
@@ -69,7 +69,7 @@
                             <field name="move_id"/>
                         </group>
                         <field name="payment_rate_currency_id" invisible="1"/>
-                        <field name="period_id" invisible="1"/>
+                        <field name="period_id" invisible="1" domain="['|',('company_id', '=', company_id), ('company_id', '=', False)]"/>
 
                     </group>
                     <notebook>

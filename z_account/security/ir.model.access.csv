@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_forex_voucher,forex_voucher,model_forex_voucher,account.group_account_user,1,1,1,1
+access_forex_voucher_line,forex_voucher_line,model_forex_voucher_line,account.group_account_user,1,1,1,1

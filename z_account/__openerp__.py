@@ -38,6 +38,8 @@
         'report/report_define.xml',
         'view/forex_voucher_view.xml',
         'view/account_move_view.xml',
+        'security/ir.model.access.csv',
+        'security/security.xml',
     ],
     'demo': [],
     'test': [

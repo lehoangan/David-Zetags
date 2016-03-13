@@ -28,7 +28,7 @@
             <field name="name">forex.voucher.tree</field>
             <field name="model">forex.voucher</field>
             <field name="arch" type="xml">
-                <tree string="Forex Vouchers" colors="blue:state == 'draft';gray:state == 'cancel'">
+                <tree string="Foreign Journal" colors="blue:state == 'draft';gray:state == 'cancel'">
                     <field name="date"/>
                     <field name="number"/>
                     <field name="reference"/>
@@ -45,14 +45,14 @@
             <field name="name">forex.voucher.purchase.form</field>
             <field name="model">forex.voucher</field>
             <field name="arch" type="xml">
-                <form string="Forex Voucher" version="7.0">
+                <form string="Foreign Journal" version="7.0">
                 <header>
                     <button name="action_validate_voucher" string="Validate" type="object" states="draft" class="oe_highlight"/>
                     <button name="cancel_voucher" string="Cancel Voucher" type="object" states="posted" confirm="Are you sure you want to cancel this order?"/>
                     <button name="action_cancel_draft" type="object" states="cancel" string="Set to Draft"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,posted" statusbar_colors='{"proforma":"blue"}'/>
                 </header>
-                <sheet string="Forex Voucher">
+                <sheet string="Foreign Journal">
                     <group col="4" colspan="4">
                         <group>
                             <field name="number"/>
@@ -79,6 +79,7 @@
                                     <field name="debit_account_id" />
                                     <field name="credit_account_id" />
                                     <field name="name"/>
+                                    <field name="tax_account_id"/>
                                     <field name="amount"/>
                                 </tree>
                             </field>
@@ -101,7 +102,7 @@
             </field>
         </record>
         <record id="action_forex_voucher" model="ir.actions.act_window">
-            <field name="name">Forex Voucher</field>
+            <field name="name">Foreign Journal</field>
             <field name="res_model">forex.voucher</field>
             <field name="view_type">form</field>
             <field name="view_id" eval="False"/>

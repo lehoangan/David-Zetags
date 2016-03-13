@@ -33,6 +33,7 @@
     'data': [
         'res_users_view.xml',
         'res_company_view.xml',
+        'security/security.xml',
     ],
     'demo': [],
     'test': [

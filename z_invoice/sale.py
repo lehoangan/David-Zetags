@@ -419,7 +419,7 @@ class sale_order(osv.osv):
         user_obj = self.pool.get('res.users').browse(cr, uid, uid)
         #anlee: Dont need switch company
         old_company_id = False
-        if  order.partner_id.company_id and user_obj.company_id != order.partner_id.company_id and user_obj.non_switch_company:
+        if order.partner_id.company_id and user_obj.company_id != order.partner_id.company_id and user_obj.non_switch_company:
             company_ids = [comp.id for comp in user_obj.company_ids]
             if order.partner_id.company_id.id in company_ids:
                 old_company_id = user_obj.company_id.id

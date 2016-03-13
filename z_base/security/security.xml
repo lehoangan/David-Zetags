@@ -5,6 +5,27 @@
 	    <record id="group_nobody" model="res.groups">
 	        <field name="name">Nobody</field>
 	    </record>
+    </data>
+    <data>
+        <record model="ir.rule" id="base.res_partner_rule">
+            <field name="name">res.partner company</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <!-- Record Rule For Company -->
+        <record id="base.res_company_rule" model="ir.rule">
+            <field name="name">company rule</field>
+            <field model="ir.model" name="model_id" ref="base.model_res_company"/>
+            <field eval="True" name="global"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <!-- Record Rule For User -->
+        <record id="base.res_users_rule" model="ir.rule">
+            <field name="name">user rule</field>
+            <field model="ir.model" name="model_id" ref="base.model_res_users"/>
+            <field eval="True" name="global"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
 	    
 	</data>
 </openerp>

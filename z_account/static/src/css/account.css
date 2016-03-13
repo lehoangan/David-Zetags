@@ -15,3 +15,6 @@ z-index: -1 !important;
 .tree_zetag_class > table [data-id="account_id"]{
 width: 300px ; /* độ rộng của từng cột */
 }
+.tree_zetag_class > table [data-id="name"]{
+width: 300px ; /* độ rộng của từng cột */
+}

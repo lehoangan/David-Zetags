@@ -15,6 +15,26 @@
 	       			<attribute name="class">tree_zetag_class</attribute>
 	       		</xpath>
 
+                <xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']/tree[@string='Journal Items']/field[@name='analytic_account_id']" position="attributes">
+	       			<attribute name="invisible">True</attribute>
+	       		</xpath>
+
+                <xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']/tree[@string='Journal Items']/field[@name='amount_currency']" position="attributes">
+	       			<attribute name="invisible">True</attribute>
+	       		</xpath>
+
+                <xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']/tree[@string='Journal Items']/field[@name='currency_id']" position="attributes">
+	       			<attribute name="invisible">True</attribute>
+	       		</xpath>
+
+                <xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']/tree[@string='Journal Items']/field[@name='tax_code_id']" position="attributes">
+	       			<attribute name="invisible">True</attribute>
+	       		</xpath>
+
+                <xpath expr="//notebook/page[@string='Journal Items']/field[@name='line_id']/tree[@string='Journal Items']/field[@name='tax_amount']" position="attributes">
+	       			<attribute name="invisible">True</attribute>
+	       		</xpath>
+
                 <xpath expr="//field[@name='journal_id']" position="attributes">
 	       			<attribute name="domain">['|',('company_id', '=', company_id), ('company_id', '=', False)]</attribute>
 	       		</xpath>
@@ -24,6 +44,19 @@
 	       		</xpath>
             </field>
         </record>
+
+        <record id="account.action_move_journal_line" model="ir.actions.act_window">
+            <field name="name">Local Journal</field>
+        </record>
+
+        <menuitem
+            icon="STOCK_JUSTIFY_FILL"
+            string="Local Journal"
+            action="account.action_move_journal_line"
+            id="account.menu_action_move_journal_line_form"
+            parent="account.menu_finance_entries"
+            groups="account.group_account_user"
+            sequence="5"/>
         
 
     </data>

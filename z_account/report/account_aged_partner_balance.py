@@ -39,7 +39,6 @@ class aged_trial_report_zateg(aged_trial_report):
             'get_account': self._get_account,
             'get_fiscalyear': self._get_fiscalyear,
             'get_target_move': self._get_target_move,
-            'get_currency': self._get_currency,
         })
 
     def set_context(self, objects, data, ids, report_type=None):
@@ -90,7 +89,7 @@ class aged_trial_report_zateg(aged_trial_report):
         totals = {}
         sql_total = 'SUM(l.debit-l.credit)'
         if form['currency_id']:
-            sql_total = 'SUM(-l.amount_currency)'
+            sql_total = 'SUM(l.amount_currency)'
         self.cr.execute('SELECT l.partner_id, ' + sql_total + ' \
                     FROM account_move_line AS l, account_account, account_move am \
                     WHERE (l.account_id = account_account.id) AND (l.move_id=am.id) \
@@ -174,6 +173,20 @@ class aged_trial_report_zateg(aged_trial_report):
                         AND ''' + dates_query + '''
                     AND (l.date <= %s)
                     GROUP BY l.partner_id, l.reconcile_partial_id''', args_list)
+            sql = '''SELECT l.partner_id, ''' + sql_total +''' , l.reconcile_partial_id
+                    FROM account_move_line AS l, account_account, account_move am
+                    WHERE (l.account_id = account_account.id) AND (l.move_id=am.id)
+                        AND (am.state IN %s)
+                        AND (account_account.type IN %s)
+                        AND (l.partner_id IN %s)
+                        AND ((l.reconcile_id IS NULL)
+                          OR (l.reconcile_id IN (SELECT recon.id FROM account_move_reconcile AS recon WHERE recon.create_date > %s )))
+                        AND ''' + self.query + '''
+                        AND account_account.active
+                        AND ''' + dates_query + '''
+                    AND (l.date <= %s)
+                    GROUP BY l.partner_id, l.reconcile_partial_id'''
+            # print sql%args_list
             partners_partial = self.cr.fetchall()
             partners_amount = dict((i[0],0) for i in partners_partial)
             for partner_info in partners_partial:
@@ -259,7 +272,7 @@ class aged_trial_report_zateg(aged_trial_report):
         totals = {}
         sql_total = 'SUM(l.debit-l.credit)'
         if form['currency_id']:
-            sql_total = 'SUM(-l.amount_currency)'
+            sql_total = 'SUM(l.amount_currency)'
         self.cr.execute('SELECT ' + sql_total + ' \
                     FROM account_move_line AS l, account_account, account_move am \
                     WHERE (l.account_id = account_account.id) AND (l.move_id=am.id)\

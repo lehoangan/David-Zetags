@@ -338,4 +338,19 @@ class account_voucher(osv.osv):
         return True
 account_voucher()
 
+class account_voucher_line(osv.osv):
+    _inherit = 'account.voucher.line'
+
+    _columns = {
+        'choose': fields.boolean('Choose'),
+    }
+
+    def onchange_reconcile(self, cr, uid, ids, choose, amount, amount_unreconciled, context=None):
+        vals = {'amount': 0.0, 'reconcile': False}
+        if choose:
+            vals = { 'amount': amount_unreconciled, 'reconcile': True}
+        return {'value': vals}
+
+account_voucher_line()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

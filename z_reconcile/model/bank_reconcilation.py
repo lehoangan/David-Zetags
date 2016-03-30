@@ -142,7 +142,6 @@ class bank_reconcilation(osv.osv):
         return super(bank_reconcilation, self).unlink(cr, uid, ids, context)
 
     def onchange_line_id(self, cr, uid, ids, account_id, line_id, opening_balance, context=None):
-        print '==========='
         if not line_id or not account_id:
             return {'value': {}}
 
@@ -204,7 +203,6 @@ class bank_reconcilation(osv.osv):
         return {'value': result}
 
     def onchange_date_account(self, cr, uid, ids, account_id, date, company_id, context=None):
-        print '-------------------'
         if not account_id or not date:
             return {'value': {}}
         vals = {'last_reconcile_date': False,

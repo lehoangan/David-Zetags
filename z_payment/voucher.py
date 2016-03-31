@@ -129,6 +129,19 @@ class account_voucher(osv.osv):
         'discount_allowed': 0,
     }
 
+    def recompute_voucher_lines(self, cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context=None):
+        result = super(account_voucher, self).recompute_voucher_lines(cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context)
+        if result.get('value', False):
+            if result['value'].get('line_cr_ids', False):
+                for dict in result['value']['line_cr_ids']:
+                    dict['reconcile'] = False
+                    dict['amount'] = 0
+            if result['value'].get('line_dr_ids', False):
+                for dict in result['value']['line_dr_ids']:
+                    dict['reconcile'] = False
+                    dict['amount'] = 0
+        return result
+
     def action_move_line_create(self, cr, uid, ids, context=None):
         order = self.browse(cr, uid, ids[0])
         old_company_id = self.write_partner_company_to_user(cr, uid, order, context)

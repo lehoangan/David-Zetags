@@ -137,16 +137,16 @@ openerp.auth_2step = function(instance) {
                 }
                 var self = this,
                     super_ = this._super;
-                this.rpc('/auth_2step/send_otp', params)
-                    .done(function(result) {
-                        if (result.error) {
-                            self.show_error(result.error);
-                        }
-                    });
 
                 this.rpc('/auth_2step/show_opt', params)
                     .done(function(result) {
                         if (result == 1){
+                            self.rpc('/auth_2step/send_otp', params)
+                                .done(function(result) {
+                                    if (result.error) {
+                                        self.show_error(result.error);
+                                    }
+                                });
                             self.set('login_mode', 'login_otp');
                             return false;
                         } else {

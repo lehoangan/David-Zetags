@@ -88,7 +88,8 @@ class aged_trial_report_zateg(aged_trial_report):
 
         totals = {}
         sql_total = 'SUM(l.debit-l.credit)'
-        if form['currency_id']:
+        company_currency_id = self.pool.get('res.users').browse(self.cr, self.uid, self.uid).company_id.currency_id.id
+        if form['currency_id'] and form['currency_id'][0] != company_currency_id:
             sql_total = 'SUM(l.amount_currency)'
         self.cr.execute('SELECT l.partner_id, ' + sql_total + ' \
                     FROM account_move_line AS l, account_account, account_move am \
@@ -271,7 +272,8 @@ class aged_trial_report_zateg(aged_trial_report):
             self.total_account.append(0)
         totals = {}
         sql_total = 'SUM(l.debit-l.credit)'
-        if form['currency_id']:
+        company_currency_id = self.pool.get('res.users').browse(self.cr, self.uid, self.uid).company_id.currency_id.id
+        if form['currency_id'] and form['currency_id'][0] != company_currency_id:
             sql_total = 'SUM(l.amount_currency)'
         self.cr.execute('SELECT ' + sql_total + ' \
                     FROM account_move_line AS l, account_account, account_move am \

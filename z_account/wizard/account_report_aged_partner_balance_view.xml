@@ -13,7 +13,11 @@
                 </separator>
                 <field name="direction_selection" position="after">
                     <field name="currency_id"/>
+                    <field name="account_ids" widget="many2many_tags"/>
                 </field>
+                <xpath expr="//field[@name='result_selection']" position="attributes">
+	       			<attribute name="on_change">onchange_result_selection(result_selection, context)</attribute>
+	       		</xpath>
 
             </field>
         </record>

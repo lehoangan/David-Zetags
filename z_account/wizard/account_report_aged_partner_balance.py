@@ -29,7 +29,14 @@ class account_aged_trial_balance(osv.osv_memory):
     _inherit = 'account.aged.trial.balance'
     _columns = {
         'currency_id': fields.many2one('res.currency', 'Currency'),
+        'account_ids': fields.many2many('account.account', 'atb_accounts_rel', 'wizard_id', 'account_id', 'Exclude Accounts'),
     }
+
+    def onchange_result_selection(self, cr, uid, ids, result_selection, context=None):
+        if result_selection == 'supplier':
+            account_ids = self.pool.get('account.account').search(cr, uid, [('name', 'like', 'Payroll'), ('type', '=', 'payable')])
+            return {'value': {'account_ids': account_ids}}
+        return {'value': {}}
 
     def _print_report(self, cr, uid, ids, data, context=None):
         res = {}
@@ -37,7 +44,7 @@ class account_aged_trial_balance(osv.osv_memory):
             context = {}
 
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['period_length', 'direction_selection', 'currency_id'])[0])
+        data['form'].update(self.read(cr, uid, ids, ['period_length', 'direction_selection', 'currency_id', 'account_ids'])[0])
 
         period_length = data['form']['period_length']
         if period_length<=0:

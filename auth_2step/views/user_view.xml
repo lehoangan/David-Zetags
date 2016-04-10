@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="2step_login_user_view">
+            <field name="name">res.users.form.inherit</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="model">res.users</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                 <field name="active" position="after">
+                     <field name="2_step" />
+                     <field name="otp_key" />
+                 </field>
+                <xpath expr="//field[@name='email']" position="attributes">
+                    <attribute name="attrs">{'required':[('2_step','=', True)]}</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vim:fdl=1:
+-->
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="Login">
+        <t t-jquery="form ul:first li:contains('Username')" t-operation="before">
+            <li data-modes="login_otp">OTP Key</li>
+            <li data-modes="login_otp"><input name="otp_key" type="text"/></li>
+        </t>
+
+        <t t-jquery="form ul:first li:contains('Username')" t-operation="replace">
+            <li data-modes="default">Username</li>
+        </t>
+        <t t-jquery="form ul:first li:has(input[name=login], input[name=password]), form ul:first li:contains('Password')">
+            this.attr('data-modes', 'default');
+        </t>
+
+        <t t-jquery="form ul:first li:has(button[name=submit])" t-operation="replace">
+            <li>
+                <button name="submit">
+                    <span data-modes="default">Log in</span>
+                    <span data-modes="login_otp">Validated</span>
+                </button>
+                <a class="oe_otp_back" data-modes="login_otp" href="#">Back to Login</a>
+                <a class="oe_login_otp" data-modes="default123" href="#">Validated</a>
+            </li>
+        </t>
+    </t>
+
+</templates>

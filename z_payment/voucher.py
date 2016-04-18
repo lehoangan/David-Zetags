@@ -38,6 +38,10 @@ class res_company(osv.osv):
             'account.account',
             string="Deduct Payment Discount Account",
             domain="[('type', '=', 'other'),('company_id','=', id)]",),
+        'deduct_currency_account_id': fields.many2one(
+            'account.account',
+            string="Deduct Currency Gain/Loss Account",
+            domain="[('type', '!=', 'view'),('company_id','=', id)]",),
     }
 
     def action_open_entries(self, cr, uid, ids, context=None):
@@ -76,6 +80,12 @@ class account_config_settings(osv.osv_memory):
             relation='account.account',
             string="Deduct Payment Discount Account",
             domain="[('type', '=', 'other')]"),
+        'deduct_currency_account_id': fields.related(
+            'company_id', 'deduct_currency_account_id',
+            type="many2one",
+            relation='account.account',
+            string="Deduct Currency Gain/Loss Account"
+        ),
     }
     
     def onchange_company_id(self, cr, uid, ids, company_id, context=None):
@@ -83,10 +93,12 @@ class account_config_settings(osv.osv_memory):
         if company_id:
             company = self.pool.get('res.company').browse(cr, uid, company_id, context=context)
             res['value'].update({'deduct_bank_fee_account_id': company.deduct_bank_fee_account_id and company.deduct_bank_fee_account_id.id or False, 
-                                 'deduct_payment_discount_account_id': company.deduct_payment_discount_account_id and company.deduct_payment_discount_account_id.id or False})
+                                 'deduct_payment_discount_account_id': company.deduct_payment_discount_account_id and company.deduct_payment_discount_account_id.id or False,
+                                 'deduct_currency_account_id': company.deduct_currency_account_id and company.deduct_currency_account_id.id or False})
         else: 
             res['value'].update({'deduct_bank_fee_account_id': False, 
-                                 'deduct_payment_discount_account_id': False})
+                                 'deduct_payment_discount_account_id': False,
+                                 'deduct_currency_account_id': False})
         return res
     
 class account_voucher(osv.osv):
@@ -256,7 +268,7 @@ class account_voucher(osv.osv):
         if diff_currency:
             debit = credit = cur_obj.compute(cr, uid, current_currency, company_currency, voucher.discount_allowed, context=ctx)
             amount_currency = voucher.discount_allowed
-            
+
         if voucher.type in ('receipt'):
             credit = 0.0
         if debit < 0: credit = -debit; debit = 0.0

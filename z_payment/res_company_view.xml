@@ -16,6 +16,7 @@
                             <group>
                                 <field name="deduct_bank_fee_account_id"/>
                                 <field name="deduct_payment_discount_account_id"/>
+                                <field name="deduct_currency_account_id"/>
                             </group>
                         </page>
                     </xpath>

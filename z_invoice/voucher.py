@@ -94,6 +94,11 @@ class account_voucher(osv.osv):
         }
         self.write(cr, uid, ids, res)
         return True
+
+    def onchange_journal(self, cr, uid, ids, journal_id, line_ids, tax_id, partner_id, date, amount, ttype, company_id, context=None):
+        result = super(account_voucher, self).onchange_journal(cr, uid, ids, journal_id, line_ids, tax_id, partner_id, date, amount, ttype, company_id, context)
+        result['value'].update({'journal_id': journal_id})
+        return result
     
     #Thanh: Get Journal from Customer Form
     def onchange_partner_id(self, cr, uid, ids, partner_id, journal_id, amount, currency_id, ttype, date, context=None):

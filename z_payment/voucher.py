@@ -143,7 +143,8 @@ class account_voucher(osv.osv):
 
     def recompute_voucher_lines(self, cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context=None):
         result = super(account_voucher, self).recompute_voucher_lines(cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context)
-        if result.get('value', False):
+        # print '=================', context
+        if result.get('value', False) and context.get('active_model', '') != 'account.invoice':
             if result['value'].get('line_cr_ids', False):
                 for dict in result['value']['line_cr_ids']:
                     dict['reconcile'] = False

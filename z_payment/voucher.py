@@ -508,6 +508,16 @@ class account_voucher_line(osv.osv):
         'choose': fields.boolean('Choose'),
     }
 
+    def write(self, cr, uid, ids, vals, context=None):
+        if vals.get('reconcile', False) and not vals.get('choose', False):
+            vals['choose'] = True
+        return super(account_voucher_line, self).write(cr, uid, ids, vals, context)
+
+    def create(self, cr, uid, vals, context=None):
+        if vals.get('reconcile', False) and not vals.get('choose', False):
+            vals['choose'] = True
+        return super(account_voucher_line, self).create(cr, uid, vals, context)
+
     def onchange_reconcile(self, cr, uid, ids, choose, amount, amount_unreconciled, context=None):
         vals = {'amount': 0.0, 'reconcile': False}
         if choose:

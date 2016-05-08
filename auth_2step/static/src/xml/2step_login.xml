@@ -23,7 +23,7 @@
                     <span data-modes="login_otp">Validated</span>
                 </button>
                 <a class="oe_otp_back" data-modes="login_otp" href="#">Back to Login</a>
-                <a class="oe_login_otp" data-modes="default123" href="#">Validated</a>
+                <!--a class="oe_login_otp" data-modes="default" href="#">Validated</a-->
             </li>
         </t>
     </t>

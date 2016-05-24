@@ -346,6 +346,11 @@ class account_invoice(osv.osv):
                 result['value'].update({'currency_id':partner.property_product_pricelist.currency_id.id or False})
         if partner_id:
             part = self.pool.get('res.partner').browse(cr, uid, partner_id)
+            if type == 'in_invoice':
+                company = self.pool.get('res.users').browse(cr, uid, uid).company_id
+                pricelist = part.property_product_pricelist
+                if pricelist and pricelist.currency_id and pricelist.currency_id != company.currency_id:
+                    result['value'].update({'currency_id': pricelist.currency_id.id,})
             result['value'].update({'tax_id': [tax.id for tax in part.tax_ids] or [],})
             if part.country_id and part.country_id.company_id:
                 user_company = self.pool.get('res.users').browse(cr, uid, uid).company_id

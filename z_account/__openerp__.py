@@ -35,9 +35,12 @@
         'wizard/account_report_aged_partner_balance_view.xml',
         'wizard/account_report_partner_ledger_view.xml',
         'wizard/account_report_partner_balance_view.xml',
+
         'report/report_define.xml',
         'view/forex_voucher_view.xml',
         'view/account_move_view.xml',
+        'view/payment_methods_view.xml',
+
         'security/ir.model.access.csv',
         'security/security.xml',
     ],

@@ -522,6 +522,7 @@
 	                <page string="Payments" >
 	                	<group>
 	                        <group>
+                                <field name="payment_method" />
 	                        	<field name="default_payment_method" domain="[('company_id','=',company_id)]"/>
 	                            <field name="property_payment_term" widget="selection"/>
 	                            <field name="credit_limit"/>

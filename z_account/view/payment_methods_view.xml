@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_payment_methods_filter" model="ir.ui.view">
+            <field name="name">payment.methods.sale.select</field>
+            <field name="model">payment.methods</field>
+            <field name="arch" type="xml">
+                <search string="Search Methods">
+                    <field name="name"/>
+                    <field name="company_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_payment_methods_tree" model="ir.ui.view">
+            <field name="name">payment.methods.tree</field>
+            <field name="model">payment.methods</field>
+            <field name="arch" type="xml">
+                <tree string="Payment Methods" editable="top">
+                    <field name="name"/>
+                    <field name="company_id" widget="selection" groups="base.group_multi_company"/>
+                </tree>
+            </field>
+        </record>
+		
+		<record model="ir.ui.view" id="view_payment_methods_form">
+            <field name="name">payment.methods.purchase.form</field>
+            <field name="model">payment.methods</field>
+            <field name="arch" type="xml">
+                <form string="Payment Methods" version="7.0">
+                    <sheet string="Payment Methods">
+                        <group col="4" colspan="4">
+                            <field name="name"/>
+                            <field name="company_id" widget="selection" groups="base.group_multi_company"/>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+        <record id="action_payment_methods" model="ir.actions.act_window">
+            <field name="name">Payment Methods</field>
+            <field name="res_model">payment.methods</field>
+            <field name="view_type">form</field>
+            <field name="view_id" eval="False"/>
+            <field name="search_view_id" eval="view_payment_methods_filter"/>
+        </record>
+
+        <menuitem id="menu_action_payment_methods" icon="STOCK_JUSTIFY_FILL"
+            action="action_payment_methods" parent="account.menu_configuration_misc" sequence="10"/>
+    </data>
+</openerp>
+
+

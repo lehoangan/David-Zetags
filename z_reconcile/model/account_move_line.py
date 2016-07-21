@@ -32,6 +32,12 @@ class account_move(osv.osv):
     _columns = {
     }
 
+    def copy(self, cr, uid, id, default=None, context=None):
+        move_id = super(account_move, self).copy(cr, uid, id, default, context)
+        for line in self.browse(cr, uid, move_id).line_id:
+            line.write({'z_reconciled': False})
+        return move_id
+
     def onchange_date(self, cr, uid, ids, date, context=None):
         if not date:
             return {'value': {'period_id': False}}
@@ -63,10 +69,18 @@ class account_move_line(osv.osv):
                                    string='Status', readonly=True),
     }
 
+    def copy(self, cr, uid, id, default=None, context=None):
+        if default is None:
+            default = {}
+        default = default.copy()
+        default.update(z_reconciled=False)
+        return super(account_move_line, self).copy(cr, uid, id, default, context)
+
     def write(self, cr, uid, ids, vals, context=None, check=True, update_check=True):
         for obj in self.browse(cr, uid, ids, context):
+            if 'z_reconciled' in vals and not vals['z_reconciled']: continue
             if obj.fcstate == 'reconcile':
-                raise osv.except_osv(_('Error!'), _('Please remove this entry in bank reconcilefirst'))
+                raise osv.except_osv(_('Error!'), _('Please remove this entry in bank reconcile first'))
         return super(account_move_line, self).write(cr, uid, ids, vals, context, check, update_check)
 
     def unlink(self, cr, uid, ids, context=None):

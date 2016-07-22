@@ -79,8 +79,11 @@
                                     <field name="debit_account_id" />
                                     <field name="credit_account_id" />
                                     <field name="name"/>
-                                    <field name="tax_account_id"/>
-                                    <field name="amount"/>
+                                    <field name="tax_id" on_change="onchange_tax_id(tax_id, amount, parent.partner_id)" domain="[('company_id', '=', parent.company_id)]"/>
+                                    <field name="tax_account_id" invisible="1"/>
+                                    <field name="tax_code_id" invisible="1"/>
+                                    <field name="tax_amount" invisible="1"/>
+                                    <field name="amount" on_change="onchange_tax_id(tax_id, amount, parent.partner_id)"/>
                                 </tree>
                             </field>
                         </page>

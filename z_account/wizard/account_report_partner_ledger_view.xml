@@ -3,7 +3,7 @@
      <data>
 
         <record id="account_partner_ledger_view" model="ir.ui.view">
-            <field name="name">Partner Ledger</field>
+            <field name="name">Partner Detail Report</field>
             <field name="model">account.partner.ledger</field>
             <field name="inherit_id" ref="account.account_partner_ledger_view" />
             <field name="arch" type="xml">
@@ -16,6 +16,21 @@
             </data>
             </field>
         </record>
+
+         <record id="account.action_account_partner_ledger" model="ir.actions.act_window">
+             <field name="name">Partner Detail Report</field>
+        </record>
+
+       <record model="ir.values" id="account.ir_values_account_partner_ledger">
+           <field name="name">Print Partner Detail Report</field>
+       </record>
+
+        <menuitem icon="STOCK_PRINT"
+            name="Partner Detail Report"
+            action="account.action_account_partner_ledger"
+            groups="account.group_account_manager,account.group_account_user"
+            id="account.menu_account_partner_ledger"
+            parent="account.next_id_22"/>
 
 
      </data>

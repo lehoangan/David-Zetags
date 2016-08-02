@@ -26,5 +26,20 @@
 		         rml="z_account/report/account_aged_partner_balance.rml"
 		         string="Partner Aged Trial Balance"/>
 
+        <report auto="False" id="account.account_3rdparty_ledger"
+                menu="False"
+                model="res.partner"
+                name="account.third_party_ledger"
+                rml="z_account/report/account_partner_ledger.rml"
+                string="Partner Detail Report"/>
+
+        <report auto="False"
+                id="account.account_3rdparty_ledger_other"
+                menu="False"
+                model="res.partner"
+                name="account.third_party_ledger_other"
+                rml="z_account/report/account_partner_ledger_other.rml"
+                string="Partner Detail Report"/>
+
     </data>
 </openerp>

@@ -41,5 +41,20 @@
                 rml="z_account/report/account_partner_ledger_other.rml"
                 string="Partner Detail Report"/>
 
+        <report auto="False" id="account.account_3rdparty_transaction"
+                menu="False"
+                model="res.partner"
+                name="account.third_party_transaction"
+                rml="z_account/report/account_partner_transaction.rml"
+                string="Partner Transaction Report"/>
+
+        <report auto="False"
+                id="account.account_3rdparty_ledger_transaction"
+                menu="False"
+                model="res.partner"
+                name="account.third_party_transaction_other"
+                rml="z_account/report/account_partner_transaction_other.rml"
+                string="Partner Transaction Report"/>
+
     </data>
 </openerp>

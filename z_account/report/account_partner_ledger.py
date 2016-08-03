@@ -70,10 +70,10 @@ del Service._services['report.account.third_party_ledger']
 del Service._services['report.account.third_party_ledger_other']
 
 report_sxw.report_sxw('report.account.third_party_ledger', 'res.partner',
-        'addons/account/report/account_partner_ledger.rml',parser=partner_ledger_zateg,
+        'addons/z_account/report/account_partner_ledger.rml',parser=partner_ledger_zateg,
         header='internal')
 
 report_sxw.report_sxw('report.account.third_party_ledger_other', 'res.partner',
-        'addons/account/report/account_partner_ledger_other.rml',parser=partner_ledger_zateg,
+        'addons/z_account/report/account_partner_ledger_other.rml',parser=partner_ledger_zateg,
         header='internal')
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

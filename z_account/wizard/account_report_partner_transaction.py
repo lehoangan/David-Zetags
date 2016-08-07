@@ -27,13 +27,14 @@ class account_partner_transaction(osv.osv_memory):
     _columns = {
         'journal_ids': fields.many2many('account.journal', 'zetag_account_partner_transation_journal_rel', 'account_id',
                                         'journal_id', 'Journals', required=True),
+        'hide_zero': fields.boolean('Hide Zero Transactions'),
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):
         if context is None:
             context = {}
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id'])[0])
+        data['form'].update(self.read(cr, uid, ids, ['initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id','hide_zero'])[0])
         if data['form']['page_split']:
             return {
                 'type': 'ir.actions.report.xml',

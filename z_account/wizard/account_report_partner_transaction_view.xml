@@ -14,6 +14,7 @@
                 <field name="page_split"/>
                 <field name="currency_id"/>
                 <field name="partner_id"/>
+                <field name="hide_zero"/>
                 <newline/>
             </xpath>
             <xpath expr="//field[@name='filter']" position="replace">

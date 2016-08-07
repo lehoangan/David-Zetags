@@ -26,13 +26,14 @@ class account_partner_ledger(osv.osv_memory):
     _columns = {
         'currency_id': fields.many2one('res.currency', 'Currency'),
         'partner_id': fields.many2one('res.partner', 'Filter Partner'),
+        'hide_zero': fields.boolean('Hide Zero Transactions'),
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):
         if context is None:
             context = {}
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id'])[0])
+        data['form'].update(self.read(cr, uid, ids, ['initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id', 'hide_zero'])[0])
         if data['form']['page_split']:
             return {
                 'type': 'ir.actions.report.xml',

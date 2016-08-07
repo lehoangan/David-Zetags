@@ -50,6 +50,13 @@ class partner_ledger_zateg(third_party_ledger):
         })
 
     def set_context(self, objects, data, ids, report_type=None):
+        if data['form']['hide_zero']:
+            ctx = data['form'].get('used_context', {})
+            if ctx:
+                data['form']['used_context'].update({'hide_zero': data['form']['hide_zero']})
+            else:
+                data['form'].update({'used_context': {'hide_zero': data['form']['hide_zero']}})
+
         if data['form']['currency_id']:
             ctx = data['form'].get('used_context', {})
             if ctx:

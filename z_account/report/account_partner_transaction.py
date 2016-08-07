@@ -69,6 +69,13 @@ class partner_transation_zateg(partner_ledger_zateg):
                 data['form']['used_context'].update({'partner_id': data['form']['partner_id'][0]})
             else:
                 data['form'].update({'used_context': {'partner_id': data['form']['partner_id'][0]}})
+
+        if data['form']['hide_zero']:
+            ctx = data['form'].get('used_context', {})
+            if ctx:
+                data['form']['used_context'].update({'hide_zero': data['form']['hide_zero']})
+            else:
+                data['form'].update({'used_context': {'hide_zero': data['form']['hide_zero']}})
         return super(partner_transation_zateg, self).set_context(objects, data, ids, report_type=report_type)
 
     def lines(self, partner):

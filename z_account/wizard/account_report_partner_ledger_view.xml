@@ -11,6 +11,7 @@
             <xpath expr="//field[@name='page_split']" position="after">
                 <field name="currency_id"/>
                 <field name="partner_id"/>
+                <field name="hide_zero"/>
                 <newline/>
             </xpath>
             </data>

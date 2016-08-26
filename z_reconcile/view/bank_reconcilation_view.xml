@@ -26,6 +26,7 @@
                 <header>
                     <button name="button_reconcile" string="Reconcile" states="draft" type="object" class="oe_highlight" groups="account.group_account_invoice"/>
                     <button name="button_cancel" states="reconciled" string="Cancel" type="object" groups="account.group_account_invoice"/>
+                    <button name="button_reload" string="Load Data" type="object" groups="account.group_account_invoice"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet string="Bank Reconciliations" >

@@ -27,6 +27,7 @@ from datetime import datetime
 import openerp.addons.decimal_precision as dp
 from openerp.tools import float_compare
 
+
 class bank_reconcilation(osv.osv):
     _name = "bank.reconcilation"
 
@@ -98,40 +99,50 @@ class bank_reconcilation(osv.osv):
                             ptype_src = line.account_id.company_id.id
                             total_company = (line.debit - line.credit)
                             res[obj.id] += currency_obj.compute(cr, uid,
-                                        ptype_src, currency_id,
-                                        total_company, round=False,
-                                        context=context)
+                                                                ptype_src, currency_id,
+                                                                total_company, round=False,
+                                                                context=context)
         return res
 
     _columns = {
         'name': fields.char('Description', 100, required=True, readonly=True, states={'draft': [('readonly', False)]}),
-        'account_id': fields.many2one('account.account', 'Account', domain="[('company_id','=',company_id),('z_reconcile', '=', True)]", readonly=True, states={'draft': [('readonly', False)]}),
+        'account_id': fields.many2one('account.account', 'Account',
+                                      domain="[('company_id','=',company_id),('z_reconcile', '=', True)]",
+                                      readonly=True, states={'draft': [('readonly', False)]}),
         'date': fields.date('Reconcile Date', readonly=True, states={'draft': [('readonly', False)]}),
         'last_reconcile_date': fields.function(_get_last_reconcile_date, type='date', string='Last Reconciled',
-            store={
-                'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids, ['date'], 20),
-            }),
+                                               store={
+                                                   'bank.reconcilation': (
+                                                   lambda self, cr, uid, ids, c={}: ids, ['date'], 20),
+                                               }),
         'opening_balance': fields.function(_compute_opening_balance, type='float', string='Opening Balance',
-            store={
-                'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'], 20),
-            }),
+                                           store={
+                                               'bank.reconcilation': (
+                                               lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'],
+                                               20),
+                                           }),
         'calculated_balance': fields.function(_compute_calculated_balance, type='float', string='Calculated Balance',
-            store={
-                'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'], 20),
-            }),
+                                              store={
+                                                  'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids,
+                                                                         ['statement_balance', 'line_id'], 20),
+                                              }),
         'statement_balance': fields.float('Statement Balance', readonly=True, states={'draft': [('readonly', False)]}),
         'closing_balance': fields.function(_compute_closing_balance, type='float', string='Closing Balance',
-            store={
-                'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'], 20),
-            }),
-        'line_id': fields.one2many('bank.reconcilation.line', 'order_id', 'Detail', readonly=True, states={'draft': [('readonly', False)]}),
-        'state': fields.selection([('draft','Draft'), ('reconciled', 'Reconciled')], 'State', readonly=True),
+                                           store={
+                                               'bank.reconcilation': (
+                                               lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'],
+                                               20),
+                                           }),
+        'line_id': fields.one2many('bank.reconcilation.line', 'order_id', 'Detail', readonly=True,
+                                   states={'draft': [('readonly', False)]}),
+        'state': fields.selection([('draft', 'Draft'), ('reconciled', 'Reconciled')], 'State', readonly=True),
         'company_id': fields.many2one('res.company', 'Company', required=True),
     }
-    _defaults={
+    _defaults = {
         'state': 'draft',
         'last_reconcile_date': _default_last_date,
-        'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'account.account', context=c),
+        'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'account.account',
+                                                                                           context=c),
     }
 
     def unlink(self, cr, uid, ids, context=None):
@@ -166,9 +177,9 @@ class bank_reconcilation(osv.osv):
                             ptype_src = obj.account_id.company_id.id
                             total_company = (obj.debit - obj.credit)
                             total += currency_obj.compute(cr, uid,
-                                        ptype_src, currency_id,
-                                        total_company, round=False,
-                                        context=context)
+                                                          ptype_src, currency_id,
+                                                          total_company, round=False,
+                                                          context=context)
 
                 else:
                     if not currency_id:
@@ -180,9 +191,9 @@ class bank_reconcilation(osv.osv):
                             ptype_src = account.company_id.id
                             total_company = (line[2].get('debit', 0) - line[2].get('credit', 0))
                             total += currency_obj.compute(cr, uid,
-                                        ptype_src, currency_id,
-                                        total_company, round=False,
-                                        context=context)
+                                                          ptype_src, currency_id,
+                                                          total_company, round=False,
+                                                          context=context)
 
             elif line[1]:
                 obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
@@ -196,9 +207,9 @@ class bank_reconcilation(osv.osv):
                             ptype_src = obj.account_id.company_id.id
                             total_company = (obj.debit - obj.credit)
                             total += currency_obj.compute(cr, uid,
-                                        ptype_src, currency_id,
-                                        total_company, round=False,
-                                        context=context)
+                                                          ptype_src, currency_id,
+                                                          total_company, round=False,
+                                                          context=context)
         result.update({'calculated_balance': total})
         return {'value': result}
 
@@ -207,7 +218,7 @@ class bank_reconcilation(osv.osv):
             return {'value': {}}
         vals = {'last_reconcile_date': False,
                 'opening_balance': 0}
-        #default last reconcile date + 'Opening Balance
+        # default last reconcile date + 'Opening Balance
         old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
                                         ('company_id', '=', company_id),
                                         ('account_id', '=', account_id),
@@ -218,20 +229,20 @@ class bank_reconcilation(osv.osv):
                          'opening_balance': old_obj.calculated_balance})
 
         if date:
-            #get line detail
+            # get line detail
             condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND'
             if account_id:
-                condition += ' ml.account_id = %s'%account_id
+                condition += ' ml.account_id = %s' % account_id
                 if date:
-                    condition += '''AND ml.date <= '%s' '''%date
+                    condition += '''AND ml.date <= '%s' ''' % date
             elif date:
-                condition += ''' ml.date <= '%s' '''%date
+                condition += ''' ml.date <= '%s' ''' % date
             sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit, ml.amount_currency,
                           ml.credit, ml.currency_id, ml.tax_code_id, ml.state
                     FROM account_move_line ml
                     WHERE %s
                     ORDER BY ml.date ASC
-                '''%(condition)
+                ''' % (condition)
 
             cr.execute(sql)
             datas = cr.dictfetchall()
@@ -251,6 +262,46 @@ class bank_reconcilation(osv.osv):
             vals.update({'line_id': res})
         return {'value': vals}
 
+    def button_reload(self, cr, uid, ids, context):
+        line_obj = self.pool.get('bank.reconcilation.line')
+        for obj in self.browse(cr, uid, ids, context):
+            move_ids = [line.move_line_id.id for line in obj.line_id if line.move_line_id]
+            date = obj.date
+            account_id = obj.account_id and obj.account_id.id or False
+
+            # get line detail
+            condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) '
+            if move_ids:
+                condition += ' AND ml.id not in %s ' % str(tuple(move_ids + [-1, -1]))
+            if account_id:
+                condition += ' AND ml.account_id = %s' % account_id
+            if date:
+                condition += ''' AND ml.date <= '%s' ''' % date
+
+            sql = '''SELECT DISTINCT ml.id, ml.date, ml.partner_id, ml.account_id, ml.debit, ml.amount_currency,
+                          ml.credit, ml.currency_id, ml.tax_code_id, ml.state
+                    FROM account_move_line ml
+                    WHERE %s
+                    ORDER BY ml.date ASC
+                ''' % (condition)
+
+            cr.execute(sql)
+            datas = cr.dictfetchall()
+            for data in datas:
+                line_obj.create(cr, uid, {'move_line_id': data['id'],
+                                          'date': data['date'],
+                                          'partner_id': data['partner_id'] and data['partner_id'] or False,
+                                          'account_id': data['account_id'] and data['account_id'] or False,
+                                          'debit': data['debit'] or 0,
+                                          'credit': data['credit'] or 0,
+                                          'amount_currency': data['amount_currency'] or 0,
+                                          'currency_id': data['currency_id'] and data['currency_id'] or False,
+                                          'tax_code_id': data['tax_code_id'] and data['tax_code_id'] or False,
+                                          'state': data['state'],
+                                          'order_id': obj.id,
+                                          })
+        return True
+
     def button_reconcile(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):
             move_ids = []
@@ -258,16 +309,18 @@ class bank_reconcilation(osv.osv):
                 if line.choose:
                     move_ids.append(line.move_line_id.id)
             if obj.calculated_balance != obj.statement_balance:
-                raise osv.except_osv(_('Error!'), _('Your balance does not reconcile. Calculated and Statement Balances must reconcile'))
+                raise osv.except_osv(_('Error!'), _(
+                    'Your balance does not reconcile. Calculated and Statement Balances must reconcile'))
             if not move_ids:
                 raise osv.except_osv(_('Error!'), _('Please choose entry to reconciliation'))
-            cr.execute('UPDATE account_move_line set z_reconciled= TRUE where id in %s '%str(tuple(move_ids + [-1,-1])))
+            cr.execute(
+                'UPDATE account_move_line set z_reconciled= TRUE where id in %s ' % str(tuple(move_ids + [-1, -1])))
         self.write(cr, uid, ids, {'state': 'reconciled'}, context)
         return True
 
     def button_cancel(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):
-            next_ids = self.search(cr, uid, [('date', '>', obj.date),('state', '=', 'reconciled'), ])
+            next_ids = self.search(cr, uid, [('date', '>', obj.date), ('state', '=', 'reconciled'), ])
             if next_ids:
                 raise osv.except_osv(_('Error!'), _('Please remove the next reconciliation first'))
             move_ids = []
@@ -277,31 +330,39 @@ class bank_reconcilation(osv.osv):
 
             if not move_ids:
                 raise osv.except_osv(_('Error!'), _('Please choose entry to reconciliation'))
-            cr.execute('UPDATE account_move_line set z_reconciled= FALSE where id in %s '%str(tuple(move_ids + [-1,-1])))
+            cr.execute(
+                'UPDATE account_move_line set z_reconciled= FALSE where id in %s ' % str(tuple(move_ids + [-1, -1])))
         self.write(cr, uid, ids, {'state': 'draft'}, context)
         return True
 
 
-
 bank_reconcilation()
+
 
 class bank_reconcilation_line(osv.osv):
     _name = "bank.reconcilation.line"
     _columns = {
         'order_id': fields.many2one('bank.reconcilation', 'Parent', ondelete='cascade'),
-        'move_line_id': fields.many2one('account.move.line', 'Move Items', domain="[('account_id', '=', parent.account_id)]"),
-        'date': fields.related('move_line_id', 'date',string='Date', type='date',
+        'move_line_id': fields.many2one('account.move.line', 'Move Items',
+                                        domain="[('account_id', '=', parent.account_id)]"),
+        'date': fields.related('move_line_id', 'date', string='Date', type='date',
                                store={
-                                        'bank.reconcilation.line': (lambda self, cr, uid, ids, c={}: ids, ['move_line_id'], 10),
-                                    }),
-        'partner_id': fields.related('move_line_id', 'partner_id',string='Partner', type='many2one', relation="res.partner"),
-        'account_id': fields.related('move_line_id', 'account_id',string='Account', type='many2one', relation="account.account"),
-        'debit': fields.related('move_line_id', 'debit',string='Debit', type='float'),
-        'credit': fields.related('move_line_id', 'credit',string='Credit', type='float'),
-        'amount_currency': fields.related('move_line_id', 'amount_currency',string='Amount Currency', type='float'),
-        'currency_id': fields.related('move_line_id', 'currency_id',string='Curremcy', type='many2one', relation="res.currency"),
-        'tax_code_id': fields.related('move_line_id', 'tax_code_id',string='Tax Account', type='many2one', relation="account.tax.code"),
-        'state': fields.related('move_line_id', 'state',string='Status', type='selection', selection=[('draft','Unbalanced'), ('valid','Balanced')]),
+                                   'bank.reconcilation.line': (
+                                   lambda self, cr, uid, ids, c={}: ids, ['move_line_id'], 10),
+                               }),
+        'partner_id': fields.related('move_line_id', 'partner_id', string='Partner', type='many2one',
+                                     relation="res.partner"),
+        'account_id': fields.related('move_line_id', 'account_id', string='Account', type='many2one',
+                                     relation="account.account"),
+        'debit': fields.related('move_line_id', 'debit', string='Debit', type='float'),
+        'credit': fields.related('move_line_id', 'credit', string='Credit', type='float'),
+        'amount_currency': fields.related('move_line_id', 'amount_currency', string='Amount Currency', type='float'),
+        'currency_id': fields.related('move_line_id', 'currency_id', string='Curremcy', type='many2one',
+                                      relation="res.currency"),
+        'tax_code_id': fields.related('move_line_id', 'tax_code_id', string='Tax Account', type='many2one',
+                                      relation="account.tax.code"),
+        'state': fields.related('move_line_id', 'state', string='Status', type='selection',
+                                selection=[('draft', 'Unbalanced'), ('valid', 'Balanced')]),
         'choose': fields.boolean('Select'),
     }
     _order = "date asc"

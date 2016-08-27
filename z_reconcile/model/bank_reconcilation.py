@@ -144,6 +144,7 @@ class bank_reconcilation(osv.osv):
         'company_id': lambda s, cr, uid, c: s.pool.get('res.company')._company_default_get(cr, uid, 'account.account',
                                                                                            context=c),
     }
+    _order = "date desc"
 
     def unlink(self, cr, uid, ids, context=None):
         objects = self.read(cr, uid, ids, ['state'])

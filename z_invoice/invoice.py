@@ -713,7 +713,7 @@ class account_invoice(osv.osv):
         for inv in self.browse(cr, uid, ids):
             for prepaid in inv.prepayment_lines:
                 voucher_context = {
-                    'payment_expected_currency': inv.currency_id.id,
+                    # 'payment_expected_currency': inv.currency_id.id,
                     'default_partner_id': self.pool.get('res.partner')._find_accounting_partner(inv.partner_id).id,
                     'default_amount': inv.type in ('out_refund', 'in_refund') and -prepaid.amount or prepaid.amount,
                     'default_reference': inv.name,

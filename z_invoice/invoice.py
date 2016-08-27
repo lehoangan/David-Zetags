@@ -722,6 +722,8 @@ class account_invoice(osv.osv):
                     'invoice_id': inv.id,
                     'default_type': inv.type in ('out_invoice','out_refund') and 'receipt' or 'payment',
                     'type': inv.type in ('out_invoice','out_refund') and 'receipt' or 'payment',
+                    'repayment': True,
+                    'company_id': inv.company_id and inv.company_id.id or False,
                 }
                 vals = voucher.default_get(cr, uid, fields_list, context=voucher_context)
                 res = voucher.onchange_journal(cr, uid, [], prepaid.journal_id.id, 

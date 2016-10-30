@@ -35,6 +35,11 @@ class account_partner_transaction(osv.osv_memory):
             context = {}
         data = self.pre_print_report(cr, uid, ids, data, context=context)
         data['form'].update(self.read(cr, uid, ids, ['initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id','hide_zero'])[0])
+        if data['form']['partner_id']:
+            data.update({
+                'model': 'res.partner',
+                'ids': [data['form']['partner_id'][0]]
+            })
         if data['form']['page_split']:
             return {
                 'type': 'ir.actions.report.xml',

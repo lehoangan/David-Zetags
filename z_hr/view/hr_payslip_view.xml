@@ -3,17 +3,31 @@
     <data>
 
         <record id="view_cancel_payslip_form" model="ir.ui.view">
-                <field name="name">view.cancel.payslip.form</field>
-                <field name="model">hr.payslip</field>     
-                <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
-                <field name="arch" type="xml">
-                    <xpath expr="//button[@string='Refund']" position="replace">
-                        <button string="Unreconcile" name="action_revert_done" type="object" states="done"/>
-                    </xpath>
-                    <field name="name" position="after">
-                        <field name="paid_date"/>
-                    </field>
+            <field name="name">view.cancel.payslip.form</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@string='Refund']" position="replace">
+                    <button string="Unreconcile" name="action_revert_done" type="object" states="done"/>
+                </xpath>
+                <field name="name" position="after">
+                    <field name="paid_date"/>
                 </field>
+            </field>
+        </record>
+
+        <record id="view_hr_payslip_tree" model="ir.ui.view">
+            <field name="name">hr.payslip.tree</field>
+            <field name="model">hr.payslip</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_payslip_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <field name="number" position="after">
+                    <field name="paid_date"/>
+                </field>
+            </field>
         </record>
 
     </data>

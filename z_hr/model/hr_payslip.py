@@ -32,6 +32,12 @@ class hr_payslip(osv.osv):
     _inherit = "hr.payslip"
     _columns = {
         'paid_date': fields.date('Paid Date'),
+        'payment_ref': fields.char('Payment Reference', 250),
+        'payment_from_account': fields.char('Paid from Account', 250),
+    }
+
+    _defaults = {
+        'paid_date': time.strftime('%Y-%m-%d'),
     }
 
     def action_revert_done(self, cr, uid, ids, context=None):

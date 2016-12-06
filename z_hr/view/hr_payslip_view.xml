@@ -10,6 +10,37 @@
                 <xpath expr="//button[@string='Refund']" position="replace">
                     <button string="Unreconcile" name="action_revert_done" type="object" states="done"/>
                 </xpath>
+                <page string="Salary Computation" position="replace"/>
+
+                <page string="Worked Days &amp; Inputs" position="before">
+                    <page string="Salary Computation" >
+                        <field name="line_ids" colspan="4" nolabel="1">
+                            <tree string="Salary Structure" editable="bottom" colors="blue:total == 0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="category_id"/>
+                                <field name="sequence" invisible="1"/>
+                                <field name="quantity"/>
+                                <field name="rate"/>
+                                <field name="amount"/>
+                                <field name="total"/>
+                            </tree>
+                            <form string="Payslip Line">
+                                <group col="4">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="category_id"/>
+                                    <field name="sequence"/>
+                                    <field name="quantity"/>
+                                    <field name="rate"/>
+                                    <field name="amount"/>
+                                    <field name="total"/>
+                                    <field name="salary_rule_id"/>
+                                </group>
+                            </form>
+                        </field>
+                    </page>
+                </page>
 
                 <xpath expr="//group[1]" position="replace">
                    <group col="4" colspan="4">
@@ -17,17 +48,15 @@
                            <field name="contract_id" domain="[('employee_id','=',employee_id),('date_start','&lt;=',date_to),'|',('date_end','&gt;=',date_from),('date_end','=',False)]" on_change="onchange_contract_id(date_from, date_to, employee_id, contract_id)" context="{'default_employee_id': employee_id}"/>
                            <field name="struct_id"/>
                            <field name="paid_date"/>
+                           <field name="credit_note"/>
                        </group>
 
                        <group col="2" colspan="2">
                             <field name="number"/>
                             <field name="name"/>
-                            <field name="payment_ref"/>
-                            <field name="payment_from_account"/>
-                            <field name="credit_note"/>
+                            <field name="payment_ref" bgcolor="RGB(191,223,255);"/>
+                            <field name="payment_from_account" bgcolor="RGB(191,223,255);"/>
                        </group>
-
-
                     </group>
                 </xpath>
 

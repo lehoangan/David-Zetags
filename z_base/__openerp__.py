@@ -41,6 +41,9 @@
     'js': [
         'static/src/js/form.js',
     ],
+    'qweb': [
+        'static/src/xml/web_field_style.xml',
+    ],
     'installable': True,
     'auto_install': False,
 }

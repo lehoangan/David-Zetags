@@ -51,10 +51,10 @@ class partner_transation_zateg(partner_ledger_zateg):
 
     def set_context(self, objects, data, ids, report_type=None):
         ctx = data['form'].get('used_context', {})
-        if ctx:
-            data['form']['used_context'].update({'is_currency': True})
-        else:
-            data['form'].update({'used_context': {'is_currency': True}})
+        # if ctx:
+        #     data['form']['used_context'].update({'is_currency': True})
+        # else:
+        #     data['form'].update({'used_context': {'is_currency': True}})
 
         if data['form']['currency_id']:
             ctx = data['form'].get('used_context', {})
@@ -106,7 +106,7 @@ class partner_transation_zateg(partner_ledger_zateg):
             "ON (l.account_id = acc.id) " \
             "LEFT JOIN res_currency c ON (l.currency_id=c.id)" \
             "LEFT JOIN account_move m ON (m.id=l.move_id)" \
-            "WHERE l.currency_id is not null AND l.partner_id = %s " \
+            "WHERE l.partner_id = %s " \
             "AND l.account_id IN %s AND " + self.query + " " \
                                                          "AND m.state IN %s " \
                                                          " " + RECONCILE_TAG + " " \

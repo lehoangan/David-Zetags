@@ -31,9 +31,9 @@ import netsvc
 class hr_payslip(osv.osv):
     _inherit = "hr.payslip"
     _columns = {
-        'paid_date': fields.date('Paid Date'),
-        'payment_ref': fields.char('Payment Reference', 250),
-        'payment_from_account': fields.char('Paid from Account', 250),
+        'paid_date': fields.date('Paid Date', required=True),
+        'payment_ref': fields.char('Payment Reference', 250, required=True),
+        'payment_from_account': fields.char('Paid from Account', 250, required=True),
     }
 
     _defaults = {

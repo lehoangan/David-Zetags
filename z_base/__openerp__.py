@@ -44,6 +44,7 @@
     'qweb': [
         'static/src/xml/web_field_style.xml',
     ],
+    'css': ['static/src/css/base.css'],
     'installable': True,
     'auto_install': False,
 }

@@ -19,7 +19,37 @@
 #
 ##############################################################################
 
-import account_print_invoice
-import sale_order
-import innvoice_statement
+from openerp.osv import fields, osv
+
+class invoice_statement_wizard(osv.osv_memory):
+    _name = 'invoice.statement.wizard'
+    _columns = {
+        'date_start': fields.date('Date Start'),
+        'date_stop': fields.date('Date Stop'),
+        'partner_id': fields.many2one('res.partner', 'Customer'),
+    }
+
+    def print_report(self, cr, uid, ids, context=None):
+        """ To print the report of Product cost structure
+        @param self: The object pointer.
+        @param cr: A database cursor
+        @param uid: ID of the user currently logged in
+        @param context: A standard dictionary
+        @return : Report
+        """
+        if context is None:
+            context = {}
+        datas = {'ids' : context.get('active_ids',[])}
+        res = self.read(cr, uid, ids, [])
+        res = res and res[0] or {}
+        datas['form'] = res
+
+        return {
+            'type' : 'ir.actions.report.xml',
+            'report_name':'account.statement.zetags',
+            'datas' : datas,
+       }
+
+invoice_statement_wizard()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

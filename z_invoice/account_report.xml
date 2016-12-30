@@ -29,5 +29,33 @@
 	            header="False"
 	            usage="default"
 	            />
+
+        <!-- account statement -->
+			<record id="account_statement_report_odt" model="ir.actions.report.xml">
+		        <field name="name">account_statement_report_odt</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">account.invoice</field>
+		        <field name="report_name">account.statement.zetags</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/invoice_statement.py</field>
+		        <field name="report_rml">z_invoice/report/invoice_statement.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+
+        	<report
+	            auto="False"
+                menu="False"
+	            id="account_statement_report_odt"
+	            model="account.invoice"
+	            name="account.statement.zetags"
+	            rml="z_invoice/report/invoice_statement.odt"
+	            string="Invoices Statement"
+	            header="False"
+	            usage="default"
+	            />
     </data>
 </openerp>

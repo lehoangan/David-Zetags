@@ -19,7 +19,5 @@
 #
 ##############################################################################
 
-import account_print_invoice
-import sale_order
-import innvoice_statement
+import invoice_statement
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

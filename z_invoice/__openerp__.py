@@ -43,6 +43,7 @@
          "stock_report.xml",
          "account_report.xml",
          'menu.xml',
+         "wizard/invoice_statement_view.xml",
     ],
     'demo': [],
     'test': [

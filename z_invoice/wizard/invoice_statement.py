@@ -24,9 +24,9 @@ from openerp.osv import fields, osv
 class invoice_statement_wizard(osv.osv_memory):
     _name = 'invoice.statement.wizard'
     _columns = {
-        'date_start': fields.date('Date Start'),
-        'date_stop': fields.date('Date Stop'),
-        'partner_id': fields.many2one('res.partner', 'Customer'),
+        # 'date_start': fields.date('Date Start'),
+        # 'date_stop': fields.date('Date Stop'),
+        'partner_id': fields.many2one('res.partner', 'Customer', required=True),
     }
 
     def print_report(self, cr, uid, ids, context=None):

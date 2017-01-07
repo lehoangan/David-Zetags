@@ -201,7 +201,8 @@ class sale_order(osv.osv):
                      'tracking_number': '',
                      'shipping_date': False,
                      'weight': '',
-                     'packages': ''})
+                     'packages': '',
+                     'prepayment_lines': [],})
         return super(sale_order, self).copy(cr, uid, id, vals, context=context)
 
     def _read_group_order_status(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):

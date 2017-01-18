@@ -340,17 +340,15 @@ class account_invoice(osv.osv):
     def onchange_partner_id(self, cr, uid, ids, type, partner_id, date_invoice=False, payment_term=False, partner_bank_id=False, company_id=False):
         result = super(account_invoice, self).onchange_partner_id(cr, uid, ids, type, partner_id, date_invoice=date_invoice, payment_term=payment_term, partner_bank_id=partner_bank_id, company_id=company_id)
         result['value'].update({'partner_contact_id':partner_id or False})
-        if type in ('out_refund') and partner_id:
-            partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
-            if partner.property_product_pricelist:
-                result['value'].update({'currency_id':partner.property_product_pricelist.currency_id.id or False})
+
         if partner_id:
             part = self.pool.get('res.partner').browse(cr, uid, partner_id)
-            if type == 'in_invoice':
-                company = self.pool.get('res.users').browse(cr, uid, uid).company_id
-                pricelist = part.property_product_pricelist
-                if pricelist and pricelist.currency_id and pricelist.currency_id != company.currency_id:
-                    result['value'].update({'currency_id': pricelist.currency_id.id,})
+            if type in ('out_refund') and part.property_product_pricelist:
+                result['value'].update({'currency_id': part.property_product_pricelist.currency_id.id or False})
+
+            elif type == 'in_invoice' and part.property_product_pricelist_purchase:
+                result['value'].update({'currency_id': part.property_product_pricelist_purchase.currency_id.id,})
+
             result['value'].update({'tax_id': [tax.id for tax in part.tax_ids] or [],})
             if part.country_id and part.country_id.company_id:
                 user_company = self.pool.get('res.users').browse(cr, uid, uid).company_id

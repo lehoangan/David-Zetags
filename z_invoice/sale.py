@@ -197,12 +197,16 @@ class sale_order(osv.osv):
     }
 
     def copy(self, cr, uid, id, vals, context=None):
+        stage_ids = self.pool.get('sale.order.stage').search(cr, uid, [('case_default', '=', True)])
+        stage_id = stage_ids and stage_ids[0] or False
         vals.update({'date_order': time.strftime('%Y-%m-%d'),
                      'tracking_number': '',
                      'shipping_date': False,
                      'weight': '',
                      'packages': '',
-                     'prepayment_lines': [],})
+                     'prepayment_lines': [],
+                     'stage_id': stage_id,
+                     })
         return super(sale_order, self).copy(cr, uid, id, vals, context=context)
 
     def _read_group_order_status(self, cr, uid, ids, domain, read_group_order=None, access_rights_uid=None, context=None):

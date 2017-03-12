@@ -19,28 +19,5 @@
 #
 ##############################################################################
 
-
-{
-    'name': 'Z - HR',
-    'version': '1.1',
-    'category': 'Zetags',
-    'description': """
-    """,
-    'author': 'An Le <lehoangan1988@gmail.com>',
-    'images': [],
-    'depends': ['hr',
-                'hr_payroll'],
-    'data': [
-        "view/hr_payslip_view.xml",
-        "view/hr_payslip_workflow.xml",
-
-        "wizard/tax_payroll_view.xml",
-        "report/hr_report.xml",
-    ],
-    'demo': [],
-    'test': [
-    ],
-    'installable': True,
-    'auto_install': False,
-}
+import tax_payroll
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

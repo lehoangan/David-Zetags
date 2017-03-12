@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- account statement -->
+			<record id="tax_payroll_report_odt" model="ir.actions.report.xml">
+		        <field name="name">tax_payroll_report_odt</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">tax.payroll.wizard</field>
+		        <field name="report_name">tax.payroll.zetags</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_hr/report/tax_payroll.py</field>
+		        <field name="report_rml">z_hr/report/tax_payroll.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+
+    </data>
+</openerp>

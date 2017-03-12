@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+        <record id="view_tax_payroll_wizard" model="ir.ui.view">
+            <field name="name">Payroll Tax Report</field>
+            <field name="model">tax.payroll.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Payroll Tax Report" version="7.0">
+                    <group col="4" colspan="4">
+                        <field name="date_start"/>
+                        <field name="date_stop"/>
+                        <field name="company_id"/>
+                        <!--newline />
+                        <field name="basic_ids" widget="many2many_tags"/>
+                        <field name="tax_ids" widget="many2many_tags"/>
+                        <field name="super_ids" widget="many2many_tags"/>
+                        <field name="net_ids" widget="many2many_tags"/-->
+                    </group>
+
+                    <footer>
+                        <button name="print_report" type="object" string="Print" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_tax_payroll_wizard" model="ir.actions.act_window">
+            <field name="name">Payroll Tax Report</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">tax.payroll.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_tax_payroll_wizard"/>
+            <field name="context">{}</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem
+                action="action_tax_payroll_wizard"
+                parent="account.menu_tax_report"
+                id="action_tax_payroll_wizard_menu"/>
+    </data>
+</openerp>    

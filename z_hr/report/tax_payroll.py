@@ -91,15 +91,14 @@ class Parser(report_sxw.rml_parse):
         basic = tax = super = net = 0
         for pl in payslip_obj.browse(cr, uid, pl_ids):
             for line in pl.line_ids:
-                for line in pl.line_ids:
-                    if 'BASIC' in line.code.upper():
-                        basic += line.amount
-                    if 'SUPER' in line.code.upper():
-                        super += line.amount
-                    if 'TAX' in line.code.upper():
-                        tax += line.amount
-                    if 'NET' in line.code.upper():
-                        net += line.amount
+                if 'BASIC' in line.code.upper():
+                    basic += line.amount
+                if 'SUPER' in line.code.upper():
+                    super += line.amount
+                if 'TAX' in line.code.upper():
+                    tax += line.amount
+                if 'NET' in line.code.upper():
+                    net += line.amount
             # for line in pl.move_id.line_id:
             #     if line.account_id.id in form['basic_ids']:
             #         basic += abs(line.debit - line.credit)

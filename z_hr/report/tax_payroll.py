@@ -84,6 +84,8 @@ class Parser(report_sxw.rml_parse):
             domain += [('date_from', '>=', form['date_start'])]
         if form['date_stop']:
             domain += [('date_to', '<=', form['date_stop'])]
+        if form['employee_id']:
+            domain += [('employee_id', '=', form['employee_id'][0])]
 
         pl_ids = payslip_obj.search(cr, uid, domain)
         basic = tax = super = net = 0

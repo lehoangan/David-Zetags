@@ -10,6 +10,7 @@
                     <group col="4" colspan="4">
                         <field name="date_start"/>
                         <field name="date_stop"/>
+                        <field name="employee_id"/>
                         <field name="company_id"/>
                         <!--newline />
                         <field name="basic_ids" widget="many2many_tags"/>

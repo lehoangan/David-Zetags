@@ -26,11 +26,12 @@ class tax_payroll_wizard(osv.osv_memory):
     _columns = {
         'date_start': fields.date('Date Start'),
         'date_stop': fields.date('Date Stop'),
+        'employee_id': fields.many2one('hr.employee', 'Employee'),
         'company_id': fields.many2one('res.company', 'Company', required=True),
-        'basic_ids': fields.many2many('account.account', string='Basic Accounts', domain=[('type', '!=', 'view')]),
-        'tax_ids': fields.many2many('account.account', string='Tax Accounts', domain=[('type', '!=', 'view')]),
-        'super_ids': fields.many2many('account.account', string='Superannuation Accounts', domain=[('type', '!=', 'view')]),
-        'net_ids': fields.many2many('account.account', string='Net Accounts', domain=[('type', '!=', 'view')]),
+        # 'basic_ids': fields.many2many('account.account', string='Basic Accounts', domain=[('type', '!=', 'view')]),
+        # 'tax_ids': fields.many2many('account.account', string='Tax Accounts', domain=[('type', '!=', 'view')]),
+        # 'super_ids': fields.many2many('account.account', string='Superannuation Accounts', domain=[('type', '!=', 'view')]),
+        # 'net_ids': fields.many2many('account.account', string='Net Accounts', domain=[('type', '!=', 'view')]),
     }
 
     # def _get_basic_ids(self, cr, uid, context=None):

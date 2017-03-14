@@ -147,10 +147,12 @@ class bank_reconcilation(osv.osv):
     _order = "date desc"
 
     def unlink(self, cr, uid, ids, context=None):
-        objects = self.read(cr, uid, ids, ['state'])
+        objects = self.browse(cr, uid, ids, context)
         for t in objects:
-            if t['state'] != 'draft':
+            if t.state != 'draft':
                 raise osv.except_osv(_('Invalid action !'), _('Cannot delete reconciled bank !'))
+            if not t.account_id.reconcile_delete:
+                raise osv.except_osv(_('Invalid action !'), _('Account is not allow to delete reconciled bank !'))
         return super(bank_reconcilation, self).unlink(cr, uid, ids, context)
 
     def onchange_line_id(self, cr, uid, ids, account_id, line_id, opening_balance, context=None):
@@ -321,6 +323,9 @@ class bank_reconcilation(osv.osv):
 
     def button_cancel(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):
+            if not obj.account_id.reconcile_delete:
+                raise osv.except_osv(_('Invalid action !'), _('Account is not allow to delete reconciled bank !'))
+
             next_ids = self.search(cr, uid, [('date', '>', obj.date), ('state', '=', 'reconciled'), ])
             if next_ids:
                 raise osv.except_osv(_('Error!'), _('Please remove the next reconciliation first'))

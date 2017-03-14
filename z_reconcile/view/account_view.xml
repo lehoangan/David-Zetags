@@ -9,6 +9,7 @@
             <field name="arch" type="xml">
                 <field name="reconcile" position="after">
                 	<field name="z_reconcile"/>
+                    <field name="reconcile_delete"/>
                 </field>
             </field>
         </record>

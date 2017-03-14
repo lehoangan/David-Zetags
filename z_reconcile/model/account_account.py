@@ -31,6 +31,7 @@ class account_account(osv.osv):
     _inherit = "account.account"
     _columns = {
         'z_reconcile': fields.boolean('Z-Reconcile'),
+        'reconcile_delete': fields.boolean('Reconcile Delete'),
     }
 
 

@@ -109,7 +109,7 @@
                                 <tree colors="blue:state == 'draft';black:state == 'posted'" editable="top" string="Journal Items">
                                     <field name="name"/>
                                     <field name="account_id" domain="[('journal_id','=',parent.journal_id),('company_id', '=', parent.company_id)]"/>
-                                    <field name="date_maturity"/>
+                                    <field name="date_maturity" invisible="1"/>
                                     <field name="debit" sum="Total Debit"/>
                                     <field name="credit" sum="Total Credit"/>
                                     <field name="amount_currency"/>

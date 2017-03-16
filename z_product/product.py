@@ -211,6 +211,9 @@ class product_product(osv.osv):
         bom = self.pool.get('mrp.bom')
         bom_ids = bom.search(cr, uid, [('product_id','in',ids)])
         bom.unlink(cr, uid, bom_ids)
+        for product in self.browse(cr, uid, ids, context):
+            for line in product.price_ids:
+                line.unlink()
         return super(product_product,self).unlink(cr, uid, ids, context=context)
     
 product_product()

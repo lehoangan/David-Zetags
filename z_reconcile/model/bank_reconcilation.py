@@ -326,9 +326,12 @@ class bank_reconcilation(osv.osv):
             if not obj.account_id.reconcile_delete:
                 raise osv.except_osv(_('Invalid action !'), _('Account is not allow to delete reconciled bank !'))
 
-            next_ids = self.search(cr, uid, [('date', '>', obj.date), ('state', '=', 'reconciled'), ])
+            next_ids = self.search(cr, uid, [('date', '>', obj.date),
+                                             ('state', '=', 'reconciled'),
+                                             ('account_id', '=', obj.account_id and obj.account_id.id or False)])
             if next_ids:
-                raise osv.except_osv(_('Error!'), _('Please remove the next reconciliation first'))
+                next_re = self.browse(cr, uid, next_ids[0])
+                raise osv.except_osv(_('Error!'), _('Please remove the next reconciliation first: %s'%next_re.name))
             move_ids = []
             for line in obj.line_id:
                 if line.choose:

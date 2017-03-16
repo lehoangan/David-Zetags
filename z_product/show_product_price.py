@@ -44,7 +44,7 @@ class show_product_price(osv.osv):
         return res
 
     _columns = {
-        'product_id': fields.many2one('product.product', 'Product', required=True),
+        'product_id': fields.many2one('product.product', 'Product', required=True, ondelete='cascade'),
         'pricelist_id': fields.many2one('product.pricelist', 'PriceList', required=True),
         'price': fields.function(_get_price, string='Price', method=True, type='float', digits=(16, 2)),
     }

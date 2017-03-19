@@ -104,6 +104,21 @@ class bank_reconcilation(osv.osv):
                                                                 context=context)
         return res
 
+    def _compute_erp_balance(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        account_obj = self.pool.get('account.account')
+        fyear_obj = self.pool.get('account.fiscalyear')
+
+        for obj in self.browse(cr, uid, ids, context):
+            fyear_ids = fyear_obj.find(cr, uid, obj.date, context)
+            if fyear_ids:
+                date_start = fyear_obj.browse(cr, uid, fyear_ids).date_start
+                context = dict(context, date_from=date_start)
+            context = dict(context, date_to=obj.date)
+            account = account_obj.browse(cr, uid, obj.account_id.id, context)
+            res[obj.id] = account.balance
+        return res
+
     _columns = {
         'name': fields.char('Description', 100, required=True, readonly=True, states={'draft': [('readonly', False)]}),
         'account_id': fields.many2one('account.account', 'Account',
@@ -125,6 +140,11 @@ class bank_reconcilation(osv.osv):
                                               store={
                                                   'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids,
                                                                          ['statement_balance', 'line_id'], 20),
+                                              }),
+        'erp_balance': fields.function(_compute_erp_balance, type='float', string='ERP Acc. Balance',
+                                              store={
+                                                  'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids,
+                                                                         ['date'], 10),
                                               }),
         'statement_balance': fields.float('Statement Balance', readonly=True, states={'draft': [('readonly', False)]}),
         'closing_balance': fields.function(_compute_closing_balance, type='float', string='Closing Balance',
@@ -216,11 +236,24 @@ class bank_reconcilation(osv.osv):
         result.update({'calculated_balance': total})
         return {'value': result}
 
-    def onchange_date_account(self, cr, uid, ids, account_id, date, company_id, context=None):
+    def onchange_date_account(self, cr, uid, ids, account_id, date, company_id, context={}):
         if not account_id or not date:
             return {'value': {}}
         vals = {'last_reconcile_date': False,
                 'opening_balance': 0}
+
+        account_obj = self.pool.get('account.account')
+        fyear_obj = self.pool.get('account.fiscalyear')
+
+        fyear_ids = fyear_obj.find(cr, uid, date, context)
+        if fyear_ids:
+            date_start = fyear_obj.browse(cr, uid, fyear_ids).date_start
+            context = dict(context, date_from=date_start)
+        context = dict(context, date_to=date)
+        account = account_obj.browse(cr, uid, account_id, context)
+        erp_balance = account.balance
+        vals.update({'erp_balance': erp_balance})
+
         # default last reconcile date + 'Opening Balance
         old_ids = self.search(cr, uid, [('state', '=', 'reconciled'),
                                         ('company_id', '=', company_id),

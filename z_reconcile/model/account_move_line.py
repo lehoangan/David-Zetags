@@ -96,6 +96,17 @@ class account_move_line(osv.osv):
                     raise osv.except_osv(_('Error!'), _('Please remove this entry in bank reconcile "%s" first')%obj.order_id.name)
         return super(account_move_line, self).unlink(cr, uid, ids, context)
 
+    def name_get(self, cr, uid, ids, context=None):
+        if not ids:
+            return []
+        result = []
+        for line in self.browse(cr, uid, ids, context=context):
+            if line.name:
+                result.append((line.id, (line.move_id.name or '')+' ('+line.name+')'))
+            else:
+                result.append((line.id, line.move_id.name))
+        return result
+
 
 account_move_line()
 

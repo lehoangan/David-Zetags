@@ -101,8 +101,10 @@ class account_move_line(osv.osv):
             return []
         result = []
         for line in self.browse(cr, uid, ids, context=context):
-            if line.name:
+            if line.name and line.account_id.type == 'payable':
                 result.append((line.id, (line.move_id.name or '')+' ('+line.name+')'))
+            elif line.ref:
+                result.append((line.id, (line.move_id.name or '') + ' (' + line.ref + ')'))
             else:
                 result.append((line.id, line.move_id.name))
         return result

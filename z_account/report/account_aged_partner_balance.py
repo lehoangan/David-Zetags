@@ -53,6 +53,10 @@ class aged_trial_report_zateg(aged_trial_report):
                 data['form']['used_context'].update({'ex_account_ids': data['form']['account_ids']})
             else:
                 data['form'].update({'used_context': {'ex_account_ids': data['form']['account_ids']}})
+        if ctx:
+            data['form']['used_context'].update({'not_opening_period': True})
+        else:
+            data['form'].update({'used_context': {'not_opening_period': True}})
         return super(aged_trial_report_zateg, self).set_context(objects, data, ids, report_type=report_type)
 
     def _get_currency(self, form):

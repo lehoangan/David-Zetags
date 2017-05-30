@@ -187,6 +187,22 @@ class account_voucher(osv.osv):
             total_to_apply = 0.0
             
         res = super(account_voucher, self).onchange_line_ids(cr, uid, ids, line_dr_ids, line_cr_ids, total_to_apply, voucher_currency, type, context=context)
+
+        if res.get('value') and res['value'].get('writeoff_amount'):
+            res['value'].update({'payment_option': 'with_writeoff'})
+            writeoff_acc_id = False
+            company = self.pool.get('res.users').browse(cr, uid, uid).company_id
+            if type in ('sale', 'receipt'):
+                if res['value']['writeoff_amount'] > 0 and company.income_currency_exchange_account_id:
+                    writeoff_acc_id = company.income_currency_exchange_account_id.id
+                elif res['value']['writeoff_amount'] < 0 and company.expense_currency_exchange_account_id:
+                    writeoff_acc_id = company.expense_currency_exchange_account_id.id
+            else:
+                if res['value']['writeoff_amount'] < 0 and company.income_currency_exchange_account_id:
+                    writeoff_acc_id = company.income_currency_exchange_account_id.id
+                elif res['value']['writeoff_amount'] > 0 and company.expense_currency_exchange_account_id:
+                    writeoff_acc_id = company.expense_currency_exchange_account_id.id
+            res['value'].update({'writeoff_acc_id': writeoff_acc_id})
         return res
     
     def onchange_amount(self, cr, uid, ids, amount, rate, partner_id, journal_id, currency_id, ttype, date, payment_rate_currency_id, company_id, 

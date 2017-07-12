@@ -80,14 +80,17 @@
 
 				<xpath expr="//page[@string='Invoice Lines']" position="after">
 					<page string="Prepayments">
-						<field name="prepayment_lines" nolabel='1'>
-							<tree string="Prepayments" editable="bottom">
-								<field name="journal_id" domain="[('type','in',['cash','bank']),('company_id','=',company_id)]"/>
-								<field name="date"/>
-								<field name="amount"/>
-								<field name="company_id" invisible='0'/>
-							</tree>
-						</field>
+						<field name="prepayment_lines" nolabel='1' context="{'partner_id': partner_id}">
+                            <tree string="Prepayments" editable="bottom">
+                                <field name="journal_id" domain="[('type','in',['cash','bank']),('company_id','=',company_id)]"/>
+                                <field name="payment_method"/>
+                                <field name="date"/>
+                                <field name="amount"/>
+                                <field name="bank_fee_deducted"/>
+                                <field name="discount_allowed"/>
+                                <field name="company_id" invisible='1'/>
+                            </tree>
+                        </field>
 					</page>
 				</xpath>
 			</field>

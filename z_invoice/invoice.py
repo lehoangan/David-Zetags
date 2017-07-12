@@ -738,7 +738,11 @@ class account_invoice(osv.osv):
                     line_dr_ids.append((0,0,line))
                 vals['line_cr_ids'] = line_cr_ids
                 vals['line_dr_ids'] = line_dr_ids
-                vals.update({'journal_id': prepaid.journal_id.id, 'date':prepaid.date})
+                vals.update({'journal_id': prepaid.journal_id.id,
+                             'payment_method': prepaid.payment_method and prepaid.payment_method.id or False,
+                              'bank_fee_deducted': prepaid.bank_fee_deducted,
+                              'discount_allowed': prepaid.discount_allowed,
+                             'date':prepaid.date})
                 if len(line_cr_ids) or len(line_dr_ids):
                     voucher_id = voucher.create(cr, uid, vals)
                     if voucher_id:
@@ -830,6 +834,9 @@ class account_invoice_prepayment(osv.osv):
     _name = "account.invoice.prepayment"
     _columns = {
         'journal_id': fields.many2one('account.journal', 'Payment Method', required=True),
+        'payment_method': fields.many2one('payment.methods', 'Payment Method'),
+        'bank_fee_deducted': fields.float('Bank Fee Deducted', digits_compute=dp.get_precision('Account')),
+        'discount_allowed': fields.float('Discount Allowed', digits_compute=dp.get_precision('Account')),
         'date': fields.date('Date Paid', required=True),
         'amount': fields.float('Deposit Paid', digits=(16,2), required=True),
         'invoice_id': fields.many2one('account.invoice', 'Invoice', required=True, ondelete='cascade', select=True),

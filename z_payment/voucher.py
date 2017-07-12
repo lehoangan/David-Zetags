@@ -135,15 +135,41 @@ class account_voucher(osv.osv):
         'writeoff_amount': fields.function(_get_writeoff_amount, string='Difference Amount', type='float', readonly=True, help="Computed as the difference between the amount stated in the voucher and the sum of allocation on the voucher lines."),
         
         'company_currency_id': fields.related('company_id','currency_id', type='many2one', relation='res.currency', string='Company Currency', readonly=True),
+        'payment_method': fields.many2one('payment.methods', 'Payment Method', readonly=True, states={'draft':[('readonly',False)]}),
+        'pay_all': fields.boolean('Pay All', readonly=True,
+                                          states={'draft': [('readonly', False)]}),
+        'pay_none': fields.boolean('Pay None', readonly=True,
+                                  states={'draft': [('readonly', False)]}),
     }
     _defaults = {
         'bank_fee_deducted': 0,
         'discount_allowed': 0,
     }
 
+    def onchange_pay_all(self, cr, uid, ids, pay_all, lines, context=None):
+        res = {}
+        if pay_all:
+            res.update({'pay_none': False})
+        for line in lines:
+            if line and line[2]:
+                line[2].update({'choose': pay_all})
+                if pay_all:
+                    line[2].update({'amount': line[2]['amount_unreconciled'], 'reconcile': True})
+        res.update({'line_dr_ids': lines})
+        return {'value': res}
+
+    def onchange_pay_none(self, cr, uid, ids, pay_none, lines, context=None):
+        res = {}
+        if pay_none:
+            res.update({'pay_all': False})
+            for line in lines:
+                if line and line[2]:
+                    line[2].update({'choose': False, 'amount': 0, 'reconcile': False})
+        res.update({'line_dr_ids': lines})
+        return {'value': res}
+
     def recompute_voucher_lines(self, cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context=None):
         result = super(account_voucher, self).recompute_voucher_lines(cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context)
-        # print '=================', context
         if result.get('value', False) and context.get('active_model', '') != 'account.invoice' and not context.get('repayment', False):
             if result['value'].get('line_cr_ids', False):
                 for dict in result['value']['line_cr_ids']:
@@ -171,6 +197,9 @@ class account_voucher(osv.osv):
             partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
             if partner.company_id:
                 res['value'].update({'company_id': partner.company_id.id})
+            default_method = self.pool.get('res.partner').browse(cr, uid, partner_id).payment_method
+            if default_method:
+                res['value'].update({'payment_method': default_method.id})
         return res
 
     #Thanh: Add bank_fee_deducted and discount_allowed to onchange for total_to_apply

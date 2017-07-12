@@ -392,8 +392,11 @@ class sale_order(osv.osv):
         prepayment_lines = []
         for line in order.prepayment_lines:
             prepayment_lines.append((0,0,{'journal_id': line.journal_id.id,
+                                          'payment_method': line.payment_method and line.payment_method.id or False,
                                           'date': line.date,
                                           'amount': line.amount,
+                                          'bank_fee_deducted': line.bank_fee_deducted,
+                                          'discount_allowed': line.discount_allowed,
                                           'company_id': line.company_id.id}))
         invoice_vals = {
             'name': order.client_order_ref or '',
@@ -628,8 +631,26 @@ sale_order_line()
 #Thanh: New object for Prepayment
 class sale_order_prepayment(osv.osv):
     _name = "sale.order.prepayment"
+    def default_get(self, cr, uid, fields, context=None):
+        if context is None:
+            context = {}
+        res = super(sale_order_prepayment, self).default_get(cr,
+                                                uid, fields, context=context)
+        if context.get('partner_id', False):
+            partner = self.pool.get('res.partner').browse(cr, uid, context['partner_id'])
+            default_method = partner.payment_method
+            if default_method:
+                res.update({'payment_method': default_method.id})
+            default_payment_method = partner.default_payment_method
+            if default_payment_method:
+                res.update({'journal_id': default_payment_method.id})
+        return res
+
     _columns = {
-        'journal_id': fields.many2one('account.journal', 'Payment Method', required=True),
+        'journal_id': fields.many2one('account.journal', 'Payment Account', required=True),
+        'payment_method': fields.many2one('payment.methods', 'Payment Method'),
+        'bank_fee_deducted': fields.float('Bank Fee Deducted', digits_compute=dp.get_precision('Account')),
+        'discount_allowed': fields.float('Discount Allowed', digits_compute=dp.get_precision('Account')),
         'date': fields.date('Date Paid', required=True),
         'amount': fields.float('Deposit Paid', digits=(16,2), required=True),
         'sale_id': fields.many2one('sale.order', 'Order', required=True, ondelete='cascade', select=True),

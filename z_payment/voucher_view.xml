@@ -213,6 +213,18 @@
             		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, context)</attribute>
                 </xpath>
 
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+            		<attribute name="string">Payment Account</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='journal_id']" position="after">
+            		<field name="payment_method" />
+                    <group col="4" colspan="2">
+                        <field name="pay_all" on_change="onchange_pay_all(pay_all, line_dr_ids)"/>
+                        <field name="pay_none" on_change="onchange_pay_none(pay_none, line_dr_ids)"/>
+                    </group>
+                </xpath>
+
                 <xpath expr="//page[@string='Payment Information']" position="replace">
                     <page string="Payment Information" groups="base.group_user">
                         <group col="4" colspan="4">

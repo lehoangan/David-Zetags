@@ -143,6 +143,11 @@ class account_voucher(osv.osv):
             del(res['value']['line_cr_ids'])
             del(res['value']['pre_line'])
             del(res['value']['payment_rate'])
+
+        if partner_id:
+            default_method = self.pool.get('res.partner').browse(cr, uid, partner_id).payment_method
+            if default_method:
+                res['value'].update({'payment_method': default_method.id})
         return res
     
 account_voucher()

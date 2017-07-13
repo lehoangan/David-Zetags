@@ -645,10 +645,12 @@ class sale_order_prepayment(osv.osv):
             default_payment_method = partner.default_payment_method
             if default_payment_method:
                 res.update({'journal_id': default_payment_method.id})
+            if partner.company_id:
+                res.update({'company_id': partner.company_id.id})
         return res
 
     _columns = {
-        'journal_id': fields.many2one('account.journal', 'Payment Account', required=True),
+        'journal_id': fields.many2one('account.journal', 'Payment Account', required=True, domain="[('company_id', '=', company_id)]"),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
         'bank_fee_deducted': fields.float('Bank Fee', digits_compute=dp.get_precision('Account')),
         'discount_allowed': fields.float('Discount', digits_compute=dp.get_precision('Account')),

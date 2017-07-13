@@ -742,6 +742,7 @@ class account_invoice(osv.osv):
                              'payment_method': prepaid.payment_method and prepaid.payment_method.id or False,
                               'bank_fee_deducted': prepaid.bank_fee_deducted,
                               'discount_allowed': prepaid.discount_allowed,
+                              'reference': prepaid.reference,
                              'date':prepaid.date})
                 if len(line_cr_ids) or len(line_dr_ids):
                     voucher_id = voucher.create(cr, uid, vals)
@@ -835,8 +836,9 @@ class account_invoice_prepayment(osv.osv):
     _columns = {
         'journal_id': fields.many2one('account.journal', 'Payment Method', required=True),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
-        'bank_fee_deducted': fields.float('Bank Fee Deducted', digits_compute=dp.get_precision('Account')),
-        'discount_allowed': fields.float('Discount Allowed', digits_compute=dp.get_precision('Account')),
+        'bank_fee_deducted': fields.float('Bank Fee', digits_compute=dp.get_precision('Account')),
+        'discount_allowed': fields.float('Discount', digits_compute=dp.get_precision('Account')),
+        'reference': fields.char('Ref #', size=64),
         'date': fields.date('Date Paid', required=True),
         'amount': fields.float('Deposit Paid', digits=(16,2), required=True),
         'invoice_id': fields.many2one('account.invoice', 'Invoice', required=True, ondelete='cascade', select=True),

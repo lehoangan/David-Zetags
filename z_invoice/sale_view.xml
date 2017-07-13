@@ -356,6 +356,7 @@
 	                	<tree string="Prepayments" editable="bottom">
 	                        <field name="journal_id" domain="[('type','in',['cash','bank']),('company_id','=',company_id)]"/>
 	                        <field name="payment_method"/>
+                            <field name="reference"/>
                             <field name="date"/>
 	                        <field name="amount"/>
 	                        <field name="bank_fee_deducted"/>

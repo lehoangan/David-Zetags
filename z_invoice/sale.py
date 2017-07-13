@@ -397,6 +397,7 @@ class sale_order(osv.osv):
                                           'amount': line.amount,
                                           'bank_fee_deducted': line.bank_fee_deducted,
                                           'discount_allowed': line.discount_allowed,
+                                          'reference': line.reference,
                                           'company_id': line.company_id.id}))
         invoice_vals = {
             'name': order.client_order_ref or '',
@@ -649,8 +650,9 @@ class sale_order_prepayment(osv.osv):
     _columns = {
         'journal_id': fields.many2one('account.journal', 'Payment Account', required=True),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
-        'bank_fee_deducted': fields.float('Bank Fee Deducted', digits_compute=dp.get_precision('Account')),
-        'discount_allowed': fields.float('Discount Allowed', digits_compute=dp.get_precision('Account')),
+        'bank_fee_deducted': fields.float('Bank Fee', digits_compute=dp.get_precision('Account')),
+        'discount_allowed': fields.float('Discount', digits_compute=dp.get_precision('Account')),
+        'reference': fields.char('Ref #', size=64),
         'date': fields.date('Date Paid', required=True),
         'amount': fields.float('Deposit Paid', digits=(16,2), required=True),
         'sale_id': fields.many2one('sale.order', 'Order', required=True, ondelete='cascade', select=True),

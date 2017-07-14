@@ -149,7 +149,7 @@ class account_invoice(osv.osv):
         for order in self.browse(cr, uid, ids, context=context):
             res[order.id] = 0
             for line in order.prepayment_lines:
-                res[order.id] += line.amount
+                res[order.id] += (line.amount + line.bank_fee_deducted + line.discount_allowed)
         return res
     
     def _get_order_from_deposit(self, cr, uid, ids, context=None):
@@ -726,8 +726,8 @@ class account_invoice(osv.osv):
                 vals = voucher.default_get(cr, uid, fields_list, context=voucher_context)
                 res = voucher.onchange_journal(cr, uid, [], prepaid.journal_id.id, 
                                                False, False, inv.partner_id.id, 
-                                               prepaid.date, 
-                                               prepaid.amount, 
+                                               prepaid.date,
+                                               prepaid.amount + prepaid.bank_fee_deducted + prepaid.discount_allowed,
                                                vals['type'], vals['company_id'], context=voucher_context)
                 vals = dict(vals.items() + res['value'].items())
                 line_cr_ids = []

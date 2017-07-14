@@ -83,7 +83,7 @@ class sale_order(osv.osv):
             
             res[order.id]['balance'] = res[order.id]['amount_total']
             for line in order.prepayment_lines:
-                res[order.id]['balance'] -= line.amount 
+                res[order.id]['balance'] -= (line.amount + line.bank_fee_deducted + line.discount_allowed)
         return res
     
     def _get_amount_deposit(self, cr, uid, ids, field_name, arg, context=None):

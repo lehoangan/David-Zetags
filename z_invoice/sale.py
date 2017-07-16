@@ -92,7 +92,7 @@ class sale_order(osv.osv):
         for order in self.browse(cr, uid, ids, context=context):
             res[order.id] = 0
             for line in order.prepayment_lines:
-                res[order.id] += line.amount
+                res[order.id] += (line.amount + line.bank_fee_deducted + line.discount_allowed)
         return res
     
     def _get_order_from_deposit(self, cr, uid, ids, context=None):

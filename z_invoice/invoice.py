@@ -997,11 +997,11 @@ class account_invoice_tax(osv.osv):
                     tax_grouped[key]['base_amount'] += val['base_amount']
                     tax_grouped[key]['tax_amount'] += val['tax_amount']
 
-        for t in tax_grouped.values():
-            t['base'] = cur_obj.round(cr, uid, cur, t['base'])
-            t['amount'] = cur_obj.round(cr, uid, cur, t['amount'])
-            t['base_amount'] = cur_obj.round(cr, uid, cur, t['base_amount'])
-            t['tax_amount'] = cur_obj.round(cr, uid, cur, t['tax_amount'])
+        # for t in tax_grouped.values():
+        #     t['base'] = cur_obj.round(cr, uid, cur, t['base'])
+        #     t['amount'] = cur_obj.round(cr, uid, cur, t['amount'])
+        #     t['base_amount'] = cur_obj.round(cr, uid, cur, t['base_amount'])
+        #     t['tax_amount'] = cur_obj.round(cr, uid, cur, t['tax_amount'])
 
         #tax for shipping
         inv = self.pool.get('account.invoice').browse(cr, uid, invoice_id, context=context)
@@ -1044,10 +1044,16 @@ class account_invoice_tax(osv.osv):
                 if not key in tax_grouped.keys():
                     tax_grouped[key] = val
                 else:
-                    tax_grouped[key]['amount'] += cur_obj.round(cr, uid, cur,val['amount'])
-                    tax_grouped[key]['base'] += cur_obj.round(cr, uid, cur,val['base'])
-                    tax_grouped[key]['base_amount'] += cur_obj.round(cr, uid, cur,val['base_amount'])
-                    tax_grouped[key]['tax_amount'] += cur_obj.round(cr, uid, cur,val['tax_amount'])
+                    tax_grouped[key]['amount'] += val['amount']
+                    tax_grouped[key]['base'] += val['base']
+                    tax_grouped[key]['base_amount'] += val['base_amount']
+                    tax_grouped[key]['tax_amount'] += val['tax_amount']
+
+        for t in tax_grouped.values():
+            t['base'] = cur_obj.round(cr, uid, cur, t['base'])
+            t['amount'] = cur_obj.round(cr, uid, cur, t['amount'])
+            t['base_amount'] = cur_obj.round(cr, uid, cur, t['base_amount'])
+            t['tax_amount'] = cur_obj.round(cr, uid, cur, t['tax_amount'])
         return tax_grouped
 
     def move_line_get(self, cr, uid, invoice_id):

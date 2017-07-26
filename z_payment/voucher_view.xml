@@ -210,7 +210,7 @@
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount']" position="attributes">
-            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, context)</attribute>
+            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, pay_all, context)</attribute>
                 </xpath>
 
                 <xpath expr="//field[@name='journal_id']" position="attributes">
@@ -277,7 +277,7 @@
                                 <field name="is_multi_currency" invisible="1"/>
                                 <label for="payment_rate" colspan="1"/>
                                 <div>
-                                    <field name="payment_rate" required="1" class="oe_inline" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, context)"/>
+                                    <field name="payment_rate" required="1" class="oe_inline" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, pay_all, context)"/>
                                     <field name="payment_rate_currency_id" class="oe_inline" on_change="onchange_payment_rate_currency(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id, context)" groups="base.group_multi_currency"/>
                                 </div>
                                 <field name="currency_help_label" colspan="2" nolabel="1" class="oe_grey"/>

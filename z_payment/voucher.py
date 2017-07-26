@@ -150,23 +150,33 @@ class account_voucher(osv.osv):
         res = {}
         if pay_all:
             res.update({'pay_none': False})
-        for line in lines:
-            if line and line[2]:
-                line[2].update({'choose': pay_all})
-                if pay_all:
-                    line[2].update({'amount': line[2]['amount_unreconciled'], 'reconcile': True})
-        res.update({'line_dr_ids': lines})
-        return {'value': res}
+            voucher_line_obj = self.pool.get('account.voucher.line')
+            amount = 0
+            for line in lines:
+                if line and line[2]:
+                    line[2].update({'choose': pay_all, 'amount': line[2]['amount_unreconciled'], 'reconcile': True})
+                    amount += line[2]['amount_unreconciled']
+                elif line and line[1]:
+                    voucher_line = voucher_line_obj.browse(cr, uid, line[1])
+                    voucher_line.write({'choose': pay_all, 'amount': voucher_line.amount_unreconciled, 'reconcile': True})
+                    amount += voucher_line.amount_unreconciled
+            res.update({'line_dr_ids': lines,'amount': amount})
+            return {'value': res}
+        return {}
 
     def onchange_pay_none(self, cr, uid, ids, pay_none, lines, context=None):
         res = {}
         if pay_none:
             res.update({'pay_all': False})
+            voucher_line_obj = self.pool.get('account.voucher.line')
             for line in lines:
                 if line and line[2]:
                     line[2].update({'choose': False, 'amount': 0, 'reconcile': False})
-        res.update({'line_dr_ids': lines})
-        return {'value': res}
+                elif line and line[1]:
+                    voucher_line_obj.write(cr, uid, [line[1]], {'choose': False, 'amount': 0, 'reconcile': False})
+            res.update({'line_dr_ids': lines,'amount': 0})
+            return {'value': res}
+        return {}
 
     def recompute_voucher_lines(self, cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context=None):
         result = super(account_voucher, self).recompute_voucher_lines(cr, uid, ids, partner_id, journal_id, price, currency_id, ttype, date, context)
@@ -237,9 +247,12 @@ class account_voucher(osv.osv):
     def onchange_amount(self, cr, uid, ids, amount, rate, partner_id, journal_id, currency_id, ttype, date, payment_rate_currency_id, company_id, 
                         bank_fee_deducted = 0.0,
                         discount_allowed = 0.0,
+                        pay_all=False,
                         context=None):
         if context is None:
             context = {}
+        if pay_all:
+            return {}
         #Thanh: Pass amount = total_to_apply to original onchange_amount
         try:
             total_to_apply = amount + bank_fee_deducted + discount_allowed

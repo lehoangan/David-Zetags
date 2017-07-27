@@ -55,6 +55,7 @@
             <field name="inherit_id" ref="account_voucher.view_vendor_receipt_dialog_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='journal_id']" position="after">
+                    <field name="payment_method" />
                 	<field name="bank_fee_deducted" attrs="{'invisible':[('type','!=', 'receipt')]}"
                            on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
                     <field name="discount_allowed" attrs="{'invisible':[('type','!=', 'receipt')]}"
@@ -62,6 +63,7 @@
                     <field name="total_to_apply"/>
                 </xpath>
                 <xpath expr="//field[@name='amount']" position="attributes">
+                    <attribute name="string">Total</attribute>
             		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)</attribute>
                 </xpath>
 

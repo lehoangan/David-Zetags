@@ -44,12 +44,12 @@
 
                 <xpath expr="//field[@name='journal_id']" position="attributes">
                     <attribute name='widget'>many2one</attribute>
-                    <attribute name='string'>Paid from Acc.</attribute>
+                    <attribute name='string'>Payment Account</attribute>
                     <attribute name='domain'>[('type','in',['bank', 'cash']),('company_id', '=', company_id)]</attribute>
                 </xpath>
 
                 <xpath expr="//field[@name='reference']" position="attributes">
-                    <attribute name='string'>Bank Reference</attribute>
+                    <attribute name='string'>Payment Ref</attribute>
                 </xpath>
             </field>
         </record>

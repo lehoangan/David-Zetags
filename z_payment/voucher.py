@@ -146,7 +146,7 @@ class account_voucher(osv.osv):
         'discount_allowed': 0,
     }
 
-    def onchange_pay_all(self, cr, uid, ids, pay_all, lines, context=None):
+    def onchange_pay_all(self, cr, uid, ids, pay_all, lines, type_line='', context=None):
         res = {}
         if pay_all:
             res.update({'pay_none': False})
@@ -160,11 +160,11 @@ class account_voucher(osv.osv):
                     voucher_line = voucher_line_obj.browse(cr, uid, line[1])
                     voucher_line.write({'choose': pay_all, 'amount': voucher_line.amount_unreconciled, 'reconcile': True})
                     amount += voucher_line.amount_unreconciled
-            res.update({'line_dr_ids': lines,'amount': amount})
+            res.update({type_line and type_line or 'line_dr_ids': lines,'amount': amount})
             return {'value': res}
         return {}
 
-    def onchange_pay_none(self, cr, uid, ids, pay_none, lines, context=None):
+    def onchange_pay_none(self, cr, uid, ids, pay_none, lines, type_line='', context=None):
         res = {}
         if pay_none:
             res.update({'pay_all': False})
@@ -174,7 +174,7 @@ class account_voucher(osv.osv):
                     line[2].update({'choose': False, 'amount': 0, 'reconcile': False})
                 elif line and line[1]:
                     voucher_line_obj.write(cr, uid, [line[1]], {'choose': False, 'amount': 0, 'reconcile': False})
-            res.update({'line_dr_ids': lines,'amount': 0})
+            res.update({type_line and type_line or 'line_dr_ids': lines,'amount': 0})
             return {'value': res}
         return {}
 

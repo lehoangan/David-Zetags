@@ -94,22 +94,23 @@
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='journal_id']" position="after">
-                	<field name="bank_fee_deducted" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
-                    <field name="discount_allowed" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
+                    <field name="payment_method" />
+                	<field name="bank_fee_deducted" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed,pay_all, context)"/>
+                    <field name="discount_allowed" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed,pay_all, context)"/>
                     <field name="total_to_apply"/>
+                    <group col="4" colspan="2">
+                        <field name="pay_all" on_change="onchange_pay_all(pay_all, line_cr_ids, 'line_cr_ids')"/>
+                        <field name="pay_none" on_change="onchange_pay_none(pay_none, line_cr_ids, 'line_cr_ids')"/>
+                    </group>
+                </xpath>
+
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+            		<attribute name="string">Payment Account</attribute>
                 </xpath>
                 
                 <xpath expr="//field[@name='amount']" position="attributes">
-            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)</attribute>
+            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, pay_all, context)</attribute>
                 </xpath>
-                
-                <!--xpath expr="//field[@name='line_cr_ids']" position="attributes">
-            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
-                </xpath>
-                
-                <xpath expr="//field[@name='line_dr_ids']" position="attributes">
-            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
-                </xpath-->
                 
                 <xpath expr="//field[@name='paid_amount_in_company_currency']" position="replace">
                 </xpath>

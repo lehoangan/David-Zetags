@@ -70,7 +70,18 @@ class partner_ledger_zateg(third_party_ledger):
                 data['form']['used_context'].update({'partner_id': data['form']['partner_id'][0]})
             else:
                 data['form'].update({'used_context': {'partner_id': data['form']['partner_id'][0]}})
-        return super(partner_ledger_zateg, self).set_context(objects, data, ids, report_type=report_type)
+        res = super(partner_ledger_zateg, self).set_context(objects, data, ids, report_type=report_type)
+        if data['form']['hide_zero']:
+            objects = self.localcontext['objects']
+            new_objs = []
+            for partner in objects:
+                debit = self._sum_debit_partner(partner)
+                credit = self._sum_credit_partner(partner)
+                if debit or credit:
+                    new_objs.append(partner)
+            self.localcontext['objects'] = new_objs
+
+        return res
 
 from openerp.netsvc import Service
 del Service._services['report.account.third_party_ledger']

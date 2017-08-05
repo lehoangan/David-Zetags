@@ -76,7 +76,26 @@ class partner_transation_zateg(partner_ledger_zateg):
                 data['form']['used_context'].update({'hide_zero': data['form']['hide_zero']})
             else:
                 data['form'].update({'used_context': {'hide_zero': data['form']['hide_zero']}})
-        return super(partner_transation_zateg, self).set_context(objects, data, ids, report_type=report_type)
+
+        if data['form']['report_detail']:
+            ctx = data['form'].get('used_context', {})
+            if ctx:
+                data['form']['used_context'].update({'report_detail': data['form']['report_detail']})
+            else:
+                data['form'].update({'used_context': {'report_detail': data['form']['report_detail']}})
+
+        res = super(partner_transation_zateg, self).set_context(objects, data, ids, report_type=report_type)
+
+        if data['form']['hide_zero']:
+            objects = self.localcontext['objects']
+            new_objs = []
+            for partner in objects:
+                debit = self._sum_debit_partner(partner)
+                credit = self._sum_credit_partner(partner)
+                if debit or credit:
+                    new_objs.append(partner)
+            self.localcontext['objects'] = new_objs
+        return res
 
     def lines(self, partner):
         move_state = ['draft', 'posted']

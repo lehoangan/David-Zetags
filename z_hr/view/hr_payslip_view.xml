@@ -13,7 +13,7 @@
                 <page string="Salary Computation" position="replace"/>
 
                 <page string="Worked Days &amp; Inputs" position="before">
-                    <page string="Salary Computation" >
+                    <page string="Salary Computation">
                         <field name="line_ids" colspan="4" nolabel="1">
                             <tree string="Salary Structure" editable="bottom" colors="blue:total == 0">
                                 <field name="name"/>
@@ -43,20 +43,25 @@
                 </page>
 
                 <xpath expr="//group[1]" position="replace">
-                   <group col="4" colspan="4">
-                       <group col="2" colspan="2">
-                           <field name="contract_id" domain="[('employee_id','=',employee_id),('date_start','&lt;=',date_to),'|',('date_end','&gt;=',date_from),('date_end','=',False)]" on_change="onchange_contract_id(date_from, date_to, employee_id, contract_id)" context="{'default_employee_id': employee_id}"/>
-                           <field name="struct_id" />
-                           <field name="paid_date"/>
-                           <field name="credit_note"/>
-                       </group>
+                    <group col="4" colspan="4">
+                        <group col="2" colspan="2">
+                            <field name="contract_id"
+                                   domain="[('employee_id','=',employee_id),('date_start','&lt;=',date_to),'|',('date_end','&gt;=',date_from),('date_end','=',False)]"
+                                   on_change="onchange_contract_id(date_from, date_to, employee_id, contract_id)"
+                                   context="{'default_employee_id': employee_id}"/>
+                            <field name="struct_id"/>
+                            <field name="paid_date"/>
+                            <field name="credit_note"/>
+                        </group>
 
-                       <group col="2" colspan="2">
-                            <field name="number"/>
-                            <field name="name"/>
-                            <field name="payment_ref" bgcolor="RGB(191,223,255);"/>
-                            <field name="payment_from_account" bgcolor="RGB(191,223,255);"/>
-                       </group>
+                        <group col="2" colspan="2">
+                            <field name="number" invisible="1"/>
+                            <field name="name" invisible="1"/>
+                            <field name="payment_ref" bgcolor="RGB(191,223,255)"/>
+                            <field name="memo"  bgcolor="RGB(191,223,255)"/>
+                            <field name="payment_account" bgcolor="RGB(191,223,255)"/>
+                            <field name="payment_method" bgcolor="RGB(191,223,255)"/>
+                        </group>
                     </group>
                 </xpath>
 
@@ -66,10 +71,13 @@
 
                 <xpath expr="//field[@name='date_from']" position="attributes">
                     <attribute name="bgcolor">RGB(191,223,255);</attribute>
+                    <attribute name="class">width_input_class</attribute>
                 </xpath>
 
                 <xpath expr="//field[@name='date_to']" position="attributes">
                     <attribute name="bgcolor">RGB(191,223,255);</attribute>
+                    <attribute name="on_change">onchange_date_to(date_to)</attribute>
+                    <attribute name="class">width_input_class</attribute>
                 </xpath>
 
             </field>
@@ -86,6 +94,20 @@
                 <field name="number" position="after">
                     <field name="paid_date"/>
                 </field>
+            </field>
+        </record>
+
+        <record id="hr_contract_form_inherit" model="ir.ui.view">
+            <field name="name">hr.contract.view.form.inherit</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+            <field name="arch" type="xml">
+            <data>
+                <xpath expr="//field[@name='type_id']" position="after">
+                    <field name="journal_id"/>
+                    <field name="payment_method"/>
+                </xpath>
+            </data>
             </field>
         </record>
 

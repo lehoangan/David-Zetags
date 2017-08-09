@@ -1,0 +1,4 @@
+
+.oe_form .width_input_class input{
+width: 150px !important; /* độ rộng của từng cột */
+}

@@ -40,6 +40,9 @@
     'demo': [],
     'test': [
     ],
+    'css':[
+        'static/src/css/hr.css',
+    ],
     'installable': True,
     'auto_install': False,
 }

@@ -33,7 +33,7 @@ class hr_payslip(osv.osv):
         'paid_date': fields.date('Paid Date', required=True),
         'payment_ref': fields.char('Payment Ref', 250),
         'memo': fields.char('Memo', 250),
-        'payment_account': fields.many2one('account.journal', 'Payment Account', domain="[('company_id', '=', company_id)]"),
+        'payment_account_id': fields.many2one('account.account', 'Payment Account', domain="[('type', '=', 'liquidity')]"),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
     }
 
@@ -117,7 +117,7 @@ class hr_payslip(osv.osv):
             contract_obj = self.pool.get('hr.contract')
             contract_record = contract_obj.browse(cr, uid, contract_id, context=context)
             if contract_record.journal_id:
-                res['value'].update({'payment_account': contract_record.journal_id.id})
+                res['value'].update({'payment_account_id': contract_record.payment_account_id.id})
             if contract_record.payment_method:
                 res['value'].update({'payment_method': contract_record.payment_method.id})
         res['value'].update({'date_from': date_from})
@@ -141,7 +141,7 @@ hr_payslip()
 class hr_contract(osv.osv):
     _inherit = "hr.contract"
     _columns = {
-        'journal_id': fields.many2one('account.journal', 'Payment Account', domain="[('company_id', '=', company_id)]"),
+        'payment_account_id': fields.many2one('account.account', 'Payment Account', domain="[('type', '=', 'liquidity')]"),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
     }
 

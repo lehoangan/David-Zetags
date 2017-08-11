@@ -33,7 +33,8 @@ class hr_payslip(osv.osv):
         'paid_date': fields.date('Paid Date', required=True),
         'payment_ref': fields.char('Payment Ref', 250),
         'memo': fields.char('Memo', 250),
-        'payment_account_id': fields.many2one('account.account', 'Payment Account', domain="[('type', '=', 'liquidity')]"),
+        'payment_account_id': fields.many2one('account.account', 'Payment Account',
+                                              domain="[('type', '=', 'liquidity'), ('company_id', '=', company_id)]"),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
     }
 
@@ -138,12 +139,25 @@ class hr_payslip(osv.osv):
 
 hr_payslip()
 
+from lxml import etree
 class hr_contract(osv.osv):
     _inherit = "hr.contract"
     _columns = {
-        'payment_account_id': fields.many2one('account.account', 'Payment Account', domain="[('type', '=', 'liquidity')]"),
+        'payment_account_id': fields.many2one('account.account', 'Payment Account',
+                                              domain="[('type', '=', 'liquidity')]"),
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
     }
+
+    def fields_view_get(self, cr, uid, view_id=None, view_type=None, context=None, toolbar=False, submenu=False):
+        res = super(hr_contract, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context,
+                                                       toolbar=toolbar, submenu=submenu)
+        if view_type == 'form':
+            doc = etree.XML(res['arch'], parser=None, base_url=None)
+            company_id = self.pool.get('res.users').browse(cr, uid, uid).company_id.id
+            node = doc.xpath("//field[@name='payment_account_id']")[0]
+            node.set('domain', "[('type', '=', 'liquidity'), ('company_id', '=', %s)]"%company_id)
+            res['arch'] = etree.tostring(doc, encoding="utf-8")
+        return res
 
 hr_contract()
 

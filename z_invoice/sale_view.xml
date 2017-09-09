@@ -12,6 +12,7 @@
                    <xpath expr="//button[@name='invoice_corrected']" position="after">
                        <button name="ship_recreate" states="shipping_except" string="Recreate Delivery Order"/>
                        <button name="ship_corrected" states="shipping_except" string="Ignore Exception"/>
+                       <button name="action_copy_latest_order" states="draft" string="Copy Lines From Latest Order" type="object"/>
                    </xpath>
                    <xpath expr="//button[@name='action_view_invoice']" position="after">
                        <field name="picking_ids" invisible="1"/>

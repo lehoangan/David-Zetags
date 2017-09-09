@@ -285,6 +285,17 @@ class sale_order(osv.osv):
     _sql_constraints = [
         ('name_uniq', 'Check(1=1)', 'Order Reference must be unique per Company!'),
     ]
+
+    def action_copy_latest_order(self, cr, uid, ids, context=None):
+        for obj in self.browse(cr, uid, ids, context):
+            latest_so_ids = self.search(cr, uid, [('partner_id', '=', obj.partner_id.id),
+                                                 ('state', 'in', ('progress', 'manual', 'invoice_except', 'done',))],
+                                       order="date_order desc", limit=1)
+            if latest_so_ids:
+                last_so = self.browse(cr, uid, latest_so_ids[0], context)
+                for line in last_so.order_line:
+                    self.pool.get('sale.order.line').copy(cr, uid, line.id, {'order_id': int(obj.id)})
+        return True
     
     def onchange_partner_id(self, cr, uid, ids, part, context=None):
         if not part:

@@ -100,6 +100,8 @@
 	                    <button name="%(sale.report_sale_order_odt)d" string="Print PF Invoice (ODT)" type="action" states="draft,sent,progress,manual" class="oe_highlight" groups="base.group_user"/>
 	                    <button name="action_button_confirm" states="draft" string="Confirm Sale" type="object" groups="base.group_user"/>
 	                    <button name="action_button_confirm" states="sent" string="Confirm Sale" class="oe_highlight" type="object" groups="base.group_user"/>
+                        <button name="action_button_confirm_invoice" states="draft" string="PROCESS INVOICE" type="object" groups="base.group_user"/>
+	                    <button name="action_button_confirm_invoice" states="sent" string="PROCESS INVOICE" class="oe_highlight" type="object" groups="base.group_user"/>
 	                    <button name="action_view_invoice" string="View Invoice" type="object" class="oe_highlight"
 	                        attrs="{'invisible': [('invoice_exists', '=', False)]}" groups="base.group_user"/>
 	                    <button name="%(sale.action_view_sale_advance_payment_inv)d" string="Create Invoice"

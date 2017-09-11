@@ -196,7 +196,7 @@ class sale_order(osv.osv):
         'color': 0,
     }
 
-    def copy(self, cr, uid, id, vals, context=None):
+    def copy(self, cr, uid, id, vals={}, context=None):
         stage_ids = self.pool.get('sale.order.stage').search(cr, uid, [('case_default', '=', True)])
         stage_id = stage_ids and stage_ids[0] or False
         vals.update({'date_order': time.strftime('%Y-%m-%d'),
@@ -285,6 +285,16 @@ class sale_order(osv.osv):
     _sql_constraints = [
         ('name_uniq', 'Check(1=1)', 'Order Reference must be unique per Company!'),
     ]
+
+    def action_button_confirm_invoice(self, cr, uid, ids, context=None):
+        assert len(ids) == 1, 'This option should only be used for a single id at a time.'
+        wf_service = netsvc.LocalService('workflow')
+        wf_service.trg_validate(uid, 'sale.order', ids[0], 'order_confirm', cr)
+        wf_service.trg_validate(uid, 'sale.order', ids[0], 'manual_invoice', cr)
+        inv_ids = list(set(inv.id for sale in self.browse(cr, uid, ids, context) for inv in sale.invoice_ids if inv.state == 'draft'))
+        for inv_id in inv_ids:
+            wf_service.trg_validate(uid, 'account.invoice', inv_id, 'invoice_open', cr)
+        return True
 
     def action_copy_latest_order(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):

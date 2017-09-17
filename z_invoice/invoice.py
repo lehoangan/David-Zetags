@@ -733,9 +733,11 @@ class account_invoice(osv.osv):
                 line_cr_ids = []
                 line_dr_ids = []
                 for line in vals['line_cr_ids']:
-                    line_cr_ids.append((0,0,line))
+                    if line.get('amount_unreconciled'):
+                        line_cr_ids.append((0,0,line))
                 for line in vals['line_dr_ids']:
-                    line_dr_ids.append((0,0,line))
+                    if line.get('amount_unreconciled'):
+                        line_dr_ids.append((0,0,line))
                 vals['line_cr_ids'] = line_cr_ids
                 vals['line_dr_ids'] = line_dr_ids
                 vals.update({'journal_id': prepaid.journal_id.id,

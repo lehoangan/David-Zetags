@@ -305,6 +305,16 @@ class sale_order(osv.osv):
                 last_so = self.browse(cr, uid, latest_so_ids[0], context)
                 for line in last_so.order_line:
                     self.pool.get('sale.order.line').copy(cr, uid, line.id, {'order_id': int(obj.id)})
+                obj.write({'shipping_charge': last_so.shipping_charge,
+                           'partner_invoice_id': last_so.partner_invoice_id.id or False,
+                           'partner_shipping_id': last_so.partner_shipping_id.id or False,
+                           'stage_id': last_so.stage_id and last_so.stage_id.id or False,
+                           'shop_id': last_so.shop_id.id or False,
+                           'pricelist_id': last_so.pricelist_id.id or False,
+                           'product_tariff_code_id': last_so.product_tariff_code_id and last_so.product_tariff_code_id.id or False,
+                           'carrier_id': last_so.carrier_id and last_so.carrier_id.id or False,
+                           'delivery_account_id': last_so.delivery_account_id and last_so.delivery_account_id.id or False,
+                           })
         return True
     
     def onchange_partner_id(self, cr, uid, ids, part, context=None):

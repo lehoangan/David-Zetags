@@ -91,36 +91,43 @@ class hr_payslip(osv.osv):
                 contract_ids = self.get_contract(cr, uid, self.pool.get('hr.employee').browse(cr, uid, employee_id, context=context), date_from, date_to, context=context)
                 if contract_ids:
                     contract_id = contract_ids[0]
-            contract_record = contract_obj.browse(cr, uid, contract_id, context=context)
+            if contract_id:
+                contract_record = contract_obj.browse(cr, uid, contract_id, context=context)
 
-            schedule_pay = contract_record.schedule_pay
-            days = 0
-            if 'weekly' == schedule_pay:
-                days = 7
-            elif 'bi-weekly' == schedule_pay:
-                days = 14
-            elif 'semi-monthly' == schedule_pay:  # impossible
-                days = 15
-            elif 'monthly' == schedule_pay:
-                days = 30
-            elif 'quarterly' == schedule_pay:
-                days = 91
-            elif 'semi-annually' == schedule_pay:
-                days = 182
-            elif 'annually' == schedule_pay:
-                days = 365
-            date_to = datetime.strptime(date_to, "%Y-%m-%d")
-            day_from = date_to - relativedelta(days=days)
-            date_from =  day_from.strftime("%Y-%m-%d")
+                schedule_pay = contract_record.schedule_pay
+                days = 0
+                if 'weekly' == schedule_pay:
+                    days = 7
+                elif 'bi-weekly' == schedule_pay:
+                    days = 14
+                elif 'semi-monthly' == schedule_pay:  # impossible
+                    days = 15
+                elif 'monthly' == schedule_pay:
+                    days = 30
+                elif 'quarterly' == schedule_pay:
+                    days = 91
+                elif 'semi-annually' == schedule_pay:
+                    days = 182
+                elif 'annually' == schedule_pay:
+                    days = 365
+                date_to = datetime.strptime(date_to, "%Y-%m-%d")
+                day_from = date_to - relativedelta(days=days)
+                date_from =  day_from.strftime("%Y-%m-%d")
 
         res = super(hr_payslip, self).onchange_employee_id(cr, uid, ids, date_from, date_to, employee_id, contract_id, context)
         if contract_id:
             contract_obj = self.pool.get('hr.contract')
             contract_record = contract_obj.browse(cr, uid, contract_id, context=context)
-            if contract_record.journal_id:
+            if contract_record.payment_account_id:
                 res['value'].update({'payment_account_id': contract_record.payment_account_id.id})
             if contract_record.payment_method:
                 res['value'].update({'payment_method': contract_record.payment_method.id})
+        if employee_id:
+            employee = self.pool.get('hr.employee').browse(cr, uid, employee_id, context=context)
+            if not  res['value'].get('payment_account_id') and employee.payment_account_id:
+                res['value'].update({'payment_account_id': employee.payment_account_id.id})
+            if not  res['value'].get('payment_method') and employee.payment_method:
+                res['value'].update({'payment_method': employee.payment_method.id})
         res['value'].update({'date_from': date_from})
         return res
 
@@ -148,6 +155,16 @@ class hr_contract(osv.osv):
         'payment_method': fields.many2one('payment.methods', 'Payment Method'),
     }
 
+    def onchange_employee_id(self, cr, uid, ids, employee_id, context=None):
+        vals = {}
+        if employee_id:
+            employee = self.pool.get('hr.employee').browse(cr, uid, employee_id, context)
+            if employee.payment_account_id:
+                vals.update({'payment_account_id': employee.payment_account_id.id})
+            if employee.payment_method:
+                vals.update({'payment_method': employee.payment_method.id})
+        return {'value': vals}
+
     def fields_view_get(self, cr, uid, view_id=None, view_type=None, context=None, toolbar=False, submenu=False):
         res = super(hr_contract, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context,
                                                        toolbar=toolbar, submenu=submenu)
@@ -160,5 +177,50 @@ class hr_contract(osv.osv):
         return res
 
 hr_contract()
+
+class hr_employee(osv.osv):
+    _inherit = "hr.employee"
+    _columns = {
+        'payment_account_id': fields.many2one('account.account', 'Payment Account',
+                                              domain="[('type', '=', 'liquidity')]"),
+        'payment_method': fields.many2one('payment.methods', 'Payment Method'),
+    }
+
+    def fields_view_get(self, cr, uid, view_id=None, view_type=None, context=None, toolbar=False, submenu=False):
+        res = super(hr_employee, self).fields_view_get(cr, uid, view_id=view_id, view_type=view_type, context=context,
+                                                       toolbar=toolbar, submenu=submenu)
+        if view_type == 'form':
+            doc = etree.XML(res['arch'], parser=None, base_url=None)
+            company_id = self.pool.get('res.users').browse(cr, uid, uid).company_id.id
+            node = doc.xpath("//field[@name='payment_account_id']")[0]
+            node.set('domain', "[('type', '=', 'liquidity'), ('company_id', '=', %s)]"%company_id)
+            res['arch'] = etree.tostring(doc, encoding="utf-8")
+        return res
+
+hr_employee()
+
+
+class hr_payslip_employees(osv.osv_memory):
+    _inherit = 'hr.payslip.employees'
+
+    def compute_sheet(self, cr, uid, ids, context=None):
+        res = super(hr_payslip_employees, self).compute_sheet(cr, uid, ids, context=context)
+        run_pool = self.pool.get('hr.payslip.run')
+        if context is None:
+            context = {}
+        if context and context.get('active_id', False):
+            run_data = run_pool.browse(cr, uid, context['active_id'], context)
+            for payslip in run_data.slip_ids:
+                employee = payslip.employee_id
+                vals = {}
+                if employee.payment_account_id:
+                    vals.update({'payment_account_id': employee.payment_account_id.id})
+                if employee.payment_method:
+                    vals.update({'payment_method': employee.payment_method.id})
+                if vals:
+                    payslip.write(vals)
+        return res
+hr_payslip_employees()
+
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

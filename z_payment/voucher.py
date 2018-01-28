@@ -189,6 +189,18 @@ class account_voucher(osv.osv):
                 for dict in result['value']['line_dr_ids']:
                     dict['reconcile'] = False
                     dict['amount'] = 0
+        if result['value'].get('line_cr_ids', False):
+            for dict in result['value']['line_cr_ids']:
+                if dict['move_line_id']:
+                    aml = self.pool.get('account.move.line').browse(cr, uid, dict['move_line_id'], context)
+                    if aml.invoice:
+                        dict['date_invoice'] = aml.invoice.date_invoice
+        if result['value'].get('line_dr_ids', False):
+            for dict in result['value']['line_dr_ids']:
+                if dict['move_line_id']:
+                    aml = self.pool.get('account.move.line').browse(cr, uid, dict['move_line_id'], context)
+                    if aml.invoice:
+                        dict['date_invoice'] = aml.invoice.date_invoice
         return result
 
     def action_move_line_create(self, cr, uid, ids, context=None):
@@ -564,6 +576,9 @@ class account_voucher_line(osv.osv):
 
     _columns = {
         'choose': fields.boolean('Choose'),
+        'date_invoice': fields.related('move_line_id', 'invoice', 'date_invoice', type='date',
+                                       relation='account.invoice',
+                                       string='Invoice Date', readonly=1),
     }
 
     def write(self, cr, uid, ids, vals, context=None):

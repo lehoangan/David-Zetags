@@ -145,7 +145,8 @@
                                             groups="account.group_account_user"/>
                                         <field name="account_id"  groups="base.group_no_one" domain="[('type','=','receivable')]"/>
                                         <field name="date_original" invisible="1"/>
-                                        <field name="date_due" readonly="1"/>
+                                        <field name="date_due" invisible="1"/>
+                                        <field name="date_invoice" readonly="1"/>
                                         <field name="amount_original" invisible="1"/>
                                         <field name="amount_unreconciled" readonly="1" groups="account.group_account_user"/>
                                         <field name="reconcile" invisible="1"/>
@@ -165,7 +166,8 @@
                                             required="1"/>
                                         <field name="account_id"  groups="base.group_no_one" domain="[('type','=','receivable')]"/>
                                         <field name="date_original" invisible="1"/>
-                                        <field name="date_due" readonly="1"/>
+                                        <field name="date_due" invisible="1"/>
+                                        <field name="date_invoice" readonly="1"/>
                                         <field name="amount_original" invisible="1"/>
                                         <field name="amount_unreconciled" readonly="1"/>
                                         <field name="reconcile" invisible="1"/>
@@ -243,7 +245,8 @@
                                             required="1"/>
                                         <field name="account_id" groups="base.group_no_one" domain="[('type','=','payable')]"/>
                                         <field name="date_original" invisible="1"/>
-                                        <field name="date_due" readonly="1"/>
+                                        <field name="date_due" invisible="1"/>
+                                        <field name="date_invoice" readonly="1"/>
                                         <field name="amount_original" invisible="1"/>
                                         <field name="amount_unreconciled" readonly="1"/>
                                         <field name="reconcile" invisible="1"/>
@@ -263,7 +266,8 @@
                                             required="1"/>
                                         <field name="account_id" groups="base.group_no_one" domain="[('type','=','payable')]"/>
                                         <field name="date_original" invisible="1"/>
-                                        <field name="date_due" readonly="1"/>
+                                        <field name="date_due" invisible="1"/>
+                                        <field name="date_invoice" readonly="1"/>
                                         <field name="amount_original" invisible="1"/>
                                         <field name="amount_unreconciled" readonly="1" groups="account.group_account_user"/>
                                         <field name="reconcile"  invisible="1"/>

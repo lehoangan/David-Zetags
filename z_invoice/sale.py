@@ -303,6 +303,7 @@ class sale_order(osv.osv):
                                        order="date_order desc", limit=1)
             if latest_so_ids:
                 last_so = self.browse(cr, uid, latest_so_ids[0], context)
+                stage_ids = self.pool.get('sale.order.stage').search(cr, uid, [], order="sequence asc")
                 obj.write({'shipping_charge': last_so.shipping_charge,
                            'partner_invoice_id': last_so.partner_invoice_id.id or False,
                            'partner_shipping_id': last_so.partner_shipping_id.id or False,
@@ -313,6 +314,7 @@ class sale_order(osv.osv):
                            'carrier_id': last_so.carrier_id and last_so.carrier_id.id or False,
                            'delivery_account_id': last_so.delivery_account_id and last_so.delivery_account_id.id or False,
                            'tax_id': [(4, tax.id) for tax in last_so.tax_id],
+                           'stage_id': stage_ids and stage_ids[0] or False,
                            })
                 for line in last_so.order_line:
                     self.pool.get('sale.order.line').copy(cr, uid, line.id, {'order_id': int(obj.id)})

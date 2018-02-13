@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="account_report_general_ledger_view_inherit" model="ir.ui.view">
+            <field name="name">General Ledger</field>
+            <field name="model">account.report.general.ledger</field>
+            <field name="inherit_id" ref="account.account_report_general_ledger_view"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//field[@name='initial_balance']" position="after">
+                        <field name="account_filter"/>
+                        <field name="account_filter_id"
+                               attrs="{'invisible':[('account_filter', '=', 'all')],'required':[('account_filter', '=', 'one')]}"/>
+                    </xpath>
+                </data>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>

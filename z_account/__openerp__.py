@@ -36,6 +36,8 @@
         'wizard/account_report_partner_ledger_view.xml',
         'wizard/account_report_partner_balance_view.xml',
         'wizard/account_report_partner_transaction_view.xml',
+        'wizard/account_report_general_ledger_view.xml',
+
 
         'report/report_define.xml',
         'view/forex_voucher_view.xml',

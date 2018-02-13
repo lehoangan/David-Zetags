@@ -266,7 +266,7 @@ class bank_reconcilation(osv.osv):
 
         if date:
             # get line detail
-            condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND'
+            condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND (ml.no_reconcile is NULL or ml.no_reconcile = FALSE)  AND'
             if account_id:
                 condition += ' ml.account_id = %s' % account_id
                 if date:
@@ -306,7 +306,7 @@ class bank_reconcilation(osv.osv):
             account_id = obj.account_id and obj.account_id.id or False
 
             # get line detail
-            condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) '
+            condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND (ml.no_reconcile is NULL or ml.no_reconcile = FALSE) '
             if move_ids:
                 condition += ' AND ml.id not in %s ' % str(tuple(move_ids + [-1, -1]))
             if account_id:
@@ -409,8 +409,7 @@ class bank_reconcilation_line(osv.osv):
     }
     _order = "date asc"
 
-
-bank_reconcilation()
+bank_reconcilation_line()
 
 
 

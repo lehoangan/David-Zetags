@@ -67,6 +67,11 @@ class account_move_line(osv.osv):
         'fcstate': fields.function(_get_status, type='selection',
                                    selection=[('draft','Unbalanced'), ('valid','Balanced'), ('reconcile', 'Reconciled')],
                                    string='Status', readonly=True),
+        'no_reconcile': fields.boolean('No Bank Reconcile', copy=False),
+    }
+
+    _defaults = {
+        'no_reconcile': False,
     }
 
     def copy(self, cr, uid, id, default=None, context=None):

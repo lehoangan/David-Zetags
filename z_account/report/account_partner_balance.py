@@ -98,6 +98,7 @@ class partner_balance_zateg(partner_balance):
                 "SELECT DISTINCT part.id, part.id, part.name, l.currency_id " \
                 "FROM account_move_line AS l " \
                 "JOIN account_move am ON (am.id = l.move_id)" \
+                "JOIN account_invoice invoice ON (am.id = invoice.move_id)" \
                 "LEFT JOIN res_partner AS part ON (l.partner_id=part.id) " \
                 "WHERE l.account_id IN %s"  \
                     "AND am.state IN %s" \
@@ -123,6 +124,7 @@ class partner_balance_zateg(partner_balance):
                 "SELECT sum(debit) " \
                 "FROM account_move_line AS l " \
                 "JOIN account_move am ON (am.id = l.move_id)" \
+                "JOIN account_invoice invoice ON (am.id = invoice.move_id)" \
                 "WHERE l.account_id IN %s"  \
                     "AND am.state IN %s" \
                     "AND " + self.query + partner + currency + "",
@@ -148,6 +150,7 @@ class partner_balance_zateg(partner_balance):
                 "SELECT sum(credit) " \
                 "FROM account_move_line AS l " \
                 "JOIN account_move am ON (am.id = l.move_id)" \
+                "JOIN account_invoice invoice ON (am.id = invoice.move_id)" \
                 "WHERE l.account_id IN %s" \
                     "AND am.state IN %s" \
                     "AND " + self.query + partner + currency + "",
@@ -174,6 +177,7 @@ class partner_balance_zateg(partner_balance):
                 "SELECT sum(amount_currency) " \
                 "FROM account_move_line AS l " \
                 "JOIN account_move am ON (am.id = l.move_id)" \
+                "JOIN account_invoice invoice ON (am.id = invoice.move_id)" \
                 "WHERE l.account_id IN %s" \
                     "AND am.state IN %s" \
                     "AND " + self.query + partner + currency + "",
@@ -204,7 +208,7 @@ class partner_balance_zateg(partner_balance):
             "FROM account_move_line l LEFT JOIN res_partner p ON (l.partner_id=p.id) " \
             "JOIN account_account ac ON (l.account_id = ac.id)" \
             "JOIN account_move am ON (am.id = l.move_id)" \
-            "LEFT JOIN account_invoice invoice ON (am.id = invoice.move_id)" \
+            "JOIN account_invoice invoice ON (am.id = invoice.move_id)" \
             "WHERE ac.type IN %s " \
             "AND am.state IN %s " \
             "AND " + self.query + partner + currency + "" \
@@ -240,7 +244,6 @@ class partner_balance_zateg(partner_balance):
                     "AND " + self.query + " GROUP BY part.id, part.name, l.currency_id",
                     (self.PAYMENT_TYPE, tuple(move_state)))
         res = self.cr.dictfetchall()
-        print res
         return res
 
     def _sum_payment_debit(self, partner):

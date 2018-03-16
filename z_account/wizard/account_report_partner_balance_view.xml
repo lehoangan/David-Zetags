@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
-     <data>
+    <data>
 
         <record id="account_partner_balance_view" model="ir.ui.view">
             <field name="name">Partner Summary</field>
             <field name="model">account.partner.balance</field>
-            <field name="inherit_id" ref="account.account_partner_balance_view" />
+            <field name="inherit_id" ref="account.account_partner_balance_view"/>
             <field name="arch" type="xml">
-            <data>
-            <xpath expr="//field[@name='display_partner']" position="after">
-                <field name="currency_id"/>
-                <field name="partner_id"/>
-                <newline/>
-            </xpath>
-            </data>
+                <data>
+                    <xpath expr="//field[@name='display_partner']" position="replace">
+                        <field name="debit_credit_show"/>
+                        <field name="currency_id"/>
+                        <field name="partner_id"/>
+                        <field name="report_type"/>
+                        <newline/>
+                    </xpath>
+                </data>
             </field>
         </record>
 
-         <record id="account.action_account_partner_balance" model="ir.actions.act_window">
-             <field name="name">Partner Summary</field>
-       </record>
+        <record id="account.action_account_partner_balance" model="ir.actions.act_window">
+            <field name="name">Partner Summary</field>
+        </record>
 
         <menuitem icon="STOCK_PRINT"
-            name="Partner Summary"
-            action="account.action_account_partner_balance"
-            id="account.menu_account_partner_balance_report"
-            parent="account.next_id_22"/>
+                  name="Partner Summary"
+                  action="account.action_account_partner_balance"
+                  id="account.menu_account_partner_balance_report"
+                  parent="account.next_id_22"/>
 
-     </data>
- </openerp>
+    </data>
+</openerp>

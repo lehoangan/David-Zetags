@@ -26,13 +26,24 @@ class account_partner_balance(osv.osv_memory):
     _columns = {
         'currency_id': fields.many2one('res.currency', 'Currency'),
         'partner_id': fields.many2one('res.partner', 'Filter Partner'),
+        'debit_credit_show': fields.selection([('both', 'Debit + Credit'),
+                                               ('debit', 'Debit'),
+                                               ('credit', 'credit')], 'Debit or Credit'),
+        'report_type': fields.selection([('both', 'Invoice + Payment'),
+                                        ('invoice', 'Invoice'),
+                                        ('payment', 'Payment')], 'Invoice or Payment'),
+    }
+
+    _defaults = {
+        'debit_credit_show': 'both',
+        'report_type': 'both',
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):
         if context is None:
             context = {}
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['display_partner', 'currency_id', 'partner_id'])[0])
+        data['form'].update(self.read(cr, uid, ids, ['display_partner', 'currency_id', 'partner_id', 'debit_credit_show', 'report_type'])[0])
         return {
             'type': 'ir.actions.report.xml',
             'report_name': 'account.partner.balance',

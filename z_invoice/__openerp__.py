@@ -39,6 +39,7 @@
          "invoice_view.xml",
          "voucher_view.xml",
          "account_move_view.xml",
+         "account_journal_view.xml",
          "delivery_order_view.xml",
          "stock_report.xml",
          "account_report.xml",

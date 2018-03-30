@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
-#    
+#
 #    OpenERP, Open Source Management Solution
 #    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
 #
@@ -15,16 +15,33 @@
 #    GNU Affero General Public License for more details.
 #
 #    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.     
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-import sale
-import invoice
-import stock
-import report
-import voucher
-import procurement
-import account_move_line
-import wizard
-import account_journal
+
+import time
+
+from openerp.osv import fields, osv
+from openerp.tools.translate import _
+from datetime import datetime
+import openerp.addons.decimal_precision as dp
+from openerp.tools import float_compare
+
+class account_journal(osv.osv):
+    _inherit = "account.journal"
+    _columns = {
+        'bank_name': fields.char('Bank Name'),
+        'bank_address': fields.char('Bank Address'),
+        'bank_code_desc': fields.char('Bank Code Desc.'),
+        'bank_code': fields.char('Bank Code'),
+        'branch_code_desc': fields.char('Branch Code Desc.'),
+        'branch_code': fields.char('Branch Code'),
+        'account_number': fields.char('Account Number'),
+        'account_name': fields.char('Account Name'),
+
+    }
+
+account_journal()
+
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

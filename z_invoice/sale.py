@@ -108,6 +108,10 @@ class sale_order(osv.osv):
         return result.keys()
     
     _columns = {
+        'txt_payment_term': fields.char('Payment Term', size=240, readonly=True,
+                             states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
+        'email': fields.char('Email', size=240, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
+        'phone': fields.char('Phone', size=64, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'country_id1':fields.related('partner_id', 'country_id', string='Country', type='many2one', relation='res.country'),
         'image': fields.related('country_id1', 'flag', string='Image', type='boolean'),
         'country_id2':fields.related('company_id', 'country_id', string='Country', type='many2one', relation='res.country'),
@@ -319,6 +323,24 @@ class sale_order(osv.osv):
                 for line in last_so.order_line:
                     self.pool.get('sale.order.line').copy(cr, uid, line.id, {'order_id': int(obj.id)})
         return True
+
+    def onchange_partner_shipping_id(self, cr, uid, ids, part, partner_shipping_id, context=None):
+        if not partner_shipping_id or not part:
+            return {'value': {}}
+        part = self.pool.get('res.partner').browse(cr, uid, part, context=context)
+        delivery_addr = self.pool.get('res.partner').browse(cr, uid, partner_shipping_id, context=context)
+        return {'value': {
+            'phone': delivery_addr.phone and delivery_addr.phone or part.phone,
+            'email': delivery_addr.email and delivery_addr.email or part.email,
+        }}
+
+    def onchange_payment_term(self, cr, uid, ids, payment_term, txt_payment_term, context=None):
+        if not payment_term:
+            return {'value': {}}
+        payment = self.pool.get('account.payment.term').browse(cr, uid, payment_term, context=context)
+        return {'value': {
+            'txt_payment_term': payment.name,
+        }}
     
     def onchange_partner_id(self, cr, uid, ids, part, context=None):
         if not part:
@@ -330,12 +352,19 @@ class sale_order(osv.osv):
         payment_term = part.property_payment_term and part.property_payment_term.id or False
         fiscal_position = part.property_account_position and part.property_account_position.id or False
         dedicated_salesman = part.user_id and part.user_id.id or uid
+        if addr['delivery']:
+            delivery_addr = self.pool.get('res.partner').browse(cr, uid, addr['delivery'], context=context)
+        else:
+            delivery_addr = part
         val = {
             #Thanh: Add contact
             'partner_invoice_id': addr['invoice'],
             'partner_shipping_id': addr['delivery'],
             'payment_term': payment_term,
+            'txt_payment_term': part.property_payment_term and part.property_payment_term.name or '',
             'fiscal_position': fiscal_position,
+            'phone': delivery_addr.phone and delivery_addr.phone or part.phone,
+            'email': delivery_addr.email and delivery_addr.email or part.email,
             'user_id': dedicated_salesman,
             'carrier_id': part.default_shipping_id.id or False,
             'tax_id': [tax.id for tax in part.tax_ids] or [],

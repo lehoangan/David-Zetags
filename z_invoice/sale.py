@@ -108,7 +108,7 @@ class sale_order(osv.osv):
         return result.keys()
     
     _columns = {
-        'txt_payment_term': fields.related('payment_term', 'names', string='Payment Term', size=240, readonly=True),
+        'txt_payment_term': fields.related('payment_term', 'name', string='Payment Term', size=240, readonly=True),
         'email': fields.char('Email', size=240, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'phone': fields.char('Phone', size=64, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'country_id1':fields.related('partner_id', 'country_id', string='Country', type='many2one', relation='res.country'),

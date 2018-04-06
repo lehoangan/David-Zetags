@@ -106,9 +106,18 @@ class sale_order(osv.osv):
         for line in self.pool.get('sale.order.line').browse(cr, uid, ids, context=context):
             result[line.order_id.id] = True
         return result.keys()
+
+    def _get_txt_payment_term(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        for order in self.browse(cr, uid, ids, context=context):
+            name = '%s \n By %s'%(order.payment_term and order.payment_term.name or '',
+                               order.partner_id.payment_method and order.partner_id.payment_method.name or '')
+            res[order.id] = name
+        return res
     
     _columns = {
-        'txt_payment_term': fields.related('payment_term', 'name', string='Payment Term', type='char', size=240, readonly=True),
+        # 'payement_method': fields.char(),
+        'txt_payment_term': fields.function(_get_txt_payment_term, string='Payment Term', type='text'),
         'email': fields.char('Email', size=240, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'phone': fields.char('Phone', size=64, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'country_id1':fields.related('partner_id', 'country_id', string='Country', type='many2one', relation='res.country'),
@@ -333,12 +342,14 @@ class sale_order(osv.osv):
             'email': delivery_addr.email and delivery_addr.email or part.email,
         }}
 
-    def onchange_payment_term(self, cr, uid, ids, payment_term, txt_payment_term, context=None):
+    def onchange_payment_term(self, cr, uid, ids, payment_term, partner_id, context=None):
         if not payment_term:
             return {'value': {}}
         payment = self.pool.get('account.payment.term').browse(cr, uid, payment_term, context=context)
+        part = self.pool.get('res.partner').browse(cr, uid, partner_id, context=context)
+        name = '%s \n By %s'%(payment.name, part.payment_method and part.payment_method.name or '')
         return {'value': {
-            'txt_payment_term': payment.name,
+            'txt_payment_term': name,
         }}
     
     def onchange_partner_id(self, cr, uid, ids, part, context=None):
@@ -355,12 +366,14 @@ class sale_order(osv.osv):
             delivery_addr = self.pool.get('res.partner').browse(cr, uid, addr['delivery'], context=context)
         else:
             delivery_addr = part
+        txt_payment_term = '%s \n By %s' % (part.property_payment_term and part.property_payment_term.name or '',
+                             part.payment_method and part.payment_method.name or '')
         val = {
             #Thanh: Add contact
             'partner_invoice_id': addr['invoice'],
             'partner_shipping_id': addr['delivery'],
             'payment_term': payment_term,
-            'txt_payment_term': part.property_payment_term and part.property_payment_term.name or '',
+            'txt_payment_term': txt_payment_term,
             'fiscal_position': fiscal_position,
             'phone': delivery_addr.phone and delivery_addr.phone or part.phone,
             'email': delivery_addr.email and delivery_addr.email or part.email,

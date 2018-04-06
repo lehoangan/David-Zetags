@@ -110,8 +110,10 @@ class sale_order(osv.osv):
     def _get_txt_payment_term(self, cr, uid, ids, field_name, arg, context=None):
         res = {}
         for order in self.browse(cr, uid, ids, context=context):
-            name = '%s \n By %s'%(order.payment_term and order.payment_term.name or '',
-                               order.partner_id.payment_method and order.partner_id.payment_method.name or '')
+            name = order.payment_term and order.payment_term.name or ''
+            if order.partner_id.payment_method:
+                name = '%s \n By %s'%(name,
+                                   order.partner_id.payment_method and order.partner_id.payment_method.name or '')
             res[order.id] = name
         return res
     
@@ -347,7 +349,9 @@ class sale_order(osv.osv):
             return {'value': {}}
         payment = self.pool.get('account.payment.term').browse(cr, uid, payment_term, context=context)
         part = self.pool.get('res.partner').browse(cr, uid, partner_id, context=context)
-        name = '%s \n By %s'%(payment.name, part.payment_method and part.payment_method.name or '')
+        name = payment.name
+        if part.payment_method:
+            name = '%s \n By %s'%(name, part.payment_method and part.payment_method.name or '')
         return {'value': {
             'txt_payment_term': name,
         }}
@@ -366,8 +370,10 @@ class sale_order(osv.osv):
             delivery_addr = self.pool.get('res.partner').browse(cr, uid, addr['delivery'], context=context)
         else:
             delivery_addr = part
-        txt_payment_term = '%s \n By %s' % (part.property_payment_term and part.property_payment_term.name or '',
-                             part.payment_method and part.payment_method.name or '')
+        txt_payment_term = part.property_payment_term and part.property_payment_term.name or ''
+        if part.payment_method:
+            txt_payment_term = '%s \n By %s' % (txt_payment_term,
+                                 part.payment_method and part.payment_method.name or '')
         val = {
             #Thanh: Add contact
             'partner_invoice_id': addr['invoice'],

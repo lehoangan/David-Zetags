@@ -114,7 +114,15 @@ class account_voucher(osv.osv):
         #Thanh: Get payment method from Customer Form
         partner_pool = self.pool.get('res.partner')
         if partner_id:
-            partner = partner_pool.browse(cr, uid, partner_id, context=context)
+            partner = self.pool.get('res.partner').browse(cr, uid, partner_id, context=context)
+            if partner.country_id and partner.country_id.company_id:
+                user_company = self.pool.get('res.users').browse(cr, uid, uid).company_id
+                if user_company != partner.company_id:
+                    return {'value': {'partner_id': False}, 'warning': {
+                        'title': _("Access Error"),
+                        'message': _(
+                            "You must login to %s to invoice this customer." % partner.country_id.company_id.name),
+                    }, }
             if partner.default_payment_method:
                 journal_id = partner.default_payment_method.id
                 res['value'].update({'journal_id': journal_id})

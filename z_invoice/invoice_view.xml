@@ -61,6 +61,7 @@
 				<xpath expr="//field[@name='payment_term']" position="after">
 					<field name="delivery_account_id" class="oe_inline"/>
 					<field name="product_tariff_code_id" class="oe_inline"/>
+					<field name="use_country_id" class="oe_inline"/>
 					<field name="tracking_number" class="oe_inline"/>
 					<field name="weight"/>
 					<field name="packages" class="oe_inline"/>

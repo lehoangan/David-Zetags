@@ -207,7 +207,9 @@ class account_invoice(osv.osv):
             },
             help="Remaining amount due."),
                 
-        'product_tariff_code_id': fields.many2one('product.tariff.code', 'HS Tariff Code'),
+        'product_tariff_code_id': fields.many2one('product.tariff.code', 'Use HS Tariff Code'),
+        'use_country_id': fields.many2one('res.country',
+                                          'Use Country of Origin'),
         'tracking_number': fields.char('Tracking Number', size=50),
         'weight': fields.float('Weight', digits=(16,2)),
         'packages': fields.char('Packages #', size=20),

@@ -190,7 +190,11 @@ class sale_order(osv.osv):
             multi='sums', help="The total amount."),
         
         'tracking_number': fields.char('Tracking Number', size=50, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
-        'product_tariff_code_id': fields.many2one('product.tariff.code', 'HS Tariff Code', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
+        'product_tariff_code_id': fields.many2one('product.tariff.code',
+                                                  'Use HS Tariff Code', readonly=True,
+                                                  states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
+        'use_country_id': fields.many2one('res.country',
+                                          'Use Country of Origin'),
         'weight': fields.float('Weight', digits=(16,2), readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         'packages': fields.char('Packages #', size=20, readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         
@@ -386,6 +390,10 @@ class sale_order(osv.osv):
             'user_id': dedicated_salesman,
             'carrier_id': part.default_shipping_id.id or False,
             'tax_id': [tax.id for tax in part.tax_ids] or [],
+            'product_tariff_code_id': part.product_tariff_code_id and
+                                      part.product_tariff_code_id.id or False,
+            'use_country_id': part.use_country_id and
+                                      part.use_country_id.id or False,
         }
         if pricelist:
             val['pricelist_id'] = pricelist
@@ -503,6 +511,7 @@ class sale_order(osv.osv):
             'tax_id': [(4, tax.id) for tax in order.tax_id],
             'delivery_account_id': order.delivery_account_id.id or False,
             'product_tariff_code_id':order.product_tariff_code_id.id or False,
+            'use_country_id':order.use_country_id.id or False,
             'tracking_number':order.tracking_number,
             'weight':order.weight,
             'packages': order.packages,
@@ -591,15 +600,30 @@ class sale_order(osv.osv):
     def create(self, cr, uid, vals, context=None):
         if vals.get('shipping_date',False) and vals['shipping_date']:
             vals.update({'date_order':vals['shipping_date']})
-        return super(sale_order, self).create(cr, uid, vals, context=context)
+        so_id = super(sale_order, self).create(cr, uid, vals, context=context)
+        this = self.browse(cr, uid, so_id, context)
+        if not this.partner_id.product_tariff_code_id and this.product_tariff_code_id:
+            this.partner_id.write(
+                {'product_tariff_code_id': this.product_tariff_code_id.id})
+        if not this.partner_id.use_country_id and this.use_country_id:
+            this.partner_id.write({'use_country_id': this.use_country_id.id})
+        return so_id
     
     def write(self, cr, uid, ids, vals, context=None):
-        this = self.browse(cr, uid, ids[0])
-        date_order = this.shipping_date
-        if vals.get('date_order',False) and this.shipping_date:
-            vals.update({'date_order':this.shipping_date})
-        if vals.get('shipping_date',False) and vals['shipping_date']:
-            vals.update({'date_order':vals['shipping_date']})
+        sale_orders = self.browse(cr, uid, ids)
+        for this in sale_orders:
+            if vals.get('date_order',False) and this.shipping_date:
+                vals.update({'date_order':this.shipping_date})
+            if vals.get('shipping_date',False) and vals['shipping_date']:
+                vals.update({'date_order':vals['shipping_date']})
+            if not this.partner_id.product_tariff_code_id and \
+                    vals.get('product_tariff_code_id'):
+                this.partner_id.write({'product_tariff_code_id': vals.get(
+                    'product_tariff_code_id')})
+            if not this.partner_id.use_country_id and vals.get(
+                    'use_country_id'):
+                this.partner_id.write({'use_country_id': vals.get(
+                    'use_country_id')})
         return super(sale_order, self).write(cr, uid, ids, vals, context=context)
     
 #     def _auto_init(self, cr, context=None):

@@ -484,6 +484,8 @@
 	                        </group>
 	                        <group>
 	                            <field name="last_reconciliation_date"/>
+	                            <field name="product_tariff_code_id"/>
+	                            <field name="use_country_id"/>
 	                        </group>
 	                        <group attrs="{'invisible': [('customer','!=',True)]}">
 	                            <field name="property_account_receivable"

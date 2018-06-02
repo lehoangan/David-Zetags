@@ -349,6 +349,7 @@
                     </div>
                     <field name="delivery_account_id"/>
                 	<field name="product_tariff_code_id" class="oe_inline"/>
+                	<field name="use_country_id" class="oe_inline"/>
                     <field name="tracking_number" class="oe_inline"/>
                     <field name="shipping_date" class="oe_inline"/>
                     <field name="weight"/>

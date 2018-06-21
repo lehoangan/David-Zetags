@@ -494,6 +494,7 @@
 	                            	groups="account.group_account_invoice"/>
 	                            <field name="credit" />
 	                            <field name="fixed_discount"/>
+	                            <field name="strip_discount"/>
 	                        </group>
 	                        <group  attrs="{'invisible': [('supplier','!=',True)]}">
 	                            <field name="property_account_payable"

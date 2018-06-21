@@ -639,6 +639,21 @@ sale_order()
 class sale_order_line(osv.osv):
     _inherit = "sale.order.line"
 
+    def _price_strip_discount(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        if context is None:
+            context = {}
+        for line in self.browse(cr, uid, ids, context=context):
+            price = line.price_unit
+            if line.order_id.partner_id.strip_discount:
+                price = price * (1 - (line.discount or 0.0) / 100.0)
+            res[line.id] = price
+        return res
+
+    _columns = {
+        'price_strip_discount': fields.function(_price_strip_discount, string='Subtotal', digits_compute= dp.get_precision('Account')),
+    }
+
     def action_show_popup_product_detail(self, cr, uid, ids, context=None):
         ir_model_data = self.pool.get('ir.model.data')
         form_id = False
@@ -660,18 +675,6 @@ class sale_order_line(osv.osv):
             'context': ctx,
         }
 
-    # def _prepare_order_line_invoice_line(self, cr, uid, line, account_id=False, context=None):
-    #     res = super(sale_order_line, self)._prepare_order_line_invoice_line(cr, uid, line, account_id, context)
-    #     if not res:
-    #         return res
-    #
-    #     uosqty = 1
-    #     pu = round(line.price_unit * line.product_uom_qty / uosqty,
-    #             self.pool.get('decimal.precision').precision_get(cr, uid, 'Product Price'))
-    #     res.update({'price_unit': pu,
-    #                 'quantity': uosqty})
-    #     return res
-    
     def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False, packaging=False, fiscal_position=False, flag=False, context=None):
@@ -682,11 +685,6 @@ class sale_order_line(osv.osv):
             uom=uom, qty_uos=qty_uos, uos=uos, name=name, partner_id=partner_id,
             lang=lang, update_tax=update_tax, date_order=date_order, packaging=packaging, fiscal_position=fiscal_position, flag=flag, context=context)
 
-        #compute price base on rate of pricelist
-        # if pricelist and result['value'].get('price_unit'):
-        #     rate = self.pool.get('product.pricelist').browse(cr, uid, pricelist, context).rate
-        #     if rate:
-        #         result['value']['price_unit'] = result['value']['price_unit'] * rate
 
         partner = self.pool.get('res.partner').browse(cr, uid, partner_id)
         tax_obj = self.pool.get('account.tax')

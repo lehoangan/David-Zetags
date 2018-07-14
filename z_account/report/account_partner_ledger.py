@@ -57,6 +57,13 @@ class partner_ledger_zateg(third_party_ledger):
             else:
                 data['form'].update({'used_context': {'hide_zero': data['form']['hide_zero']}})
 
+        if data['form']['unpaid_invoice']:
+            ctx = data['form'].get('used_context', {})
+            if ctx:
+                data['form']['used_context'].update({'unpaid_invoice': data['form']['unpaid_invoice']})
+            else:
+                data['form'].update({'used_context': {'unpaid_invoice': data['form']['unpaid_invoice']}})
+
         if data['form']['currency_id']:
             ctx = data['form'].get('used_context', {})
             if ctx:

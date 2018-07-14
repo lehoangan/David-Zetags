@@ -84,6 +84,7 @@
                                     <field name="tax_code_id" invisible="1"/>
                                     <field name="tax_amount" invisible="1"/>
                                     <field name="amount" on_change="onchange_tax_id(tax_id, amount, parent.partner_id)"/>
+                                    <field name="no_reconcile"/>
                                 </tree>
                             </field>
                         </page>

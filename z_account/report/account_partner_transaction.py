@@ -84,6 +84,13 @@ class partner_transation_zateg(partner_ledger_zateg):
             else:
                 data['form'].update({'used_context': {'report_detail': data['form']['report_detail']}})
 
+        if data['form']['unpaid_invoice']:
+            ctx = data['form'].get('used_context', {})
+            if ctx:
+                data['form']['used_context'].update({'unpaid_invoice': data['form']['unpaid_invoice']})
+            else:
+                data['form'].update({'used_context': {'unpaid_invoice': data['form']['unpaid_invoice']}})
+
         res = super(partner_transation_zateg, self).set_context(objects, data, ids, report_type=report_type)
 
         if data['form']['hide_zero']:

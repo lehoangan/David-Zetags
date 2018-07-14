@@ -30,20 +30,22 @@ class account_partner_transaction(osv.osv_memory):
         'hide_zero': fields.boolean('Hide Zero Transactions'),
         'report_detail': fields.selection([('all', ' All Transaction'),
                                          ('invoice', 'Total Invoice Values'),
-                                         ('payment', 'Total Payment Values')], 'Detail')
+                                         ('payment', 'Total Payment Values')], 'Detail'),
+        'unpaid_invoice': fields.boolean('Only Unpaid Invoices'),
     }
 
     _defaults = {
         'hide_zero': True,
         'page_split': True,
         'report_detail': 'all',
+        'unpaid_invoice': True,
     }
 
     def _print_report(self, cr, uid, ids, data, context=None):
         if context is None:
             context = {}
         data = self.pre_print_report(cr, uid, ids, data, context=context)
-        data['form'].update(self.read(cr, uid, ids, ['report_detail','initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id','hide_zero'])[0])
+        data['form'].update(self.read(cr, uid, ids, ['unpaid_invoice','report_detail','initial_balance', 'filter', 'page_split', 'amount_currency', 'currency_id', 'partner_id','hide_zero'])[0])
         if data['form']['partner_id']:
             data.update({
                 'model': 'res.partner',

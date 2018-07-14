@@ -12,6 +12,7 @@
                 <field name="currency_id"/>
                 <field name="partner_id"/>
                 <field name="hide_zero"/>
+                <field name="unpaid_invoice"/>
                 <newline/>
             </xpath>
             </data>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--
+        Investment Category
+     -->
+
+        <record model="ir.ui.view" id="view_investment_category_form">
+            <field name="name">investment.category.form</field>
+            <field name="model">investment.category</field>
+            <field name="arch" type="xml">
+                <form string="Investment Category" version="7.0">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id" widget="selection"
+                                   groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="journal_id"/>
+                            <field name="account_asset_id"
+                                   on_change="onchange_account_asset(account_asset_id)"/>
+                            <field name="account_gain_id"/>
+                            <field name="account_loss_id"/>
+                        </group>
+                        <group string="Capital Gains Tax">
+                            <field name="method_time"/>
+                            <field name="method_number"
+                                   attrs="{'invisible':[('method_time','=','end')], 'required':[('method_time','=','number')]}"/>
+                            <field name="method_period"/>
+                            <field name="method_end"
+                                   attrs="{'required': [('method_time','=','end')], 'invisible':[('method_time','=','number')]}"/>
+                        </group>
+                        <group string="Investment Method">
+                            <field name="method"/>
+                            <field name="method_progress_factor"
+                                   attrs="{'invisible':[('method','=','linear')], 'required':[('method','=','degressive')]}"/>
+                            <field name="prorata"/>
+                            <field name="open_asset"/>
+                        </group>
+                        <group groups="analytic.group_analytic_accounting"
+                               string="Analytic Information">
+                            <field name="account_analytic_id"/>
+                        </group>
+                    </group>
+                    <separator string="Notes"/>
+                    <field name="note"/>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_investment_category_tree">
+            <field name="name">investment.category.tree</field>
+            <field name="model">investment.category</field>
+            <field name="arch" type="xml">
+                <tree string="Investment Category">
+                    <field name="name"/>
+                    <field name="journal_id"/>
+                    <field name="method"/>
+                    <field name="company_id"
+                           groups="base.group_multi_company"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_investment_category_search">
+            <field name="name">investment.category.search</field>
+            <field name="model">investment.category</field>
+            <field name="arch" type="xml">
+                <search string="Search Investment Category">
+                    <field name="name" string="Investment Category"/>
+                    <field name="journal_id"/>
+                </search>
+            </field>
+        </record>
+
+        <menuitem id="menu_finance_config_investments" name="Investments"
+                  parent="account.menu_finance" sequence="10"/>
+        <record model="ir.actions.act_window"
+                id="action_investment_category_list_normal">
+            <field name="name">Investment Categories</field>
+            <field name="res_model">investment.category</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem parent="menu_finance_config_investments"
+                  id="menu_action_investment_category_list_normal"
+                  action="action_investment_category_list_normal"/>
+    </data>
+</openerp>
+
+

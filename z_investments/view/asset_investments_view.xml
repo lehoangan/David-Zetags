@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!--
+        Asset
+     -->
+
+        <record model="ir.ui.view" id="view_asset_investment_form">
+            <field name="name">asset.investment.form</field>
+            <field name="model">asset.investment</field>
+            <field name="arch" type="xml">
+                <form string="Asset" version="7.0">
+                    <header>
+                        <button name="validate" states="draft"
+                                string="Confirm Asset" type="object"
+                                class="oe_highlight"/>
+                        <button name="set_to_close" states="open"
+                                string="Set to Close" type="object"
+                                class="oe_highlight"/>
+                        <button name="set_to_draft" states="open"
+                                string="Set to Draft" type="object"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,open"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box oe_right">
+                            <button name="open_entries" string="Entries"
+                                    type="object" class="oe_inline"/>
+                        </div>
+                        <div class="oe_title">
+                            <label for="code" class="oe_edit_only"/>
+                            <h1>
+                                <field name="code" class="oe_inline"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="category_id"/>
+                                <field name="name"/>
+                                <field name="parent_id"/>
+                            </group>
+                            <group>
+                                <field name="create_date"/>
+                                <field name="currency_id"
+                                       groups="base.group_multi_currency"/>
+                                <field name="company_id" widget="selection"
+                                       groups="base.group_multi_company"
+                                       on_change="onchange_company_id(company_id)"/>
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="Movement">
+                                <field name="movement_ids">
+                                    <tree string="Movement" editable="top">
+                                        <field name="date_acquired"/>
+                                        <field name="units"/>
+                                        <field name="cost"/>
+                                        <field name="fee"/>
+                                        <field name="total"/>
+                                        <field name="cgt_days"/>
+                                        <field name="sold"/>
+                                        <field name="current_units"/>
+                                        <field name="holdings"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="company_id" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Notes">
+                                <field name="note"
+                                       placeholder="Add an internal note here..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_asset_investment_tree">
+            <field name="name">asset.investment.tree</field>
+            <field name="model">asset.investment</field>
+            <field name="field_parent">child_ids</field>
+            <field name="arch" type="xml">
+                <tree string="Assets"
+                      colors="blue:(state == 'draft');grey:(state == 'close')">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="category_id"/>
+                    <field name="create_date"/>
+                    <field name="currency_id"
+                           groups="base.group_multi_currency"/>
+                    <field name="company_id"
+                           groups="base.group_multi_company"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view"
+                id="view_asset_investment_hierarchy_tree">
+            <field name="name">asset.investment.hierarchy</field>
+            <field name="model">asset.investment</field>
+            <field name="field_parent">child_ids</field>
+            <field name="arch" type="xml">
+                <tree string="Assets">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="category_id"/>
+                    <field name="create_date"/>
+                    <field name="currency_id"
+                           groups="base.group_multi_currency"/>
+                    <field name="company_id"
+                           groups="base.group_multi_company"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_asset_investment_search" model="ir.ui.view">
+            <field name="name">asset.investment.search</field>
+            <field name="model">asset.investment</field>
+            <field name="arch" type="xml">
+                <search string="Asset Investment">
+                    <field name="name" string="Asset"/>
+                    <field name="code"/>
+                    <field name="create_date"/>
+                    <filter icon="terp-check" string="Current"
+                            domain="[('state','in', ('draft','open'))]"
+                            help="Assets in draft and open states"/>
+                    <filter icon="terp-dialog-close" string="Closed"
+                            domain="[('state','=', 'close')]"
+                            help="Assets in closed state"/>
+                    <field name="category_id"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window"
+                id="action_asset_investment_list_normal">
+            <field name="name">Asset Investment</field>
+            <field name="res_model">asset.investment</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem parent="menu_finance_config_investments"
+                  id="menu_action_asset_investment_list_normal"
+                  action="action_asset_investment_list_normal"/>
+        
+    </data>
+</openerp>
+
+

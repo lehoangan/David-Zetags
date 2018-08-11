@@ -1,2 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_investment_category,investment_category,model_investment_category,account.group_account_user,1,1,1,1
+access_asset_investment,asset_investment,model_asset_investment,account.group_account_user,1,1,1,1
+access_asset_investment_movement,asset_investment_movement,model_asset_investment_movement,account.group_account_user,1,1,1,1

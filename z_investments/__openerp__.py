@@ -33,6 +33,7 @@
     'data': [
 
         'view/investments_view.xml',
+        'view/asset_investments_view.xml',
 
         'security/ir.model.access.csv',
         'security/security.xml',

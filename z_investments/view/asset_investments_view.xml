@@ -83,7 +83,7 @@
                     <field name="code"/>
                     <field name="name"/>
                     <field name="category_id"/>
-                    <field name="create_date"/>
+                    <field name="created_date"/>
                     <field name="currency_id"
                            groups="base.group_multi_currency"/>
                     <field name="company_id"
@@ -103,7 +103,7 @@
                     <field name="name"/>
                     <field name="code"/>
                     <field name="category_id"/>
-                    <field name="create_date"/>
+                    <field name="created_date"/>
                     <field name="currency_id"
                            groups="base.group_multi_currency"/>
                     <field name="company_id"
@@ -120,7 +120,7 @@
                 <search string="Asset Investment">
                     <field name="name" string="Asset"/>
                     <field name="code"/>
-                    <field name="create_date"/>
+                    <field name="created_date"/>
                     <filter icon="terp-check" string="Current"
                             domain="[('state','in', ('draft','open'))]"
                             help="Assets in draft and open states"/>

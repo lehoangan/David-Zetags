@@ -406,7 +406,17 @@ class sale_order(osv.osv):
                                                                     'title': _("Access Error"),
                                                                     'message': _("You must login to %s to invoice this customer."%part.country_id.company_id.name),
                                                                     },}
-        return {'value': val}
+        result = {'value': val}
+        if part.b2b_id:
+            warning = {
+                'title': _("B2b Warning"),
+                'message': _(
+                    '''Customer entered is a B2B of %s and you must INVOICE %s. \n
+    The Customer is only selected in the DELIVERY ADDRESS field \n
+    NO INVOICE WITH GOODS''' % (part.b2b_id.name, part.b2b_id.name)),
+            }
+            result.update({'warning': warning})
+        return result
     
     def onchange_partner_contact_id(self, cr, uid, ids, partner_contact_id, context=None):
         value = {}

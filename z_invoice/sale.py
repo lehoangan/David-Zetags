@@ -676,7 +676,7 @@ class sale_order(osv.osv):
                 this.partner_id.write({'use_country_id': vals.get(
                     'use_country_id')})
         res = super(sale_order, self).write(cr, uid, ids, vals, context=context)
-        sale_orders = self.browse(cr, uid, ids)
+        #sale_orders = self.browse(cr, uid, ids)
         # for this in sale_orders:
         #     if this.payment_check:
         #         raise osv.except_osv(_('Warning!'), _(

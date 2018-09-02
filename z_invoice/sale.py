@@ -283,6 +283,23 @@ class sale_order(osv.osv):
                 'report_name': 'report_sale_order',
                 'datas': datas, 'nodestroy': True,
                 'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
+
+    def print_pf_invoice_odt(self, cr, uid, ids, context=None):
+        assert len(ids) == 1, 'This option should only be used for a single id at a time'
+        data = self.browse(cr, uid, ids[0])
+        if data.payment_check:
+            raise osv.except_osv(_('Warning!'), _(
+                "THIS CUSTOMER MUST PAY BEFORE DELIVERY." ))
+        datas = {
+                 'model': 'sale.order',
+                 'ids': ids,
+                 'form': self.read(cr, uid, ids[0], context=context),
+        }
+
+        return {'type': 'ir.actions.report.xml',
+                'report_name': 'report_sale_order_odt',
+                'datas': datas, 'nodestroy': True,
+                'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
     
     def print_picking_slip(self, cr, uid, ids, context=None):
         assert len(ids) == 1, 'This option should only be used for a single id at a time'

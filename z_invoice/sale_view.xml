@@ -282,8 +282,10 @@
         <field name="arch" type="xml">
         	
         	<xpath expr="//field[@name='date_order']" position="before">
+                <field name="payment_check" invisible="1"/>
         		<!-- Thanh: Add new field Order Status -->
-            	<field name="stage_id" widget='selection'/>
+            	<field name="stage_id" widget='selection' />
+                       <!--on_change="onchange_stage_id(payment_term, stage_id, context)"/>-->
             </xpath>
 
         	<xpath expr="//field[@name='partner_id']" position="replace">
@@ -468,7 +470,10 @@
             <field name="priority">1</field>
             <field name="arch" type="xml">
                 <kanban default_group_by="stage_id">
+                    <field name="payment_check"/>
+                    <field name="payment_term"/>
                     <field name="stage_id"/>
+                    <field name="balance"/>
                     <field name="color"/>
                     <field name="state"/>
                     <field name="image"/>

@@ -86,8 +86,24 @@ class sale_order(osv.osv):
                 res[order.id]['balance'] -= (line.amount + line.bank_fee_deducted + line.discount_allowed)
         return res
     
+    def _get_payment_check(self, cr, uid, ids, field_name, arg, context=None):
+        res = {}
+        for order in self.browse(cr, uid, ids, context=context):
+            payment_check = False
+            if order.stage_id and order.payment_term and order.balance:
+                payment = order.payment_term
+                stage = order.stage_id
+                payment_condition = False
+                if payment.line_ids and len(payment.line_ids) == 1:
+                    line = payment.line_ids[0]
+                    if line.value == 'balance' and line.days == 0:
+                        payment_condition = True
+                if stage.sequence == 7 and payment_condition:
+                    payment_check = True
+            res[order.id] = payment_check
+        return res
+
     def _get_amount_deposit(self, cr, uid, ids, field_name, arg, context=None):
-        cur_obj = self.pool.get('res.currency')
         res = {}
         for order in self.browse(cr, uid, ids, context=context):
             res[order.id] = 0
@@ -155,6 +171,7 @@ class sale_order(osv.osv):
         'tax_id': fields.many2many('account.tax', 'shipping_charge_tax', 'order_id', 'tax_id', 'Taxes', readonly=True, states={'draft': [('readonly', False)]}),
         'delivery_account_id': fields.many2one('account.account', 'Delivery Account', readonly=True, states={'draft': [('readonly', False)]}, domain="[('type','!=','view')]"),
         'shipping_date': fields.date('Shipping Date'),
+        'payment_check': fields.function(_get_payment_check, type="boolean", string='Payment Check'),
         'deposit_paid': fields.function(_get_amount_deposit, digits_compute=dp.get_precision('Account'), string='Deposit Paid',
             store={
                 'sale.order': (lambda self, cr, uid, ids, c={}: ids, ['prepayment_lines'], 10),
@@ -253,6 +270,9 @@ class sale_order(osv.osv):
     def print_pf_invoice(self, cr, uid, ids, context=None):
         assert len(ids) == 1, 'This option should only be used for a single id at a time'
         data = self.browse(cr, uid, ids[0])
+        if data.payment_check:
+            raise osv.except_osv(_('Warning!'), _(
+                "THIS CUSTOMER MUST PAY BEFORE DELIVERY." ))
         datas = {
                  'model': 'sale.order',
                  'ids': ids,
@@ -299,7 +319,7 @@ class sale_order(osv.osv):
     _constraints = [
         (_check_name, 'Order Reference must be unique per Company!', ['name']),
     ]
-    
+
     _sql_constraints = [
         ('name_uniq', 'Check(1=1)', 'Order Reference must be unique per Company!'),
     ]
@@ -359,6 +379,27 @@ class sale_order(osv.osv):
         return {'value': {
             'txt_payment_term': name,
         }}
+
+    def onchange_stage_id(self, cr, uid, ids, payment_term, stage_id, context=None):
+        result = {}
+        if stage_id and payment_term:
+            payment = self.pool.get('account.payment.term').browse(cr, uid,
+                                                                   payment_term,
+                                                                   context=context)
+            stage = self.pool.get('sale.order.stage').browse(cr, uid, stage_id)
+            payment_condition = False
+            if payment.line_ids and len(payment.line_ids) ==1:
+                line = payment.line_ids[0]
+                if line.value == 'balance' and line.days == 0:
+                    payment_condition = True
+            if stage.sequence == 7 and payment_condition:
+                warning = {
+                    'title': _("Warning"),
+                    'message': _(
+                        '''THIS CUSTOMER MUST PAY BEFORE DELIVERY'''),
+                }
+                result.update({'warning': warning})
+        return result
     
     def onchange_partner_id(self, cr, uid, ids, part, context=None):
         if not part:
@@ -634,7 +675,13 @@ class sale_order(osv.osv):
                     'use_country_id'):
                 this.partner_id.write({'use_country_id': vals.get(
                     'use_country_id')})
-        return super(sale_order, self).write(cr, uid, ids, vals, context=context)
+        res = super(sale_order, self).write(cr, uid, ids, vals, context=context)
+        sale_orders = self.browse(cr, uid, ids)
+        # for this in sale_orders:
+        #     if this.payment_check:
+        #         raise osv.except_osv(_('Warning!'), _(
+        #             "THIS CUSTOMER MUST PAY BEFORE DELIVERY." ))
+        return res
     
 #     def _auto_init(self, cr, context=None):
 #         super(sale_order, self)._auto_init(cr, context)

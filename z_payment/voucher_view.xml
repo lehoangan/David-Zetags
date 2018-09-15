@@ -7,14 +7,18 @@
             <field name="name">account.voucher.tree</field>
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
-                <tree colors="blue:state == 'draft';gray:state == 'cancel';red:audit" string="Voucher Entries">
+                <tree colors="blue:state == 'draft';gray:state == 'cancel';red:audit"
+                      string="Voucher Entries">
                     <field name="date"/>
                     <field name="number"/>
                     <field name="reference"/>
                     <field name="partner_id"/>
-                    <field name="journal_id" groups="account.group_account_user"/>
-                    <field name="period_id" invisible="context.get('visible', True)"/>
-                    <field name="type" invisible="context.get('visible', True)"/>
+                    <field name="journal_id"
+                           groups="account.group_account_user"/>
+                    <field name="period_id"
+                           invisible="context.get('visible', True)"/>
+                    <field name="type"
+                           invisible="context.get('visible', True)"/>
                     <field name="amount" sum="Total Amount"/>
                     <field name="bank_fee_deducted" sum="Total Fee"/>
                     <field name="discount_allowed" sum="Total Discount"/>
@@ -25,18 +29,24 @@
             </field>
         </record>
 
-        <record id="account_voucher.action_vendor_receipt_tree" model="ir.actions.act_window.view">
+        <record id="account_voucher.action_vendor_receipt_tree"
+                model="ir.actions.act_window.view">
             <field name="view_id" ref="view_voucher_receipt_tree"/>
         </record>
-		
-	<!-- res.config form view -->
-        <record model="ir.ui.view" id="view_account_settings_deduction_account_form">
-            <field name="name">account.config.settings.inherit.deduction.account</field>
-            <field name="inherit_id" ref="account.view_account_config_settings"/>
+
+        <!-- res.config form view -->
+        <record model="ir.ui.view"
+                id="view_account_settings_deduction_account_form">
+            <field name="name">
+                account.config.settings.inherit.deduction.account
+            </field>
+            <field name="inherit_id"
+                   ref="account.view_account_config_settings"/>
             <field name="model">account.config.settings</field>
             <field name="priority">21</field>
             <field name="arch" type="xml">
-                <xpath expr="//div[@name='group_multi_currency']" position="after">
+                <xpath expr="//div[@name='group_multi_currency']"
+                       position="after">
                     <group col="2">
                         <group>
                             <field name="deduct_bank_fee_account_id"/>
@@ -50,149 +60,280 @@
             </field>
         </record>
         <record model="ir.ui.view" id="z_view_vendor_receipt_dialog_form">
-            <field name="name">account.voucher.receipt.dialog.form.inherit</field>
+            <field name="name">account.voucher.receipt.dialog.form.inherit
+            </field>
             <field name="model">account.voucher</field>
-            <field name="inherit_id" ref="account_voucher.view_vendor_receipt_dialog_form"/>
+            <field name="inherit_id"
+                   ref="account_voucher.view_vendor_receipt_dialog_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='journal_id']" position="after">
-                    <field name="payment_method" />
-                	<field name="bank_fee_deducted" attrs="{'invisible':[('type','!=', 'receipt')]}"
-                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
-                    <field name="discount_allowed" attrs="{'invisible':[('type','!=', 'receipt')]}"
-                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)"/>
+                    <field name="payment_method"/>
+                    <field name="bank_fee_deducted"
+                           attrs="{'invisible':[('type','!=', 'receipt')]}"
+                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, 0, currency_amount, context)"/>
+                    <field name="discount_allowed"
+                           attrs="{'invisible':[('type','!=', 'receipt')]}"
+                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, 0, currency_amount, context)"/>
                     <field name="total_to_apply"/>
                 </xpath>
                 <xpath expr="//field[@name='amount']" position="attributes">
                     <attribute name="string">Total</attribute>
-            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, context)</attribute>
+                    <attribute name="on_change">onchange_amount(amount,
+                        payment_rate, partner_id, journal_id, currency_id,
+                        type, date, payment_rate_currency_id, company_id,
+                        bank_fee_deducted, discount_allowed, 0, currency_amount, context)
+                    </attribute>
+                </xpath>
+                 <xpath expr="//field[@name='currency_id']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_currency_amount(amount, currency_amount,
+                                 currency_id, payment_rate_currency_id, context)</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="after">
+                    <field name="currency_amount"
+                           widget="monetary"
+                           on_change="onchange_currency_amount(amount, currency_amount,
+                                 currency_id, payment_rate_currency_id, context)"
+                           options="{'currency_field': 'payment_rate_currency_id'}"/>
                 </xpath>
 
-                <xpath expr="//field[@name='line_cr_ids']" position="attributes">
-            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
+                <xpath expr="//field[@name='line_cr_ids']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_line_ids(line_dr_ids,
+                        line_cr_ids, amount, currency_id, type,
+                        bank_fee_deducted, discount_allowed,
+                        currency_amount, payment_rate_currency_id, context)
+                    </attribute>
                 </xpath>
 
-                <xpath expr="//field[@name='line_dr_ids']" position="attributes">
-            		<attribute name="on_change">onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)</attribute>
+                <xpath expr="//field[@name='line_dr_ids']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_line_ids(line_dr_ids,
+                        line_cr_ids, amount, currency_id, type,
+                        bank_fee_deducted, discount_allowed,
+                        currency_amount, payment_rate_currency_id, context)
+                    </attribute>
                 </xpath>
 
-                <xpath expr="//field[@name='paid_amount_in_company_currency']" position="replace">
+                <xpath expr="//field[@name='paid_amount_in_company_currency']"
+                       position="replace">
                 </xpath>
 
                 <xpath expr="//field[@name='company_id']" position="after">
-                	<field name="company_currency_id" invisible='1'/>
-                	<field name="paid_amount_in_company_currency" string='Payment Amount Converted'  attrs="{'invisible':[('type','!=', 'receipt')]}"
-                		widget="monetary" options="{'currency_field': 'company_currency_id'}"/>
+                    <field name="company_currency_id" invisible='1'/>
+                    <field name="paid_amount_in_company_currency"
+                           string='Payment Amount Converted'
+                           attrs="{'invisible':[('type','!=', 'receipt')]}"
+                           widget="monetary"
+                           options="{'currency_field': 'company_currency_id'}"/>
                 </xpath>
-
+                <xpath expr="//field[@name='payment_rate_currency_id']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_payment_rate_currency(
+                        currency_id, payment_rate, payment_rate_currency_id,
+                        date, amount, company_id,currency_amount, context)
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_rate']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_amount(
+                        amount, payment_rate, partner_id, journal_id,
+                        currency_id, type, date, payment_rate_currency_id,
+                        company_id, 0, 0, 0, currency_amount, context)
+                    </attribute>
+                </xpath>
             </field>
         </record>
-        
-    <!-- Modify Customer Payment Form -->
-    	<record model="ir.ui.view" id="view_vendor_receipt_extend_form">
+
+        <!-- Modify Customer Payment Form -->
+        <record model="ir.ui.view" id="view_vendor_receipt_extend_form">
             <field name="name">view.vendor.receipt.extend.form</field>
-            <field name="inherit_id" ref="account_voucher.view_vendor_receipt_form"/>
+            <field name="inherit_id"
+                   ref="account_voucher.view_vendor_receipt_form"/>
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='journal_id']" position="after">
-                    <field name="payment_method" />
-                	<field name="bank_fee_deducted" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed,pay_all, context)"/>
-                    <field name="discount_allowed" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed,pay_all, context)"/>
+                    <field name="payment_method"/>
+                    <field name="bank_fee_deducted"
+                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed,pay_all, currency_amount, context)"/>
+                    <field name="discount_allowed"
+                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed,pay_all, currency_amount, context)"/>
                     <field name="total_to_apply"/>
                     <group col="4" colspan="2">
-                        <field name="pay_all" on_change="onchange_pay_all(pay_all, line_cr_ids, 'line_cr_ids')"/>
-                        <field name="pay_none" on_change="onchange_pay_none(pay_none, line_cr_ids, 'line_cr_ids')"/>
+                        <field name="pay_all"
+                               on_change="onchange_pay_all(pay_all, line_cr_ids, 'line_cr_ids')"/>
+                        <field name="pay_none"
+                               on_change="onchange_pay_none(pay_none, line_cr_ids, 'line_cr_ids')"/>
                     </group>
                 </xpath>
 
-                <xpath expr="//field[@name='journal_id']" position="attributes">
-            		<attribute name="string">Payment Account</attribute>
-                </xpath>
-                
-                <xpath expr="//field[@name='amount']" position="attributes">
-            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, bank_fee_deducted, discount_allowed, pay_all, context)</attribute>
-                </xpath>
-                
-                <xpath expr="//field[@name='paid_amount_in_company_currency']" position="replace">
-                </xpath>
-                
-                <xpath expr="//field[@name='company_id']" position="after">
-                	<field name="company_currency_id" invisible='1'/>
-                	<field name="paid_amount_in_company_currency" string='Payment Amount Converted'
-                		widget="monetary" options="{'currency_field': 'company_currency_id'}"/> 
-                </xpath>
-                
-                <xpath expr="//field[@string='Paid Amount']" position="attributes">
-                	<attribute name="string">Payment Amount</attribute>
-                </xpath>
-                
-                <xpath expr="//field[@name='writeoff_amount']" position="attributes">
-                	<attribute name="string">Unbalanced Amount</attribute>
+                <xpath expr="//field[@name='journal_id']"
+                       position="attributes">
+                    <attribute name="string">Payment Account</attribute>
                 </xpath>
 
-                <xpath expr="//page[@string='Payment Information']" position="replace">
-                    <page string="Payment Information" groups="base.group_user">
+                <xpath expr="//field[@name='amount']" position="attributes">
+                    <attribute name="on_change">onchange_amount(amount,
+                        payment_rate, partner_id, journal_id, currency_id,
+                        type, date, payment_rate_currency_id, company_id,
+                        bank_fee_deducted, discount_allowed, pay_all,
+                        currency_amount, context)
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_rate_currency_id']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_payment_rate_currency(
+                        currency_id, payment_rate, payment_rate_currency_id,
+                        date, amount, company_id,currency_amount, context)
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="after">
+                    <field name="currency_amount"
+                           widget="monetary"
+                           on_change="onchange_currency_amount(amount, currency_amount,
+                                 currency_id, payment_rate_currency_id, context)"
+                           options="{'currency_field': 'payment_rate_currency_id'}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='paid_amount_in_company_currency']"
+                       position="replace">
+                </xpath>
+
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="company_currency_id" invisible='1'/>
+                    <field name="paid_amount_in_company_currency"
+                           string='Payment Amount Converted'
+                           widget="monetary"
+                           options="{'currency_field': 'payment_rate_currency_id'}"/>
+                </xpath>
+
+                <xpath expr="//field[@string='Paid Amount']"
+                       position="attributes">
+                    <attribute name="string">Payment Amount</attribute>
+                </xpath>
+                <xpath expr="//field[@name='currency_id']"
+                       position="attributes">
+                    <attribute name="on_change">onchange_currency_amount(amount, currency_amount,
+                                 currency_id, payment_rate_currency_id, context)</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='writeoff_amount']"
+                       position="attributes">
+                    <attribute name="string">Unbalanced Amount</attribute>
+                </xpath>
+
+                <xpath expr="//page[@string='Payment Information']"
+                       position="replace">
+                    <page string="Payment Information"
+                          groups="base.group_user">
                         <group col="4" colspan="4">
                             <group colspan="2" col="2">
-                                <label colspan="2" for="line_cr_ids" invisible="context.get('line_type', False)"/>
-                                <newline />
-                                <field colspan="2" name="line_cr_ids" nolabel="1" context="{'journal_id':journal_id, 'type':type, 'partner_id':partner_id}" on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)">
-                                    <tree string="Invoices and outstanding transactions" editable="bottom" colors="gray:amount==0">
-                                        <field name="choose" string="." on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)"/>
-                                        <field name="move_line_id" context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
-                                            on_change="onchange_move_line_id(move_line_id)"
-                                            domain="[('account_id.type','in',('receivable','payable')), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
-                                            required="1"
-                                            groups="account.group_account_user"/>
-                                        <field name="account_id"  groups="base.group_no_one" domain="[('type','=','receivable')]"/>
-                                        <field name="date_original" invisible="1"/>
+                                <label colspan="2" for="line_cr_ids"
+                                       invisible="context.get('line_type', False)"/>
+                                <newline/>
+                                <field colspan="2" name="line_cr_ids"
+                                       nolabel="1"
+                                       context="{'journal_id':journal_id, 'type':type, 'partner_id':partner_id}"
+                                       on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, currency_amount, payment_rate_currency_id, context)">
+                                    <tree string="Invoices and outstanding transactions"
+                                          editable="bottom"
+                                          colors="gray:amount==0">
+                                        <field name="choose" string="."
+                                               on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)"/>
+                                        <field name="move_line_id"
+                                               context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
+                                               on_change="onchange_move_line_id(move_line_id)"
+                                               domain="[('account_id.type','in',('receivable','payable')), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
+                                               required="1"
+                                               groups="account.group_account_user"/>
+                                        <field name="account_id"
+                                               groups="base.group_no_one"
+                                               domain="[('type','=','receivable')]"/>
+                                        <field name="date_original"
+                                               invisible="1"/>
                                         <field name="date_due" invisible="1"/>
-                                        <field name="date_invoice" readonly="1"/>
-                                        <field name="amount_original" invisible="1"/>
-                                        <field name="amount_unreconciled" readonly="1" groups="account.group_account_user"/>
+                                        <field name="date_invoice"
+                                               readonly="1"/>
+                                        <field name="amount_original"
+                                               invisible="1"/>
+                                        <field name="amount_unreconciled"
+                                               readonly="1"
+                                               groups="account.group_account_user"/>
                                         <field name="reconcile" invisible="1"/>
-                                        <field name="amount" sum="Total Allocation" on_change="onchange_amount(amount, amount_unreconciled, context)" string="Allocation"/>
+                                        <field name="amount"
+                                               sum="Total Allocation"
+                                               on_change="onchange_amount(amount, amount_unreconciled, context)"
+                                               string="Allocation"/>
                                     </tree>
                                 </field>
                             </group>
                             <group colspan="2" col="2">
-                                <label colspan="2" for="line_dr_ids" attrs="{'invisible': [('pre_line','=',False)]}"/>
-                                <newline />
-                                <field colspan="2" name="line_dr_ids" nolabel="1" attrs="{'invisible': [('pre_line','=',False)]}" context="{'journal_id':journal_id, 'partner_id':partner_id}" on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, context)">
-                                    <tree string="Credits" editable="bottom" colors="gray:amount==0">
-                                        <field name="choose" string="." on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)" />
-                                        <field name="move_line_id" context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
-                                            on_change="onchange_move_line_id(move_line_id)"
-                                            domain="[('account_id.type','in',('receivable','payable')), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
-                                            required="1"/>
-                                        <field name="account_id"  groups="base.group_no_one" domain="[('type','=','receivable')]"/>
-                                        <field name="date_original" invisible="1"/>
+                                <label colspan="2" for="line_dr_ids"
+                                       attrs="{'invisible': [('pre_line','=',False)]}"/>
+                                <newline/>
+                                <field colspan="2" name="line_dr_ids"
+                                       nolabel="1"
+                                       attrs="{'invisible': [('pre_line','=',False)]}"
+                                       context="{'journal_id':journal_id, 'partner_id':partner_id}"
+                                       on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, bank_fee_deducted, discount_allowed, currency_amount, payment_rate_currency_id, context)">
+                                    <tree string="Credits" editable="bottom"
+                                          colors="gray:amount==0">
+                                        <field name="choose" string="."
+                                               on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)"/>
+                                        <field name="move_line_id"
+                                               context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
+                                               on_change="onchange_move_line_id(move_line_id)"
+                                               domain="[('account_id.type','in',('receivable','payable')), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
+                                               required="1"/>
+                                        <field name="account_id"
+                                               groups="base.group_no_one"
+                                               domain="[('type','=','receivable')]"/>
+                                        <field name="date_original"
+                                               invisible="1"/>
                                         <field name="date_due" invisible="1"/>
-                                        <field name="date_invoice" readonly="1"/>
-                                        <field name="amount_original" invisible="1"/>
-                                        <field name="amount_unreconciled" readonly="1"/>
+                                        <field name="date_invoice"
+                                               readonly="1"/>
+                                        <field name="amount_original"
+                                               invisible="1"/>
+                                        <field name="amount_unreconciled"
+                                               readonly="1"/>
                                         <field name="reconcile" invisible="1"/>
-                                        <field name="amount" sum="Total Allocation" on_change="onchange_amount(amount, amount_unreconciled, context)" string="Allocation"/>
+                                        <field name="amount"
+                                               sum="Total Allocation"
+                                               on_change="onchange_amount(amount, amount_unreconciled, context)"
+                                               string="Allocation"/>
                                     </tree>
                                 </field>
                             </group>
                         </group>
                         <group col="3">
                             <group>
-                                <field name="narration" colspan="2" nolabel="1"/>
+                                <field name="narration" colspan="2"
+                                       nolabel="1"/>
                             </group>
-                            <group col="4" attrs="{'invisible':[('is_multi_currency','=',False)]}">
+                            <group col="4"
+                                   attrs="{'invisible':[('is_multi_currency','=',False)]}">
                                 <field name="is_multi_currency" invisible="1"/>
                                 <label for="payment_rate" colspan="1"/>
                                 <div>
-                                    <field name="payment_rate" required="1" class="oe_inline" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, context)"/>
-                                    <field name="payment_rate_currency_id" class="oe_inline" on_change="onchange_payment_rate_currency(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id, context)" groups="base.group_multi_currency"/>
+                                    <field name="payment_rate" required="1"
+                                           class="oe_inline"
+                                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, 0, currency_amount, context)"/>
+                                    <field name="payment_rate_currency_id"
+                                           class="oe_inline"
+                                           on_change="(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id, currency_amount, context)"
+                                           groups="base.group_multi_currency"/>
                                 </div>
-                                <field name="currency_help_label" colspan="2" nolabel="1" class="oe_grey"/>
-                                <field name="paid_amount_in_company_currency" colspan="4" invisible="1"/>
+                                <field name="currency_help_label" colspan="2"
+                                       nolabel="1" class="oe_grey"/>
+                                <field name="paid_amount_in_company_currency"
+                                       colspan="4" invisible="1"/>
                             </group>
                             <group>
-                                <field name="writeoff_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                <field name="payment_option" required="1" attrs="{'invisible':[('writeoff_amount','=',0)]}"/>
+                                <field name="writeoff_amount" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="payment_option" required="1"
+                                       attrs="{'invisible':[('writeoff_amount','=',0)]}"/>
                                 <field name="writeoff_acc_id"
                                        attrs="{'invisible':['|', ('payment_option','!=','with_writeoff'), ('writeoff_amount','=',0)], 'required':[('payment_option','=','with_writeoff')]}"
                                        domain="[('type','=','other')]"/>
@@ -205,94 +346,153 @@
                         </group>
                     </page>
                 </xpath>
-                
+
             </field>
         </record>
-        
+
         <record model="ir.ui.view" id="view_vendor_payment_form_inherit">
             <field name="name">account.voucher.payment.form</field>
-            <field name="inherit_id" ref="account_voucher.view_vendor_payment_form"/>
+            <field name="inherit_id"
+                   ref="account_voucher.view_vendor_payment_form"/>
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount']" position="attributes">
-            		<attribute name="on_change">onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, pay_all, context)</attribute>
+                    <attribute name="on_change">onchange_amount(amount,
+                        payment_rate, partner_id, journal_id, currency_id,
+                        type, date, payment_rate_currency_id, company_id, 0, 0,
+                        pay_all, currency_amount, context)
+                    </attribute>
                 </xpath>
 
-                <xpath expr="//field[@name='journal_id']" position="attributes">
-            		<attribute name="string">Payment Account</attribute>
+                <xpath expr="//field[@name='journal_id']"
+                       position="attributes">
+                    <attribute name="string">Payment Account</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="after">
+                    <field name="currency_amount"
+                           widget="monetary"
+                           on_change="onchange_currency_amount(amount, currency_amount,
+                                 currency_id, payment_rate_currency_id, context)"
+                           options="{'currency_field': 'payment_rate_currency_id'}"/>
                 </xpath>
 
                 <xpath expr="//field[@name='journal_id']" position="after">
-            		<field name="payment_method" />
+                    <field name="payment_method"/>
                     <group col="4" colspan="2">
-                        <field name="pay_all" on_change="onchange_pay_all(pay_all, line_dr_ids)"/>
-                        <field name="pay_none" on_change="onchange_pay_none(pay_none, line_dr_ids)"/>
+                        <field name="pay_all"
+                               on_change="onchange_pay_all(pay_all, line_dr_ids)"/>
+                        <field name="pay_none"
+                               on_change="onchange_pay_none(pay_none, line_dr_ids)"/>
                     </group>
                 </xpath>
 
-                <xpath expr="//page[@string='Payment Information']" position="replace">
-                    <page string="Payment Information" groups="base.group_user">
+                <xpath expr="//page[@string='Payment Information']"
+                       position="replace">
+                    <page string="Payment Information"
+                          groups="base.group_user">
                         <group col="4" colspan="4">
                             <group colspan="2" col="2">
-                                <label colspan="2" for="line_dr_ids" attrs="{'invisible': [('pre_line','=',False)]}"/>
-                                <newline />
-                                <field name="line_dr_ids" nolabel="1" context="{'journal_id':journal_id, 'type':type, 'partner_id':partner_id}" on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, context)">
-                                    <tree string="Supplier Invoices and Outstanding transactions" editable="bottom" colors="gray:amount==0">
-                                        <field name="choose" string="." on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)" />
-                                        <field name="move_line_id" context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
-                                            on_change="onchange_move_line_id(move_line_id)"
-                                            domain="[('account_id.type','=','payable'), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
-                                            required="1"/>
-                                        <field name="account_id" groups="base.group_no_one" domain="[('type','=','payable')]"/>
-                                        <field name="date_original" invisible="1"/>
+                                <label colspan="2" for="line_dr_ids"
+                                       attrs="{'invisible': [('pre_line','=',False)]}"/>
+                                <newline/>
+                                <field name="line_dr_ids" nolabel="1"
+                                       context="{'journal_id':journal_id, 'type':type, 'partner_id':partner_id}"
+                                       on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, 0, 0, currency_amount, payment_rate_currency_id, context)">
+                                    <tree string="Supplier Invoices and Outstanding transactions"
+                                          editable="bottom"
+                                          colors="gray:amount==0">
+                                        <field name="choose" string="."
+                                               on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)"/>
+                                        <field name="move_line_id"
+                                               context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
+                                               on_change="onchange_move_line_id(move_line_id)"
+                                               domain="[('account_id.type','=','payable'), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
+                                               required="1"/>
+                                        <field name="account_id"
+                                               groups="base.group_no_one"
+                                               domain="[('type','=','payable')]"/>
+                                        <field name="date_original"
+                                               invisible="1"/>
                                         <field name="date_due" invisible="1"/>
-                                        <field name="date_invoice" readonly="1"/>
-                                        <field name="amount_original" invisible="1"/>
-                                        <field name="amount_unreconciled" readonly="1"/>
+                                        <field name="date_invoice"
+                                               readonly="1"/>
+                                        <field name="amount_original"
+                                               invisible="1"/>
+                                        <field name="amount_unreconciled"
+                                               readonly="1"/>
                                         <field name="reconcile" invisible="1"/>
-                                        <field name="amount" sum="Total Allocation" on_change="onchange_amount(amount, amount_unreconciled, context)"/>
+                                        <field name="amount"
+                                               sum="Total Allocation"
+                                               on_change="onchange_amount(amount, amount_unreconciled, context)"/>
                                     </tree>
                                 </field>
                             </group>
                             <group colspan="2" col="2">
-                                <label colspan="2" for="line_cr_ids" attrs="{'invisible': [('pre_line','=',False)]}"/>
-                                <newline />
-                                <field name="line_cr_ids" nolabel="1" attrs="{'invisible': [('pre_line','=',False)]}" context="{'journal_id':journal_id, 'partner_id':partner_id}" on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, context)">
-                                    <tree string="Credits" editable="bottom" colors="gray:amount==0">
-                                        <field name="choose" string="." on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)" />
-                                        <field name="move_line_id" context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
-                                            on_change="onchange_move_line_id(move_line_id)"
-                                            domain="[('account_id.type','=','payable'), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
-                                            required="1"/>
-                                        <field name="account_id" groups="base.group_no_one" domain="[('type','=','payable')]"/>
-                                        <field name="date_original" invisible="1"/>
+                                <label colspan="2" for="line_cr_ids"
+                                       attrs="{'invisible': [('pre_line','=',False)]}"/>
+                                <newline/>
+                                <field name="line_cr_ids" nolabel="1"
+                                       attrs="{'invisible': [('pre_line','=',False)]}"
+                                       context="{'journal_id':journal_id, 'partner_id':partner_id}"
+                                       on_change="onchange_line_ids(line_dr_ids, line_cr_ids, amount, currency_id, type, 0, 0, currency_amount, payment_rate_currency_id, context)">
+                                    <tree string="Credits" editable="bottom"
+                                          colors="gray:amount==0">
+                                        <field name="choose" string="."
+                                               on_change="onchange_reconcile(choose, amount, amount_unreconciled, context)"/>
+                                        <field name="move_line_id"
+                                               context="{'journal_id':parent.journal_id, 'partner_id':parent.partner_id}"
+                                               on_change="onchange_move_line_id(move_line_id)"
+                                               domain="[('account_id.type','=','payable'), ('reconcile_id','=', False), ('partner_id','=',parent.partner_id)]"
+                                               required="1"/>
+                                        <field name="account_id"
+                                               groups="base.group_no_one"
+                                               domain="[('type','=','payable')]"/>
+                                        <field name="date_original"
+                                               invisible="1"/>
                                         <field name="date_due" invisible="1"/>
-                                        <field name="date_invoice" readonly="1"/>
-                                        <field name="amount_original" invisible="1"/>
-                                        <field name="amount_unreconciled" readonly="1" groups="account.group_account_user"/>
-                                        <field name="reconcile"  invisible="1"/>
-                                        <field name="amount" sum="Total Allocation" on_change="onchange_amount(amount, amount_unreconciled, context)"/>
+                                        <field name="date_invoice"
+                                               readonly="1"/>
+                                        <field name="amount_original"
+                                               invisible="1"/>
+                                        <field name="amount_unreconciled"
+                                               readonly="1"
+                                               groups="account.group_account_user"/>
+                                        <field name="reconcile" invisible="1"/>
+                                        <field name="amount"
+                                               sum="Total Allocation"
+                                               on_change="onchange_amount(amount, amount_unreconciled, context)"/>
                                     </tree>
                                 </field>
                             </group>
                         </group>
                         <group col="3">
                             <group>
-                                <field name="narration" colspan="2" nolabel="1"/>
+                                <field name="narration" colspan="2"
+                                       nolabel="1"/>
                             </group>
-                            <group col="4" attrs="{'invisible':[('is_multi_currency','=',False)]}">
+                            <group col="4"
+                                   attrs="{'invisible':[('is_multi_currency','=',False)]}">
                                 <field name="is_multi_currency" invisible="1"/>
                                 <label for="payment_rate" colspan="1"/>
                                 <div>
-                                    <field name="payment_rate" required="1" class="oe_inline" on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, pay_all, context)"/>
-                                    <field name="payment_rate_currency_id" class="oe_inline" on_change="onchange_payment_rate_currency(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id, context)" groups="base.group_multi_currency"/>
+                                    <field name="payment_rate" required="1"
+                                           class="oe_inline"
+                                           on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, pay_all, currency_amount, context)"/>
+                                    <field name="payment_rate_currency_id"
+                                           class="oe_inline"
+                                           on_change="onchange_payment_rate_currency(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id,currency_amount, context)"
+                                           groups="base.group_multi_currency"/>
                                 </div>
-                                <field name="currency_help_label" colspan="2" nolabel="1" class="oe_grey"/>
-                                <field name="paid_amount_in_company_currency" colspan="4" invisible="1"/>
+                                <field name="currency_help_label" colspan="2"
+                                       nolabel="1" class="oe_grey"/>
+                                <field name="paid_amount_in_company_currency"
+                                       colspan="4" invisible="1"/>
                             </group>
                             <group>
-                                <field name="writeoff_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
-                                <field name="payment_option" required="1" attrs="{'invisible':[('writeoff_amount','=',0)]}"/>
+                                <field name="writeoff_amount" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="payment_option" required="1"
+                                       attrs="{'invisible':[('writeoff_amount','=',0)]}"/>
                                 <field name="writeoff_acc_id"
                                        attrs="{'invisible':['|', ('payment_option','!=','with_writeoff'), ('writeoff_amount','=',0)], 'required':[('payment_option','=','with_writeoff')]}"
                                        domain="[('type','=','other')]"/>
@@ -308,7 +508,7 @@
 
             </field>
         </record>
-        
+
     </data>
 </openerp>
 

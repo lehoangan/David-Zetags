@@ -34,14 +34,10 @@
             <field name="view_id" ref="view_voucher_receipt_tree"/>
         </record>
 
-        <!-- res.config form view -->
-        <record model="ir.ui.view"
-                id="view_account_settings_deduction_account_form">
-            <field name="name">
-                account.config.settings.inherit.deduction.account
-            </field>
-            <field name="inherit_id"
-                   ref="account.view_account_config_settings"/>
+	<!-- res.config form view -->
+        <record model="ir.ui.view" id="view_account_settings_deduction_account_form">
+            <field name="name">account.config.settings.inherit.deduction.account</field>
+            <field name="inherit_id" ref="account.view_account_config_settings"/>
             <field name="model">account.config.settings</field>
             <field name="priority">21</field>
             <field name="arch" type="xml">
@@ -60,11 +56,9 @@
             </field>
         </record>
         <record model="ir.ui.view" id="z_view_vendor_receipt_dialog_form">
-            <field name="name">account.voucher.receipt.dialog.form.inherit
-            </field>
+            <field name="name">account.voucher.receipt.dialog.form.inherit</field>
             <field name="model">account.voucher</field>
-            <field name="inherit_id"
-                   ref="account_voucher.view_vendor_receipt_dialog_form"/>
+            <field name="inherit_id" ref="account_voucher.view_vendor_receipt_dialog_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='journal_id']" position="after">
                     <field name="payment_method"/>
@@ -142,14 +136,14 @@
                         company_id, 0, 0, 0, currency_amount, context)
                     </attribute>
                 </xpath>
+
             </field>
         </record>
 
-        <!-- Modify Customer Payment Form -->
-        <record model="ir.ui.view" id="view_vendor_receipt_extend_form">
+    <!-- Modify Customer Payment Form -->
+    	<record model="ir.ui.view" id="view_vendor_receipt_extend_form">
             <field name="name">view.vendor.receipt.extend.form</field>
-            <field name="inherit_id"
-                   ref="account_voucher.view_vendor_receipt_form"/>
+            <field name="inherit_id" ref="account_voucher.view_vendor_receipt_form"/>
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='journal_id']" position="after">
@@ -311,8 +305,7 @@
                                 <field name="narration" colspan="2"
                                        nolabel="1"/>
                             </group>
-                            <group col="4"
-                                   attrs="{'invisible':[('is_multi_currency','=',False)]}">
+                            <group col="4" attrs="{'invisible':[('is_multi_currency','=',False)]}">
                                 <field name="is_multi_currency" invisible="1"/>
                                 <label for="payment_rate" colspan="1"/>
                                 <div>
@@ -321,7 +314,7 @@
                                            on_change="onchange_amount(amount, payment_rate, partner_id, journal_id, currency_id, type, date, payment_rate_currency_id, company_id, 0, 0, 0, currency_amount, context)"/>
                                     <field name="payment_rate_currency_id"
                                            class="oe_inline"
-                                           on_change="(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id, currency_amount, context)"
+                                           on_change="onchange_payment_rate_currency(currency_id, payment_rate, payment_rate_currency_id, date, amount, company_id, currency_amount, context)"
                                            groups="base.group_multi_currency"/>
                                 </div>
                                 <field name="currency_help_label" colspan="2"
@@ -352,8 +345,7 @@
 
         <record model="ir.ui.view" id="view_vendor_payment_form_inherit">
             <field name="name">account.voucher.payment.form</field>
-            <field name="inherit_id"
-                   ref="account_voucher.view_vendor_payment_form"/>
+            <field name="inherit_id" ref="account_voucher.view_vendor_payment_form"/>
             <field name="model">account.voucher</field>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='amount']" position="attributes">

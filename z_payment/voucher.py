@@ -644,8 +644,12 @@ class account_voucher(osv.osv):
                                                                    'credit'],
                                                                context=ctx)
                 if line.amount == line.amount_unreconciled:
-                    foreign_currency_diff = line.move_line_id.amount_residual_currency - abs(
-                        amount_currency)
+                    sign = voucher.type in ('payment', 'purchase') and -1 or 1
+                    foreign_currency_diff = sign * line.move_line_id.amount_residual_currency + amount_currency
+
+                # if line.amount == line.amount_unreconciled:
+                #     foreign_currency_diff = line.move_line_id.amount_residual_currency - abs(
+                #         amount_currency)
 
             move_line['amount_currency'] = amount_currency
             voucher_line = move_line_obj.create(cr, uid, move_line)

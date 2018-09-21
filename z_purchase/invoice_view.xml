@@ -7,6 +7,14 @@
 			<field name="model">account.invoice</field>
 			<field name="inherit_id" ref="account.invoice_supplier_form"/>
 			<field name="arch" type="xml">
+                <xpath expr="//button[@name='invoice_cancel']" position="after">
+                    <button name="action_cancel"
+                            states="open,paid"
+                            string="Cancel Invoice"
+                            type="object"
+                            groups="account.group_account_invoice"/>
+				</xpath>
+
                 <xpath expr="//field[@name='date_invoice']" position="replace">
                     <field name="date_invoice" on_change="onchange_date_invoice(date_invoice, partner_id, payment_term, context)"/>
 				</xpath>

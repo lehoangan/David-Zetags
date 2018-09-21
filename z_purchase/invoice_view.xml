@@ -9,7 +9,7 @@
 			<field name="arch" type="xml">
                 <xpath expr="//button[@name='invoice_cancel']" position="after">
                     <button name="action_cancel"
-                            states="open,paid"
+                            states="paid"
                             string="Cancel Invoice"
                             type="object"
                             groups="account.group_account_invoice"/>

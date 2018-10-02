@@ -644,7 +644,10 @@ class account_voucher(osv.osv):
                                                                    'credit'],
                                                                context=ctx)
                 if line.amount == line.amount_unreconciled:
-                    sign = voucher.type in ('payment', 'purchase') and -1 or 1
+                    if line.type =='dr':
+                        sign = -1
+                    else:
+                        sign = 1
                     foreign_currency_diff = sign * line.move_line_id.amount_residual_currency + amount_currency
 
                 # if line.amount == line.amount_unreconciled:

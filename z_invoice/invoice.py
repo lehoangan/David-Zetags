@@ -705,6 +705,7 @@ class account_invoice(osv.osv):
     def pay_invoice(self, cr, uid, ids, context=None):
         wf_service = netsvc.LocalService("workflow")
         voucher = self.pool.get('account.voucher')
+        period_obj = self.pool.get('account.period')
             
         fields_list = ['comment', 'line_cr_ids', 'is_multi_currency', 'reference', 'line_dr_ids', 'company_id', 'currency_id', 
                          'shop_id', 'narration', 'partner_id', 'payment_rate_currency_id', 'paid_amount_in_company_currency', 
@@ -742,12 +743,16 @@ class account_invoice(osv.osv):
                         line_dr_ids.append((0,0,line))
                 vals['line_cr_ids'] = line_cr_ids
                 vals['line_dr_ids'] = line_dr_ids
+                period_ids = period_obj.find(cr, uid, inv.date_invoice,
+                                             context)
+                period_id = period_ids and period_ids[0] or False
                 vals.update({'journal_id': prepaid.journal_id.id,
                              'payment_method': prepaid.payment_method and prepaid.payment_method.id or False,
                               'bank_fee_deducted': prepaid.bank_fee_deducted,
                               'discount_allowed': prepaid.discount_allowed,
                               'reference': prepaid.reference,
-                             'date':prepaid.date})
+                             'date':prepaid.date,
+                             'period_id': period_id})
                 if len(line_cr_ids) or len(line_dr_ids):
                     voucher_id = voucher.create(cr, uid, vals)
                     if voucher_id:

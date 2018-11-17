@@ -20,4 +20,5 @@
 ##############################################################################
 import investments
 import asset_investments
+import invoice_investment
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 ##############################################################################
 #
-#    OpenERP, Open Source Management Solution
-#    Copyright (C) 2004-2010 Tiny SPRL (<http://tiny.be>).
+#    Web Easy Switch Company module for OpenERP
+#    Copyright (C) 2014 GRAP (http://www.grap.coop)
+#    @author Sylvain LE GAL (https://twitter.com/legalsylvain)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -19,34 +20,5 @@
 #
 ##############################################################################
 
-
-{
-    'name': 'Z - Investments',
-    'version': '1.1',
-    'category': 'Zetags',
-    'description': """
-        Investment 
-     """,
-    'author': 'An Le <lehoangan1988@gmail.com>',
-    'images': [],
-    'depends': ["account",
-                'z_base',
-                'z_invoice',],
-    'data': [
-
-        'view/investments_view.xml',
-        'view/asset_investments_view.xml',
-        'view/invoice_investment_view.xml',
-
-        'security/ir.model.access.csv',
-        'security/security.xml',
-    ],
-    'demo': [],
-    'test': [
-    ],
-    'css':[
-    ],
-    'installable': True,
-    'auto_install': False,
-}
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+from . import model
+from . import controllers

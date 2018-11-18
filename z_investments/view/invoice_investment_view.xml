@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+
+        <record id="view_invoice_investment_filter" model="ir.ui.view">
+            <field name="name">invoice.investment.select</field>
+            <field name="model">invoice.investment</field>
+            <field name="arch" type="xml">
+                <search string="Search Invoice">
+                    <field name="number" string="Invoice" filter_domain="['|','|','|', ('number','ilike',self), ('origin','ilike',self), ('supplier_invoice_number', 'ilike', self), ('partner_id', 'child_of', self)]"/>
+                    <filter name="draft" string="Draft" domain="[('state','=','draft')]" help="Draft Invoices"/>
+                    <filter name="invoices" string="Invoices" domain="[('state','not in',['draft','cancel'])]" help="Proforma/Open/Paid Invoices"/>
+                    <filter name="unpaid" string="Unpaid" domain="[('state','=','open')]" help="Unpaid Invoices"/>
+                    <separator/>
+                    <filter domain="[('user_id','=',uid)]" help="My Invoices" icon="terp-personal"/>
+                    <field name="partner_id" operator="child_of"/>
+                    <field name="user_id" string="Salesperson"/>
+                    <field name="period_id" string="Period"/>
+                    <group expand="0" string="Group By...">
+                        <filter string="Partner" icon="terp-partner" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="Responsible" icon="terp-personal" domain="[]"  context="{'group_by':'user_id'}"/>
+                        <filter string="Journal" icon="terp-folder-orange" domain="[]" context="{'group_by':'journal_id'}"/>
+                        <filter string="Status" icon="terp-stock_effects-object-colorize" domain="[]"  context="{'group_by':'state'}"/>
+                        <filter string="Period" icon="terp-go-month" domain="[]" context="{'group_by':'period_id'}"/>
+                        <filter string="Invoice Date" icon="terp-go-month" domain="[]"  context="{'group_by':'date_invoice'}"/>
+                        <filter string="Due Date" icon="terp-go-month" domain="[]"  context="{'group_by':'date_due'}"/>
+                    </group>
+               </search>
+            </field>
+        </record>
+
         <record id="invoice_investment_tree" model="ir.ui.view">
             <field name="name">invoice.investment.tree</field>
             <field name="model">invoice.investment</field>
@@ -49,11 +77,11 @@
                 <sheet string="BUY Investment">
                     <div class="oe_title">
                         <h1>
-                            <label string="Draft Invoice" attrs="{'invisible': ['|',('state','&lt;&gt;','draft'), ('type','&lt;&gt;','in_invoice')]}"/>
+                            <label string="Draft Investment" attrs="{'invisible': ['|',('state','&lt;&gt;','draft'), ('type','&lt;&gt;','in_invoice')]}"/>
                             <label string="Draft Refund" attrs="{'invisible': ['|',('state','&lt;&gt;','draft'), ('type','&lt;&gt;','in_refund')]}"/>
                             <label string="Invoice" attrs="{'invisible': ['|',('state', '=', 'draft'), ('type','&lt;&gt;','in_invoice')]}"/>
                             <label string="Refund" attrs="{'invisible': ['|',('state', '=', 'draft'), ('type','&lt;&gt;','in_refund')]}"/>
-                            <field name="number" class="oe_inline"  attrs="{'invisible': [('state', '=', 'draft')]}"/>
+                            <field name="supplier_invoice_number" class="oe_inline"/>
                         </h1>
                     </div>
                     <field name="type" invisible="1"/>
@@ -65,6 +93,7 @@
                               domain="[('supplier', '=', True)]"/>
                             <field name="fiscal_position" widget="selection"/>
                             <field name="origin"/>
+                            <field name="number" string="Journal Number"/>
                             <field name="reference"/>
                             <button name="openen_payment_ref"
                                     colspan="2"
@@ -243,12 +272,11 @@
                 </header>
                 <sheet string="SELL Investment">
                     <h1>
-                        <label string="Draft Invoice " attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','&lt;&gt;','out_invoice')]}"/>
+                        <label string="Draft Investment" attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','&lt;&gt;','out_invoice')]}"/>
                         <label string="Draft Refund " attrs="{'invisible': ['|',('state','not in',('draft',)), ('type','&lt;&gt;','out_refund')]}"/>
-                        <label string="Pro Forma Invoice " attrs="{'invisible': [('state','not in',('proforma','proforma2'))]}"/>
-                        <label string="Invoice " attrs="{'invisible': ['|',('state','in',('draft','proforma','proforma2')), ('type','&lt;&gt;','out_invoice')]}"/>
+                        <label string="Investment " attrs="{'invisible': ['|',('state','in',('draft','proforma','proforma2')), ('type','&lt;&gt;','out_invoice')]}"/>
                         <label string="Refund " attrs="{'invisible': ['|',('state','in',('draft','proforma','proforma2')), ('type','&lt;&gt;','out_refund')]}"/>
-                        <field name="supplier_invoice_number" class="oe_inline"/>
+                        <field name="number" class="oe_inline"  attrs="{'invisible': [('state', '=', 'draft')]}"/>
                     </h1>
                     <field name="type" invisible="1"/>
                     <group>
@@ -366,7 +394,6 @@
                                 </group>
                                 <group>
                                     <field name="origin" groups="base.group_user"/>
-                                    <field name="number" string="Journal Number"/>
                                     <field name="name" string="Customer Reference"/>
                                     <field name="move_id" groups="account.group_account_user"/>
                                 </group>
@@ -446,6 +473,20 @@
             <field name="domain">[('type','=','in_invoice'),('is_investment','=', True)]</field>
             <field name="context">{'default_is_investment': True,'default_type': 'in_invoice', 'type': 'in_invoice', 'journal_type': 'purchase'}</field>
         </record>
+
+        <record id="action_invoice_investment_tree2_view1" model="ir.actions.act_window.view">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="act_window_id" ref="action_invoice_investment_tree2"/>
+        </record>
+
+        <record id="action_invoice_investment_tree2_view2" model="ir.actions.act_window.view">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="invoice_investment_supplier_form"/>
+            <field name="act_window_id" ref="action_invoice_investment_tree2"/>
+        </record>
+
         <menuitem action="action_invoice_investment_tree2"
                   id="menu_action_invoice_investment_tree2"
                   parent="menu_finance_config_investments"/>

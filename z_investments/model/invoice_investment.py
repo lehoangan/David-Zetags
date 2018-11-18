@@ -30,8 +30,8 @@ from openerp.tools import float_compare
 
 
 class invoice_investment(osv.osv):
-    _inherit = "account.invoice"
     _name = 'invoice.investment'
+    _inherit = "account.invoice"
 
     def _amount_all(self, cr, uid, ids, name, args, context=None):
         res = {}
@@ -50,19 +50,91 @@ class invoice_investment(osv.osv):
                                                   'amount_untaxed'] + invoice.shipping_charge
         return res
 
-    def _get_invoice_line(self, cr, uid, ids, context=None):
+    def _get_investment_line(self, cr, uid, ids, context=None):
         result = {}
-        for line in self.pool.get('account.invoice.line').browse(cr, uid, ids,
+        for line in self.pool.get('invoice.investment.line').browse(cr, uid, ids,
                                                                  context=context):
             result[line.invoice_id.id] = True
         return result.keys()
 
     def _get_invoice_tax(self, cr, uid, ids, context=None):
         result = {}
-        for tax in self.pool.get('account.invoice.tax').browse(cr, uid, ids,
+        for tax in self.pool.get('invoice.investment.tax').browse(cr, uid, ids,
                                                                context=context):
             result[tax.invoice_id.id] = True
         return result.keys()
+
+    def _get_investment_from_line(self, cr, uid, ids, context=None):
+        move = {}
+        for line in self.pool.get('account.move.line').browse(cr, uid, ids,
+                                                              context=context):
+            if line.reconcile_partial_id:
+                for line2 in line.reconcile_partial_id.line_partial_ids:
+                    move[line2.move_id.id] = True
+            if line.reconcile_id:
+                for line2 in line.reconcile_id.line_id:
+                    move[line2.move_id.id] = True
+        invoice_ids = []
+        if move:
+            invoice_ids = self.pool.get('invoice.investment').search(cr, uid, [
+                ('move_id', 'in', move.keys())], context=context)
+        return invoice_ids
+
+    def _get_investment_from_reconcile(self, cr, uid, ids, context=None):
+        move = {}
+        for r in self.pool.get('account.move.reconcile').browse(cr, uid, ids,
+                                                                context=context):
+            for line in r.line_partial_ids:
+                move[line.move_id.id] = True
+            for line in r.line_id:
+                move[line.move_id.id] = True
+
+        invoice_ids = []
+        if move:
+            invoice_ids = self.pool.get('invoice.investment').search(cr, uid, [
+                ('move_id', 'in', move.keys())], context=context)
+        return invoice_ids
+
+    def _get_amount_deposit(self, cr, uid, ids, field_name, arg, context=None):
+        cur_obj = self.pool.get('res.currency')
+        res = {}
+        for order in self.browse(cr, uid, ids, context=context):
+            res[order.id] = 0
+            for line in order.prepayment_lines:
+                res[order.id] += (
+                            line.amount + line.bank_fee_deducted + line.discount_allowed)
+        return res
+
+    def _get_order_from_deposit(self, cr, uid, ids, context=None):
+        result = {}
+        for line in self.pool.get('account.invoice.prepayment').browse(cr, uid,
+                                                                       ids,
+                                                                       context=context):
+            result[line.invoice_id.id] = True
+        return result.keys()
+
+    def _amount_residual(self, cr, uid, ids, name, args, context=None):
+        result = {}
+        for invoice in self.browse(cr, uid, ids, context=context):
+            result[invoice.id] = 0.0
+            if invoice.move_id:
+                for m in invoice.move_id.line_id:
+                    if m.account_id.type in ('receivable','payable'):
+                        if invoice.type in ['in_invoice','out_refund'] and m.date_maturity:
+                            result[invoice.id] += m.amount_residual_currency or 0.0
+                        if invoice.type in ['out_invoice','in_refund'] and m.date_maturity:
+                            result[invoice.id] += m.amount_residual_currency or 0.0
+        return result
+
+    def _reconciled(self, cr, uid, ids, name, args, context=None):
+        res = {}
+        wf_service = netsvc.LocalService("workflow")
+        for inv in self.browse(cr, uid, ids, context=context):
+            res[inv.id] = self.test_paid(cr, uid, [inv.id])
+            print '=============', inv
+            if not res[inv.id] and inv.state == 'paid':
+                wf_service.trg_validate(uid, 'invoice.investment', inv.id, 'open_test', cr)
+        return res
 
     _columns = {
         'is_investment': fields.boolean('Is Investment'),
@@ -70,7 +142,7 @@ class invoice_investment(osv.osv):
                                         'Invoice Lines', readonly=True,
                                         states={
                                             'draft': [('readonly', False)]}),
-        'tax_line': fields.one2many('account.investment.tax', 'invoice_id',
+        'tax_line': fields.one2many('invoice.investment.tax', 'invoice_id',
                                     'Tax Lines', readonly=True,
                                     states={'draft': [('readonly', False)]}),
         'prepayment_lines': fields.one2many('account.invoice.prepayment',
@@ -81,6 +153,112 @@ class invoice_investment(osv.osv):
                                    'invoice_investment_shipping_charge_tax', 'order_id',
                                    'tax_id', 'Taxes', readonly=True,
                                    states={'draft': [('readonly', False)]}),
+        'deposit_paid': fields.function(_get_amount_deposit,
+                                        digits_compute=dp.get_precision(
+                                            'Account'), string='Deposit Paid',
+                                        store={
+                                            'invoice.investment': (
+                                            lambda self, cr, uid, ids,
+                                                   c={}: ids,
+                                            ['prepayment_lines'], 10),
+                                            'account.invoice.prepayment': (
+                                            _get_order_from_deposit,
+                                            ['amount'], 10),
+                                        }),
+
+        'amount_untaxed': fields.function(_amount_all,
+                                          digits_compute=dp.get_precision(
+                                              'Account'), string='Subtotal',
+                                          track_visibility='always',
+                                          store={
+                                              'invoice.investment': (
+                                              lambda self, cr, uid, ids,
+                                                     c={}: ids,
+                                              ['invoice_line'], 20),
+                                              'invoice.investment.tax': (
+                                              _get_invoice_tax, None, 20),
+                                              'invoice.investment.line': (
+                                              _get_investment_line, ['price_unit',
+                                                                  'invoice_line_tax_id',
+                                                                  'quantity',
+                                                                  'discount',
+                                                                  'invoice_id'],
+                                              20),
+                                          },
+                                          multi='all'),
+        'amount_tax': fields.function(_amount_all,
+                                      digits_compute=dp.get_precision(
+                                          'Account'), string='Tax',
+                                      store={
+                                          'invoice.investment': (
+                                          lambda self, cr, uid, ids, c={}: ids,
+                                          ['invoice_line', 'tax_id'], 20),
+                                          'invoice.investment.tax': (
+                                          _get_invoice_tax, None, 20),
+                                          'invoice.investment.line': (
+                                          _get_investment_line,
+                                          ['price_unit', 'invoice_line_tax_id',
+                                           'quantity', 'discount',
+                                           'invoice_id'], 20),
+                                      },
+                                      multi='all'),
+
+        'amount_total': fields.function(_amount_all,
+                                        digits_compute=dp.get_precision(
+                                            'Account'), string='Total',
+                                        store={
+                                            'invoice.investment': (
+                                            lambda self, cr, uid, ids,
+                                                   c={}: ids, ['invoice_line',
+                                                               'shipping_charge'],
+                                            20),
+                                            'invoice.investment.tax': (
+                                            _get_invoice_tax, None, 20),
+                                            'invoice.investment.line': (
+                                            _get_investment_from_reconcile, ['price_unit',
+                                                                'invoice_line_tax_id',
+                                                                'quantity',
+                                                                'discount',
+                                                                'invoice_id'],
+                                            20),
+                                        },
+                                        multi='all'),
+
+        # Thanh: Change the way computing Balance
+        'residual': fields.function(_amount_residual,
+                                    digits_compute=dp.get_precision('Account'),
+                                    string='Balance',
+                                    store={
+                                        'invoice.investment': (
+                                        lambda self, cr, uid, ids, c={}: ids,
+                                        ['invoice_line', 'move_id'], 50),
+                                        'invoice.investment.tax': (
+                                        _get_invoice_tax, None, 50),
+                                        'invoice.investment.line': (
+                                        _get_investment_line,
+                                        ['price_unit', 'invoice_line_tax_id',
+                                         'quantity', 'discount', 'invoice_id'],
+                                        50),
+                                        'account.move.line': (
+                                        _get_investment_from_line, None, 50),
+                                        'account.move.reconcile': (
+                                        _get_investment_from_reconcile, None, 50),
+                                    },
+                                    help="Remaining amount due."),
+        'reconciled': fields.function(_reconciled, string='Paid/Reconciled',
+                                      type='boolean',
+                                      store={
+                                          'invoice.investment': (
+                                          lambda self, cr, uid, ids, c={}: ids,
+                                          None, 50),
+                                      # Check if we can remove ?
+                                          'account.move.line': (
+                                          _get_investment_from_line, None, 50),
+                                          'account.move.reconcile': (
+                                          _get_investment_from_reconcile, None,
+                                          50),
+                                      },
+                                      help="It indicates that the invoice has been paid and the journal entry of the invoice has been reconciled with one or several journal entries of payment."),
     }
 
     def button_reset_taxes(self, cr, uid, ids, context=None):
@@ -88,9 +266,9 @@ class invoice_investment(osv.osv):
             context = {}
         ctx = context.copy()
         cur_obj = self.pool.get('res.currency')
-        ait_obj = self.pool.get('account.investment.tax')
+        ait_obj = self.pool.get('invoice.investment.tax')
         for id in ids:
-            cr.execute("DELETE FROM account_invoice_tax WHERE invoice_id=%s AND manual is False", (id,))
+            cr.execute("DELETE FROM invoice_investment_tax WHERE invoice_id=%s AND manual is False", (id,))
             inv = self.browse(cr, uid, id, context=ctx)
             old_company_id = self.pool.get('sale.order').write_partner_company_to_user(cr, uid, inv, context)
             partner = inv.partner_id
@@ -110,9 +288,8 @@ class invoice_investment(osv.osv):
 invoice_investment()
 
 class invoice_investment_line(osv.osv):
-    _inherit = "account.invoice.line"
     _name = 'invoice.investment.line'
-
+    _inherit = "account.invoice.line"
 
     _columns = {
         'invoice_id': fields.many2one('invoice.investment', 'Invoice Reference',
@@ -125,14 +302,15 @@ class invoice_investment_line(osv.osv):
     }
 invoice_investment_line()
 
-class account_investment_tax(osv.osv):
+class invoice_investment_tax(osv.osv):
+    _name = "invoice.investment.tax"
     _inherit = "account.invoice.tax"
-    _name = "account.investment.tax"
 
     _columns = {
         'invoice_id': fields.many2one('invoice.investment',
                                      'Invoice Reference',
                                       ondelete='cascade', select=True),
+        'manual': fields.boolean('Manual'),
     }
 
     def compute_investment(self, cr, uid, invoice_id, context=None):
@@ -230,7 +408,7 @@ class account_investment_tax(osv.osv):
             t['base_amount'] = cur_obj.round(cr, uid, cur, t['base_amount'])
             t['tax_amount'] = cur_obj.round(cr, uid, cur, t['tax_amount'])
         return tax_grouped
-account_investment_tax()
+invoice_investment_tax()
 
 class account_invoice_prepayment(osv.osv):
     _inherit = "account.invoice.prepayment"

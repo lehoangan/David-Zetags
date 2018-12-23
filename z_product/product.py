@@ -45,7 +45,7 @@ class product_tariff_code(osv.osv):
         'name': fields.char('Description', size=50, required=True),
     }
     
-packaging()
+product_tariff_code()
 
 class product_template(osv.osv):
     _inherit = "product.template"
@@ -113,6 +113,7 @@ class product_product(osv.osv):
         'hide': fields.boolean('Hide'),
         
         'packaging_id': fields.many2one('packaging', 'Packaging'),
+        'ul_id': fields.many2one('product.ul', 'Type of Package', required=True),
         'product_tariff_code_id': fields.many2one('product.tariff.code', 'HS Tariff Code'),
         'component_ids': fields.one2many('mrp.bom', 'main_product_id', 'Components'),
         
@@ -218,7 +219,7 @@ class product_product(osv.osv):
     
 product_product()
 
-class product_pricelist(osv.osv):
+class zetag_product_pricelist(osv.osv):
     _inherit = "product.pricelist"
     _columns = {
         'rate': fields.float('Rate', digits=(12,6)),
@@ -401,6 +402,7 @@ class product_pricelist(osv.osv):
                     results[product_id] = {pricelist_id: price}
 
         return results
+zetag_product_pricelist()
 
 class mrp_bom(osv.osv):
     _inherit = 'mrp.bom'

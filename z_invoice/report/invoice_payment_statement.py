@@ -91,7 +91,7 @@ class Parser(report_sxw.rml_parse):
             currency_id = form['currency_id'][0]
 
         payment_obj = self.pool.get('account.voucher')
-        payment_oids = payment_obj.search(cr, uid, domain)
+        payment_oids = payment_obj.search(cr, uid, domain +[('move_id', '!=', False)])
         for obj in payment_obj.browse(cr, uid, payment_oids):
             amount = obj.amount
             if obj.total_to_apply > amount:

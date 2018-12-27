@@ -45,6 +45,7 @@
          "account_report.xml",
          'menu.xml',
          "wizard/invoice_statement_view.xml",
+         "wizard/invoice_payment_statement_view.xml",
     ],
     'demo': [],
     'test': [

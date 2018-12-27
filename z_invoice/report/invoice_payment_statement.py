@@ -44,7 +44,7 @@ class Parser(report_sxw.rml_parse):
         opening_invoice_amount = 0
         if form['partner_id'] and form['date_start']:
             domain += [('partner_id', '=', form['partner_id'][0])]
-            domain += [('date_invoice', '<=', form['date_start'])]
+            domain += [('date_invoice', '<', form['date_start'])]
             invoices = self.get_invoice(domain, form)
             opening_invoice_amount = sum([data['amount'] for data in invoices])
 
@@ -57,7 +57,7 @@ class Parser(report_sxw.rml_parse):
                   ('state', '=', 'posted')]
         if form['partner_id'] and form['date_start']:
             domain += [('partner_id', '=', form['partner_id'][0])]
-            domain += [('date', '<=', form['date_start'])]
+            domain += [('date', '<', form['date_start'])]
             payments = self.detail_payment(domain, form)
             opening_payment_amount = sum([data['amount'] for data in payments])
 

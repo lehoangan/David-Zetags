@@ -94,6 +94,8 @@ class Parser(report_sxw.rml_parse):
         payment_oids = payment_obj.search(cr, uid, domain)
         for obj in payment_obj.browse(cr, uid, payment_oids):
             amount = obj.amount
+            if obj.total_to_apply > amount:
+                amount = obj.total_to_apply
             if currency_id != obj.currency_id.id:
                 context = {'date': obj.date}
                 amount = self.pool.get('res.currency').compute(
@@ -148,7 +150,7 @@ class Parser(report_sxw.rml_parse):
                 'date_due': inv.date_due,
                 'date': inv.date_invoice,
                 'currency': inv.currency_id.name,
-                'amount': amount,
+                'amount': inv.type == 'out_refund' and -amount or amount,
             }
             res += [data]
         return res

@@ -108,6 +108,15 @@ class Parser(report_sxw.rml_parse):
                 reconcile = [l for l in obj.move_ids if l.account_id.reconcile]
                 if not reconcile:
                     number = '[WRONG][No Recivable]%s'%number
+                else:
+                    total = sum([l.amount_currency for l in obj.move_ids])
+                    if currency_id != obj.currency_id.id:
+                        context = {'date': obj.date}
+                        total = self.pool.get('res.currency').compute(
+                            cr, uid, obj.currency_id.id, currency_id,
+                            total, context)
+                    if round(amount) != round(total):
+                        number = '[WRONG][Total Amount Enty]%s' % number
             data ={
                 'number': number,
                 'date': obj.date,

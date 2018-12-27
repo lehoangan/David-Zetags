@@ -91,7 +91,7 @@ class Parser(report_sxw.rml_parse):
             currency_id = form['currency_id'][0]
 
         payment_obj = self.pool.get('account.voucher')
-        payment_oids = payment_obj.search(cr, uid, domain +[('move_id', '!=', False)])
+        payment_oids = payment_obj.search(cr, uid, domain)
         for obj in payment_obj.browse(cr, uid, payment_oids):
             amount = obj.amount
             if obj.total_to_apply > amount:
@@ -101,8 +101,15 @@ class Parser(report_sxw.rml_parse):
                 amount = self.pool.get('res.currency').compute(
                     cr, uid, obj.currency_id.id, currency_id,
                     amount, context)
+            number = obj.number
+            if not obj.move_ids:
+                number = '[WRONG][No Enty]%s'%number
+            else:
+                reconcile = [l for l in obj.move_ids if l.account_id.reconcile]
+                if not reconcile:
+                    number = '[WRONG][No Recivable]%s'%number
             data ={
-                'number': obj.number,
+                'number': number,
                 'date': obj.date,
                 'currency': obj.currency_id.name,
                 'amount': amount,

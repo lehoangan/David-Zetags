@@ -105,12 +105,12 @@ class Parser(report_sxw.rml_parse):
             if not obj.move_ids:
                 number = '[WRONG][No Enty]%s'%number
             else:
-                reconcile = [l for l in obj.move_ids if l.account_id.reconcile]
+                reconcile = [l for l in obj.move_ids if l.account_id.type == 'receivable']
                 if not reconcile:
                     number = '[WRONG][No Recivable]%s'%number
                 else:
                     total = sum([l.amount_currency for l in obj.move_ids
-                                 if l.account_id.reconcile
+                                 if l.account_id.type == 'receivable'
                                  ])
                     if currency_id != obj.currency_id.id:
                         context = {'date': obj.date}

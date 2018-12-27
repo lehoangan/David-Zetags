@@ -42,7 +42,12 @@
     """,
     'author': 'An Le <lehoangan1988@gmail.com>',
     'images': [],
-    'depends': ['z_base','product','mrp'],
+    'depends': [
+        'base',
+        'z_base',
+        'product',
+        'mrp'
+    ],
     'data': [
         'security/ir.model.access.csv',
         'product_view.xml',

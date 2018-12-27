@@ -22,4 +22,5 @@
 import account_print_invoice
 import sale_order
 import invoice_statement
+import invoice_payment_statement
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

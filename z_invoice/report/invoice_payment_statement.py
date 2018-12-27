@@ -115,7 +115,7 @@ class Parser(report_sxw.rml_parse):
                         total = self.pool.get('res.currency').compute(
                             cr, uid, obj.currency_id.id, currency_id,
                             total, context)
-                    if round(amount) != round(total):
+                    if abs(round(amount) - round(total)) > 2:
                         number = '[WRONG][Total Amount Enty]%s' % number
             data ={
                 'number': number,

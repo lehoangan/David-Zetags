@@ -19,7 +19,23 @@
 #
 ##############################################################################
 
-import invoice_statement
-import invoice_payment_statement
-import warning_message
+from openerp.osv import fields, osv
+
+class warning_message_wizard(osv.osv_memory):
+    _name = 'warning.message.wizard'
+    _columns = {
+        'name': fields.text('Message'),
+    }
+
+    def do_action(self, cr, uid, ids, context=None):
+        if context is None:
+            context = {}
+        active_ids = context.get('active_ids', False)
+        active_model = context.get('active_model', False)
+        if active_ids and active_model:
+            self.pool.get(active_model).execute_function(cr, uid, active_ids, context)
+        return {}
+
+warning_message_wizard()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

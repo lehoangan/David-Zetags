@@ -23,8 +23,7 @@ import time
 
 from openerp.osv import fields, osv
 from openerp.tools.translate import _
-from datetime import datetime
-import openerp.addons.decimal_precision as dp
+from openerp import netsvc
 from lxml import etree
 
 class account_voucher(osv.osv):
@@ -157,6 +156,36 @@ class account_voucher(osv.osv):
             if default_method:
                 res['value'].update({'payment_method': default_method.id})
         return res
+
+    def button_check_validate(self, cr, uid, ids, context=None):
+        for obj in self.browse(cr, uid, ids, context):
+            amount = 0
+            amount_cr = sum([line.amount for line in obj.line_cr_ids])
+            amount_dr = sum([line.amount for line in obj.line_dr_ids])
+            if obj.type == 'payment':
+                amount = obj.amount + amount_cr - amount_dr
+            elif obj.type == 'receipt':
+                amount = obj.total_to_apply - amount_cr + amount_dr
+            if round(amount, 0) == 0:
+                return self.button_proforma_voucher(cr, uid, ids, context)
+            ctx = context or {}
+            ctx.update({
+                'active_ids': ids,
+                'active_model': 'account.voucher',
+                'default_name': 'PLEASE ALLOCATE THE PAYMENT TO AN INVOICE OR TOTAL PAYMENT AND INVOICE DOES NOT MATCH'
+            })
+            return {
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'warning.message.wizard',
+                'target': 'new',
+                'context': ctx,
+            }
+
+
+    def execute_function(self, cr, uid, ids, context):
+        return self.button_proforma_voucher(cr, uid, ids, context)
     
 account_voucher()
 

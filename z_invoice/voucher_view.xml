@@ -12,6 +12,13 @@
                     <attribute name='widget'>many2one</attribute>
                     <attribute name='domain'>[('type','in',['bank', 'cash']),('company_id', '=', company_id)]</attribute>
                 </xpath>
+                 <xpath expr="//button[@name='proforma_voucher']" position="attributes">
+                    <attribute name='invisible'>1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='proforma_voucher']" position="after">
+                    <button name="button_check_validate" string="Validate" type="object"
+                            states="draft" class="oe_highlight"/>
+                </xpath>
             </field>
         </record>
 		
@@ -32,6 +39,13 @@
                 <xpath expr="//field[@name='journal_id']" position="attributes">
                     <attribute name='widget'>many2one</attribute>
                     <attribute name='domain'>[('type','in',['bank', 'cash']),('company_id', '=', company_id)]</attribute>
+                </xpath>
+                <xpath expr="//button[@name='proforma_voucher']" position="attributes">
+                    <attribute name='invisible'>1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='proforma_voucher']" position="after">
+                    <button name="button_check_validate" string="Validate" type="object"
+                            states="draft" class="oe_highlight"/>
                 </xpath>
             </field>
         </record>

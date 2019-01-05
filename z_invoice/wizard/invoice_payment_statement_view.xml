@@ -3,10 +3,10 @@
     <data>
         
         <record id="view_iinvoice_payment_statement_wizard" model="ir.ui.view">
-            <field name="name">Invoice Statement With Payment</field>
+            <field name="name">Print Invoice and Payment Register</field>
             <field name="model">invoice.payment.statement.wizard</field>
             <field name="arch" type="xml">
-                <form string="Invoice Statement With Payment" version="7.0">
+                <form string="Print Invoice and Payment Register" version="7.0">
                     <group>
                         <field name="partner_id"/>
                         <field name="currency_id"/>
@@ -24,7 +24,7 @@
         </record>
 
         <record id="action_iinvoice_payment_statement_wizard" model="ir.actions.act_window">
-            <field name="name">Invoice Statement With Payment</field>
+            <field name="name">Print Invoice and Payment Register</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">invoice.payment.statement.wizard</field>
             <field name="view_type">form</field>

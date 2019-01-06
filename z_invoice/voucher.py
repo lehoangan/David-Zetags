@@ -172,7 +172,7 @@ class account_voucher(osv.osv):
             ctx.update({
                 'active_ids': ids,
                 'active_model': 'account.voucher',
-                'default_name': 'PLEASE ALLOCATE THE PAYMENT TO AN INVOICE OR TOTAL PAYMENT AND INVOICE DOES NOT MATCH'
+                'default_name': 'YOU MUST ALLOCATE THIS PAYMENT TO AN INVOICE BEFORE VALIDATING'
             })
             return {
                 'type': 'ir.actions.act_window',

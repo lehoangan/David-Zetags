@@ -101,29 +101,38 @@ class Parser(report_sxw.rml_parse):
                 amount = self.pool.get('res.currency').compute(
                     cr, uid, obj.currency_id.id, currency_id,
                     amount, context)
+            total = amount
             number = obj.number
             if not obj.move_ids:
-                number = '[WRONG][No Enty]%s'%number
+                number = '[WRONG][No Entry]%s'%number
             else:
                 reconcile = [l for l in obj.move_ids if l.account_id.type == 'receivable']
                 if not reconcile:
-                    number = '[WRONG][No Recivable]%s'%number
+                    number = '[WRONG][No Receivable]%s'%number
                 else:
-                    total = sum([l.amount_currency for l in obj.move_ids
-                                 if l.account_id.type == 'receivable'
-                                 ])
-                    if currency_id != obj.currency_id.id:
-                        context = {'date': obj.date}
-                        total = self.pool.get('res.currency').compute(
-                            cr, uid, obj.currency_id.id, currency_id,
-                            total, context)
+                    total_currency = {}
+                    for l in obj.move_ids:
+                        if l.account_id.type == 'receivable' and \
+                                l.currency_id and \
+                                l.currency_id.id not in total_currency.keys():
+                            total_currency.update({l.currency_id.id: 0})
+                        total_currency[l.currency_id.id] += l.amount_currency
+                    total = 0
+                    for entry_currency_id in total_currency.keys():
+                        amount_currency = total_currency[entry_currency_id]
+                        if currency_id != entry_currency_id:
+                            context = {'date': obj.date}
+                            amount_currency = self.pool.get('res.currency').compute(
+                                cr, uid, entry_currency_id, currency_id,
+                                amount_currency, context)
+                        total += amount_currency
                     if abs(abs(round(total)) - round(amount)) > 2:
-                        number = '[WRONG][Total Amount Enty]%s' % number
+                        number = '[WRONG][Total Amount Entry]%s' % number
             data ={
                 'number': number,
                 'date': obj.date,
-                'currency': obj.currency_id.name,
-                'amount': amount,
+                'currency': form['currency_id'][1] or obj.currency_id.name,
+                'amount': total,
             }
             res += [data]
         return res

@@ -97,10 +97,14 @@ class Parser(report_sxw.rml_parse):
             if obj.total_to_apply > amount:
                 amount = obj.total_to_apply
             if currency_id != obj.currency_id.id:
-                context = {'date': obj.date}
-                amount = self.pool.get('res.currency').compute(
-                    cr, uid, obj.currency_id.id, currency_id,
-                    amount, context)
+                if obj.payment_rate_currency_id.id and \
+                        currency_id == obj.payment_rate_currency_id.id:
+                    amount = amount * obj.payment_reate
+                else:
+                    context = {'date': obj.date}
+                    amount = self.pool.get('res.currency').compute(
+                        cr, uid, obj.currency_id.id, currency_id,
+                        amount, context)
             total = amount
             number = obj.number
             if not obj.move_ids:
@@ -127,7 +131,7 @@ class Parser(report_sxw.rml_parse):
                                 cr, uid, entry_currency_id, currency_id,
                                 amount_currency, context)
                         total += amount_currency
-                    if abs(abs(round(total)) - round(amount)) > 5:
+                    if abs(abs(round(total)) - round(amount)) > 2:
                         number = '[WRONG][Total Amount Entry(%s)]%s' % (amount, number)
             data ={
                 'number': number,

@@ -112,9 +112,10 @@ class Parser(report_sxw.rml_parse):
                 else:
                     total_currency = {}
                     for l in obj.move_ids:
-                        if l.account_id.type == 'receivable' and \
-                                l.currency_id and \
-                                l.currency_id.id not in total_currency.keys():
+                        if not l.account_id.type == 'receivable':
+                            continue
+                        if l.currency_id and \
+                            l.currency_id.id not in total_currency.keys():
                             total_currency.update({l.currency_id.id: 0})
                         total_currency[l.currency_id.id] += l.amount_currency
                     total = 0

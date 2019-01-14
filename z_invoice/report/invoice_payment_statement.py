@@ -99,7 +99,7 @@ class Parser(report_sxw.rml_parse):
             if currency_id != obj.currency_id.id:
                 if obj.payment_rate_currency_id.id and \
                         currency_id == obj.payment_rate_currency_id.id:
-                    amount = amount * obj.payment_reate
+                    amount = amount * obj.payment_rate
                 else:
                     context = {'date': obj.date}
                     amount = self.pool.get('res.currency').compute(

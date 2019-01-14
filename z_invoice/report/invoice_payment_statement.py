@@ -128,7 +128,7 @@ class Parser(report_sxw.rml_parse):
                                 amount_currency, context)
                         total += amount_currency
                     if abs(abs(round(total)) - round(amount)) > 5:
-                        number = '[WRONG][Total Amount Entry]%s' % number
+                        number = '[WRONG][Total Amount Entry(%s)]%s' % (amount, number)
             data ={
                 'number': number,
                 'date': obj.date,

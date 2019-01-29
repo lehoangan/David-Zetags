@@ -104,6 +104,8 @@
                                 </h2>
                                 <h3><field name="description" readonly="1"/></h3>
                                 <h3><field name="packaging_id" readonly="1"/></h3>
+                                <field name="product_label" invisible="1"/>
+                                <field name="product_label_file" readonly="1" filename="product_label"/>
                                 <newline/>
                                 <field name="image" widget="image" options='{"size": [400, 170]}' readonly="1"/>
                             </div>
@@ -134,6 +136,17 @@
             <field name="view_mode">form</field>
             <field name="view_id" ref="popup_detail_product_view"/>
             <field name="act_window_id" ref="action_popup_detail_product"/>
+        </record>
+
+        <record id="purchase.view_product_supplier_inherit" model="ir.ui.view">
+            <field name="name">product.normal.supplier.form.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <field name="ul_id" position="after">
+                     <field name="product_label" />
+                </field>
+            </field>
         </record>
         
     </data>

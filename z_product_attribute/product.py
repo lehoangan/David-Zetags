@@ -22,8 +22,9 @@
 import time
 
 from openerp.osv import fields, osv
-from openerp.tools.translate import _
-from datetime import datetime
+import base64
+import os
+from openerp import tools
 
 class product_attribute_value(osv.osv):
     _name = "product.attribute.value"
@@ -54,5 +55,31 @@ class product_manufacturer_attribute(osv.osv):
         return {'value': v}
     
 product_manufacturer_attribute()
+
+class product_product(osv.osv):
+    _inherit = "product.product"
+
+    def _get_file(self, cr, uid, ids, name, arg, context=None):
+        if context is None:
+            context = {}
+        res = {}
+        for prod in self.browse(cr, uid, ids, context):
+            res.update({prod.id: False})
+            if not prod.product_label:
+                continue
+            try:
+                file = open('/opt/product_label/%s' % prod.product_label, 'r')
+                file = base64.encodestring(file.read())
+                res.update({prod.id: file})
+            except:
+                pass
+        return res
+
+    _columns = {
+        'product_label': fields.char('Product Label', size=256),
+        'product_label_file': fields.function(_get_file, 'Product Label File',
+                                              type='binary'),
+    }
+product_product()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

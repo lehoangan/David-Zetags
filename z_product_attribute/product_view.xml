@@ -145,6 +145,9 @@
             <field name="arch" type="xml">
                 <field name="ul_id" position="after">
                      <field name="product_label" />
+                     <field name="upload_product_label"
+                            filename="product_label"
+                            on_change="onchange_product_label(upload_product_label)"/>
                 </field>
             </field>
         </record>

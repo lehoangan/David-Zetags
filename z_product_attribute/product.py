@@ -67,6 +67,9 @@ class product_product(osv.osv):
             res.update({prod.id: False})
             if not prod.product_label:
                 continue
+            if prod.upload_product_label:
+                res.update({prod.id: prod.upload_product_label})
+                continue
             try:
                 file = open('/opt/product_label/%s' % prod.product_label, 'r')
                 file = base64.encodestring(file.read())
@@ -75,11 +78,17 @@ class product_product(osv.osv):
                 pass
         return res
 
+
+
     _columns = {
         'product_label': fields.char('Product Label', size=256),
         'product_label_file': fields.function(_get_file, 'Product Label File',
                                               type='binary'),
+        'upload_product_label': fields.binary('Upload Product Label File'),
     }
+
+    def onchange_product_label(self, cr, uid, ids, upload_product_label):
+        return {'value': {}}
 product_product()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

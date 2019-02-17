@@ -217,6 +217,7 @@ class sale_order(osv.osv):
         
         'prepayment_lines': fields.one2many('sale.order.prepayment', 'sale_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}),
         # 'alert': fields.related('partner_id', 'alert', string='Alert'),
+        'export_labels': fields.binary('Label File')
     }
     
     def _get_default_stage_id(self, cr, uid, context=None):
@@ -707,6 +708,40 @@ class sale_order(osv.osv):
 #         SET partner_contact_id = partner_shipping_id
 #         where partner_contact_id is null
 #         ''')
+    def action_export_labels(self, cr, uid, ids, context={}):
+        import csv
+        import base64
+        for sale in self.browse(cr, uid, ids, context):
+            content = []
+            for line in sale.order_line:
+                product_code = line.product_id.default_code
+                quantity = line.product_uom_qty
+                content.append([product_code, quantity])
+            with open('/tmp/export_labels_%s.csv' % sale.name,
+                      'wb') as f:
+                fileWriter = csv.writer(f, delimiter=',',
+                                        quotechar='"',
+                                        quoting=csv.QUOTE_MINIMAL)
+                fileWriter.writerows(content)
+                f.flush()
+                f.close()
+            file = open('/tmp/export_labels_%s.csv' % sale.name, 'r')
+            file = base64.encodestring(file.read())
+            if file:
+                sale.write({'export_labels': file})
+            wizard_id = self.pool.get('download.labels').create(cr, uid, {
+                'file': file,
+                'name': '%s.csv'%sale.name,
+            })
+            return {
+                'type': 'ir.actions.act_window',
+                'view_type': 'form',
+                'view_mode': 'form',
+                'res_model': 'download.labels',
+                'res_id': wizard_id,
+                'target': 'new',
+            }
+        return
         
 sale_order()
 

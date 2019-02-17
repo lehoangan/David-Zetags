@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        
+        <record id="view_download_labels_wizard" model="ir.ui.view">
+            <field name="name">Download Labels</field>
+            <field name="model">download.labels</field>
+            <field name="arch" type="xml">
+                <form string="Dowload Label" version="7.0">
+                    <label string="Click link to dowload file" />
+                    <newline />
+                    <field name="name" invisible="1" />
+                    <field name="file" readonly="1"
+                    filename="name"/>
+                    <footer>
+                        <button string="OK" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>    

@@ -47,6 +47,7 @@
          "wizard/invoice_statement_view.xml",
          "wizard/invoice_payment_statement_view.xml",
          "wizard/warning_message_view.xml",
+         "wizard/download_labels_view.xml",
     ],
     'demo': [],
     'test': [

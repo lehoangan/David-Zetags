@@ -21,6 +21,7 @@
                    </xpath>
                     <xpath expr="//button[@name='action_cancel']" position="after">
                         <button name="ship_cancel" states="shipping_except" string="Cancel Order"/>
+                        <button name="action_export_labels" type="object" string="Export Labels"/>
                     </xpath>
                     <field name="state" position="attributes">
                         <attribute name="statusbar_colors">{"shipping_except":"red","invoice_except":"red","waiting_date":"blue"}</attribute>
@@ -44,6 +45,7 @@
                    <field name='invoiced' position="after">
                        <field name="shipped"/>
                        <field name="invoice_exists" invisible="1"/>
+                       <field name="export_labels" filename="name" invisible="1"/>
                    </field>
                    <xpath expr="//page[@string='Order Lines']/field[@name='order_line']/form[@string='Sales Order Lines']/group/group/field[@name='type']" position="before">                   
                        <label for="delay"/>

@@ -19,8 +19,15 @@
 #
 ##############################################################################
 
-import invoice_statement
-import invoice_payment_statement
-import warning_message
-import download_labels
+from openerp.osv import fields, osv
+
+class download_labels(osv.osv_memory):
+    _name = 'download.labels'
+    _columns = {
+        'file': fields.binary('File'),
+        'name': fields.char('Filename'),
+    }
+
+download_labels()
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

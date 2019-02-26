@@ -139,30 +139,46 @@ class tax_report_invoices(report_sxw.rml_parse, common_report_header):
             return []
         res = []
         obj_account = self.pool.get('account.account')
-        periods_ids = tuple(period_list)
+        periods_ids = tuple(period_list + [-1,-1])
         if based_on == 'payments':
-            self.cr.execute('SELECT SUM(line.tax_amount) AS tax_amount, \
-                        SUM(line.debit) AS debit, \
-                        SUM(line.credit) AS credit, \
-                        COUNT(*) AS count, \
-                        account.id AS account_id, \
-                        account.name AS name,  \
-                        account.code AS code \
-                    FROM account_move_line AS line, \
-                        account_account AS account, \
-                        account_move AS move \
-                        LEFT JOIN account_invoice invoice ON \
-                            (invoice.move_id = move.id) \
-                    WHERE line.state<>%s \
-                        AND line.tax_code_id = %s  \
-                        AND line.account_id = account.id \
-                        AND account.company_id = %s \
-                        AND move.id = line.move_id \
-                        AND line.period_id IN %s \
-                        AND ((invoice.state = %s) \
-                            OR (invoice.id IS NULL))  \
-                    GROUP BY account.id,account.name,account.code', ('draft', tax_code_id,
-                        company_id, periods_ids, 'paid',))
+            sql = '''
+            WITH payment_date AS (SELECT max(p_aml.date) as date, 
+			invoice.id as invoice_id
+            FROM  account_move_line inv_aml
+            JOIN account_invoice invoice ON 
+                            (invoice.move_id = inv_aml.move_id)
+            JOIN account_move_line p_aml 
+                on (inv_aml.reconcile_id = p_aml.reconcile_id)
+            WHERE p_aml.reconcile_id is not null             
+            GROUP BY invoice.id)
+
+            SELECT SUM(line.tax_amount) AS tax_amount, 
+                        SUM(line.debit) AS debit, 
+                        SUM(line.credit) AS credit, 
+                        COUNT(*) AS count, 
+                        account.id AS account_id, 
+                        account.name AS name,  
+                        account.code AS code 
+                    FROM account_move_line AS line
+                        JOIN account_move AS move on (move.id = line.move_id )
+			JOIN account_account AS account on (line.account_id = account.id)
+                        LEFT JOIN account_invoice invoice ON 
+                            (invoice.move_id = move.id) 
+			LEFT JOIN payment_date payment ON 
+                            (payment.invoice_id = invoice.id) 
+			LEFT JOIN account_move_line AS pline 
+				ON(pline.reconcile_id = line.reconcile_id and pline.date = payment.date)
+                    WHERE line.state<>'draft' 
+                        AND line.tax_code_id = %s  
+                        AND account.company_id = %s 
+                        AND p_aml.period_id IN %s 
+                        AND ((invoice.state = 'paid') 
+                            OR (invoice.id IS NULL))  
+
+                    GROUP BY account.id,account.name,account.code
+            ''' % (tax_code_id, company_id, periods_ids)
+            print sql
+            self.cr.execute(sql)
 
         else:
             self.cr.execute('SELECT SUM(line.tax_amount) AS tax_amount, \

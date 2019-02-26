@@ -97,14 +97,51 @@ class Parser(report_sxw.rml_parse, common_report_header):
         invoice_obj = self.pool.get('account.invoice')
         result = {}
         for type in [('out_invoice', 'out_refund'),('in_invoice', 'in_refund')]:
-            state = ('state', 'not in', ['draft', 'cancel', 'proforma', 'proforma2'])
             if self.type == 'payments':
-                state = ('state', '=', 'paid')
-            invoice_ids = invoice_obj.search(cr, uid, [('type', 'in', type),
-                                                       ('period_id', 'in', period_list),
-                                                       ('company_id', '=', self.company_id),
-                                                       state],
-                                                        order='date_invoice desc')
+                sql = '''
+                                WITH payment_date AS (SELECT max(p_aml.date) as date, 
+            			invoice.id as invoice_id
+                        FROM  account_move_line inv_aml
+                        JOIN account_invoice invoice ON 
+                                        (invoice.move_id = inv_aml.move_id)
+                        JOIN account_move_line p_aml 
+                            on (inv_aml.reconcile_id = p_aml.reconcile_id)
+                        WHERE p_aml.reconcile_id is not null 
+                        GROUP BY invoice.id)
+
+                        SELECT invoice.id
+                                FROM account_move_line AS line
+                                    JOIN account_invoice invoice ON 
+                                        (invoice.move_id = line.move_id) 
+            			JOIN payment_date payment ON 
+                                        (payment.invoice_id = invoice.id) 
+            			JOIN account_move_line AS pline 
+            				ON(pline.reconcile_id = line.reconcile_id and pline.date = payment.date)
+                                WHERE line.state<>'draft' 
+                                    AND invoice.company_id = %s 
+                                    AND pline.period_id IN %s 
+                                    AND ((invoice.state = 'paid') 
+                                        OR (invoice.id IS NULL))  
+                                GROUP BY invoice.id
+                            ''' % (
+                self.company_id, tuple(period_list + [-1, -1]))
+                self.cr.execute(sql)
+                res = self.cr.dictfetchall()
+                invoice_ids = [data['id'] for data in res if data['id']]
+                domain = [('type', 'in', type),
+                          ('id', 'in', invoice_ids)]
+            else:
+                state = (
+                    'state', 'not in',
+                    ['draft', 'cancel', 'proforma', 'proforma2'])
+                domain = [('type', 'in', type),
+                          ('period_id', 'in', period_list),
+                          ('company_id', '=', self.company_id),
+                          state]
+
+            invoice_ids = invoice_obj.search(
+                self.cr, self.uid, domain,
+                order='date_invoice desc')
 
             for invoice in invoice_obj.browse(cr, uid, invoice_ids):
                 rate =1
@@ -159,15 +196,50 @@ class Parser(report_sxw.rml_parse, common_report_header):
         invoice_obj = self.pool.get('account.invoice')
         result = []
         for type in [('out_invoice', 'out_refund'),('in_invoice', 'in_refund')]:
-            state = ('state', 'not in', ['draft', 'cancel', 'proforma', 'proforma2'])
             if self.type == 'payments':
-                state = ('state', '=', 'paid')
-            invoice_ids = invoice_obj.search(cr, uid, [('type', 'in', type),
-                                                       ('period_id', 'in', period_list),
-                                                       ('company_id', '=', self.company_id),
-                                                       state],
-                                                        order='date_invoice desc')
+                sql = '''
+                    WITH payment_date AS (SELECT max(p_aml.date) as date, 
+			invoice.id as invoice_id
+            FROM  account_move_line inv_aml
+            JOIN account_invoice invoice ON 
+                            (invoice.move_id = inv_aml.move_id)
+            JOIN account_move_line p_aml 
+                on (inv_aml.reconcile_id = p_aml.reconcile_id)
+            WHERE p_aml.reconcile_id is not null 
+            GROUP BY invoice.id)
 
+            SELECT invoice.id
+                    FROM account_move_line AS line
+                        JOIN account_invoice invoice ON 
+                            (invoice.move_id = line.move_id) 
+			JOIN payment_date payment ON 
+                            (payment.invoice_id = invoice.id) 
+			JOIN account_move_line AS pline 
+				ON(pline.reconcile_id = line.reconcile_id and pline.date = payment.date)
+                    WHERE line.state<>'draft' 
+                        AND invoice.company_id = %s 
+                        AND pline.period_id IN %s 
+                        AND ((invoice.state = 'paid') 
+                            OR (invoice.id IS NULL))  
+                    GROUP BY invoice.id
+                ''' % (self.company_id, tuple(period_list + [-1, -1]))
+                self.cr.execute(sql)
+                res = self.cr.dictfetchall()
+                invoice_ids = [data['id'] for data in res if data['id']]
+                domain = [('type', 'in', type),
+                          ('id', 'in', invoice_ids)]
+            else:
+                state = (
+                    'state', 'not in',
+                    ['draft', 'cancel', 'proforma', 'proforma2'])
+                domain = [('type', 'in', type),
+                          ('period_id', 'in', period_list),
+                          ('company_id', '=', self.company_id),
+                          state]
+
+            invoice_ids = invoice_obj.search(
+                self.cr, self.uid, domain,
+                order='date_invoice desc')
             for invoice in invoice_obj.browse(cr, uid, invoice_ids):
                 details = []
                 for line in invoice.invoice_line:

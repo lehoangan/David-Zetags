@@ -169,6 +169,7 @@
                                 </group>
                                 <separator string="Description for Suppliers"/>
                                 <field name="description_purchase" placeholder="This note will be displayed on requests for quotation..."/>
+                                <field name="seller_ids"/>
                             </page>
                             <page string="Inventory" groups="base.group_user">
                             	<!-- Thanh: show BOM list view -->

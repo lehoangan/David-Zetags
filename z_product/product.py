@@ -129,8 +129,8 @@ class product_product(osv.osv):
         'dimension_l': fields.float('Dimensions L', digits=(16,2)),
         'dimension_w': fields.float('Dimensions W', digits=(16, 2)),
         'dimension_h': fields.float('Dimensions H', digits=(16, 2)),
-        # 'product_label': fields.char('Product Label', size=256),
-        # 'upload_product_label': fields.binary('Upload Product Label File'),
+        'product_label': fields.char('Product Label', size=256),
+        'upload_product_label': fields.binary('Upload Product Label File'),
     }
     
     def _check_ean_key(self, cr, uid, ids, context=None):

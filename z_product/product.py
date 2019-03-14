@@ -126,9 +126,11 @@ class product_product(osv.osv):
         'price_ids': fields.function(_get_list_price, method=True, type='one2many', relation='show.product.price',
                                      string='List Price'),
         'price_text': fields.function(_get_list_price_text, method=True, type='text', string='List Price'),
-        'dimension_l': fields.float('L', digits=(16,2)),
-        'dimension_w': fields.float('W', digits=(16, 2)),
-        'dimension_h': fields.float('H', digits=(16, 2)),
+        'dimension_l': fields.float('Dimensions L (CM)', digits=(16,2)),
+        'dimension_w': fields.float('Dimensions W', digits=(16, 2)),
+        'dimension_h': fields.float('Dimensions H', digits=(16, 2)),
+        'product_label': fields.char('Product Label', size=256),
+        'upload_product_label': fields.binary('Upload Product Label File'),
     }
     
     def _check_ean_key(self, cr, uid, ids, context=None):

@@ -195,12 +195,9 @@
                                         <field name="product_manager"/>
                                     </group>
                                     <group name="Weights" groups="product.group_stock_packaging" string="Packaging">
-                                        <label string="Dimensions" />
-                                        <group col="6" colspan="1">
-                                            <field name="dimension_l" attrs="{'readonly':[('type','=','service')]}"/>
-                                            <field name="dimension_w" attrs="{'readonly':[('type','=','service')]}"/>
-                                            <field name="dimension_h" attrs="{'readonly':[('type','=','service')]}"/>
-                                        </group>
+                                        <field name="dimension_l" attrs="{'readonly':[('type','=','service')]}"/>
+                                        <field name="dimension_w" attrs="{'readonly':[('type','=','service')]}"/>
+                                        <field name="dimension_h" attrs="{'readonly':[('type','=','service')]}"/>
                                         <field name="weight" string="Gross Weight (KG)" attrs="{'readonly':[('type','=','service')]}"/>
                                         <field name="weight_net" string="Net Weight (KG)" attrs="{'readonly':[('type','=','service')]}"/>
                                         <field digits="(14, 8)" name="volume"  string="Volume (M3)" attrs="{'readonly':[('type','=','service')]}"/>

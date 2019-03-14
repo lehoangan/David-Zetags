@@ -30,7 +30,7 @@ class Parser(report_sxw.rml_parse):
         super(Parser, self).__init__(cr, uid, name, context=context)
 
         self.localcontext.update({
-            'get_address': self.get_address,
+            'get_address': self.get_address02,
             'get_street': self.get_street,
             'get_street2': self.get_street2,
         })

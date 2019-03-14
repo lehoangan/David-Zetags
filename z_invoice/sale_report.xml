@@ -123,6 +123,33 @@
 	                string="Sale Order"
 	                header="False"
 	                usage="default"/>
+
+        <!-- Sale Order -->
+			<record id="report_shipping_label_main" model="ir.actions.report.xml">
+		        <field name="name">report_shipping_label_main</field>
+		        <field name="type">ir.actions.report.xml</field>
+		        <field name="model">sale.order</field>
+		        <field name="report_name">report_shipping_label_main</field>
+		        <field name="report_type">aeroo</field>
+		        <field name="in_format">oo-odt</field>
+		        <field name="out_format" model="report.mimetypes" search="[('code','=','oo-pdf'),('compatible_types','=','oo-odt')]"/>
+		        <field name="parser_loc">z_invoice/report/shipping_label.py</field>
+		        <field name="report_rml">z_invoice/report/shipping_label.odt</field>
+		        <field name="parser_state">loc</field>
+		        <field name="tml_source">file</field>
+		        <field name="attachment_use" eval="0"/>
+	    	</record>
+
+	        <report
+	        		menu="False"
+	        		auto="False"
+	        		id="report_shipping_label_main"
+	        		model="sale.order"
+	        		name="report_shipping_label_main"
+	                rml="z_invoice/report/shipping_label.odt"
+	                string="Sale Order"
+	                header="False"
+	                usage="default"/>
 	                
     </data>
 </openerp>

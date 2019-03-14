@@ -301,6 +301,20 @@ class sale_order(osv.osv):
                 'report_name': 'report_sale_order_odt',
                 'datas': datas, 'nodestroy': True,
                 'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
+
+    def print_shipping_labels(self, cr, uid, ids, context=None):
+        assert len(ids) == 1, 'This option should only be used for a single id at a time'
+        data = self.browse(cr, uid, ids[0])
+        datas = {
+                 'model': 'sale.order',
+                 'ids': ids,
+                 'form': self.read(cr, uid, ids[0], context=context),
+        }
+
+        return {'type': 'ir.actions.report.xml',
+                'report_name': 'report_shipping_label_main',
+                'datas': datas, 'nodestroy': True,
+                'name': '%s/%s/%s'%(data.name.split(' ', 1)[0], data.partner_id.name.split(' ', 1)[0], data.partner_id.country_id.code or '')}
     
     def print_picking_slip(self, cr, uid, ids, context=None):
         assert len(ids) == 1, 'This option should only be used for a single id at a time'

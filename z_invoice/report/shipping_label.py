@@ -30,12 +30,13 @@ class Parser(report_sxw.rml_parse):
         super(Parser, self).__init__(cr, uid, name, context=context)
 
         self.localcontext.update({
-            'get_address': self.get_address02,
+            'get_address': self.get_address,
             'get_street': self.get_street,
             'get_street2': self.get_street2,
+            'get_full_address': self.get_full_address,
         })
 
-    def get_address(self, partner):
+    def get_full_address(self, partner):
         address = partner.street and partner.street + ' / ' or ''
         address += partner.street2 and partner.street2 + ' / ' or ''
         address += partner.city and partner.city.name + ' / ' or ''
@@ -52,7 +53,7 @@ class Parser(report_sxw.rml_parse):
     def get_street2(self, partner):
         return partner.street2 or ''
 
-    def get_address02(self, partner):
+    def get_address(self, partner):
         address = partner.city and partner.city.name + ', ' or ''
         address += partner.state_id and partner.state_id.name + ', ' or ''
         address += partner.zip and partner.zip.name or ''

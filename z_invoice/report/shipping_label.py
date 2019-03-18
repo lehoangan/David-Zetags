@@ -30,6 +30,8 @@ class Parser(report_sxw.rml_parse):
         super(Parser, self).__init__(cr, uid, name, context=context)
 
         self.localcontext.update({
+            'get_company': self.get_company,
+            'get_address02': self.get_address02,
             'get_address': self.get_address,
             'get_street': self.get_street,
             'get_street2': self.get_street2,
@@ -58,6 +60,17 @@ class Parser(report_sxw.rml_parse):
         address += partner.state_id and partner.state_id.name + ', ' or ''
         address += partner.zip and partner.zip.name or ''
         return address
+
+    def get_address02(self, partner):
+        address = partner.street and partner.street + ', ' or ''
+        address += partner.city and partner.city.name + ', ' or ''
+        address += partner.state_id and partner.state_id.name + ', ' or ''
+        address += partner.zip and partner.zip.name or ''
+        return address
+
+    def get_company(self):
+        return self.pool.get('res.users').browse(
+            self.cr, self.uid, self.uid).company_id
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
 

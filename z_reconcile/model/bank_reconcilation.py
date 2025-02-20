@@ -33,7 +33,8 @@ class bank_reconcilation(osv.osv):
 
     def _default_last_date(self, cr, uid, context=None):
         res = False
-        old_ids = self.search(cr, uid, [('state', '=', 'reconciled')], order="id desc", limit=1)
+        old_ids = self.search(
+            cr, uid, [('state', '=', 'reconciled')], order="id desc", limit=1)
         if old_ids:
             res = self.browse(cr, uid, old_ids[0]).date
 
@@ -61,7 +62,8 @@ class bank_reconcilation(osv.osv):
                                             ('account_id', '=', obj.account_id.id),
                                             ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
-                res[obj.id] = self.browse(cr, uid, old_ids[0]).calculated_balance
+                res[obj.id] = self.browse(
+                    cr, uid, old_ids[0]).calculated_balance
 
         return res
 
@@ -85,7 +87,8 @@ class bank_reconcilation(osv.osv):
                                             ('account_id', '=', obj.account_id.id),
                                             ('id', '!=', obj.id)], order="id desc", limit=1)
             if old_ids:
-                opening_balance = self.browse(cr, uid, old_ids[0]).calculated_balance
+                opening_balance = self.browse(
+                    cr, uid, old_ids[0]).calculated_balance
 
             res[obj.id] = opening_balance
             for line in obj.line_id:
@@ -128,13 +131,14 @@ class bank_reconcilation(osv.osv):
         'last_reconcile_date': fields.function(_get_last_reconcile_date, type='date', string='Last Reconciled',
                                                store={
                                                    'bank.reconcilation': (
-                                                   lambda self, cr, uid, ids, c={}: ids, ['date'], 20),
+                                                       lambda self, cr, uid, ids, c={}: ids, ['date'], 20),
                                                }),
         'opening_balance': fields.function(_compute_opening_balance, type='float', string='Opening Balance',
                                            store={
                                                'bank.reconcilation': (
-                                               lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'],
-                                               20),
+                                                   lambda self, cr, uid, ids, c={}: ids, [
+                                                       'statement_balance', 'line_id'],
+                                                   20),
                                            }),
         'calculated_balance': fields.function(_compute_calculated_balance, type='float', string='Calculated Balance',
                                               store={
@@ -142,16 +146,17 @@ class bank_reconcilation(osv.osv):
                                                                          ['statement_balance', 'line_id'], 20),
                                               }),
         'erp_balance': fields.function(_compute_erp_balance, type='float', string='ERP Acc. Balance',
-                                              store={
-                                                  'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids,
-                                                                         ['date'], 10),
-                                              }),
+                                       store={
+                                           'bank.reconcilation': (lambda self, cr, uid, ids, c={}: ids,
+                                                                  ['date'], 10),
+                                       }),
         'statement_balance': fields.float('Statement Balance', readonly=True, states={'draft': [('readonly', False)]}),
         'closing_balance': fields.function(_compute_closing_balance, type='float', string='Closing Balance',
                                            store={
                                                'bank.reconcilation': (
-                                               lambda self, cr, uid, ids, c={}: ids, ['statement_balance', 'line_id'],
-                                               20),
+                                                   lambda self, cr, uid, ids, c={}: ids, [
+                                                       'statement_balance', 'line_id'],
+                                                   20),
                                            }),
         'line_id': fields.one2many('bank.reconcilation.line', 'order_id', 'Detail', readonly=True,
                                    states={'draft': [('readonly', False)]}),
@@ -170,9 +175,11 @@ class bank_reconcilation(osv.osv):
         objects = self.browse(cr, uid, ids, context)
         for t in objects:
             if t.state != 'draft':
-                raise osv.except_osv(_('Invalid action !'), _('Cannot delete reconciled bank !'))
+                raise osv.except_osv(_('Invalid action !'), _(
+                    'Cannot delete reconciled bank !'))
             if not t.account_id.reconcile_delete:
-                raise osv.except_osv(_('Invalid action !'), _('Account is not allow to delete reconciled bank !'))
+                raise osv.except_osv(_('Invalid action !'), _(
+                    'Account is not allow to delete reconciled bank !'))
         return super(bank_reconcilation, self).unlink(cr, uid, ids, context)
 
     def onchange_line_id(self, cr, uid, ids, account_id, line_id, opening_balance, context=None):
@@ -182,7 +189,8 @@ class bank_reconcilation(osv.osv):
         result = {}
         total = opening_balance
         currency_obj = self.pool.get('res.currency')
-        account = self.pool.get('account.account').browse(cr, uid, account_id, context)
+        account = self.pool.get('account.account').browse(
+            cr, uid, account_id, context)
         currency_id = account.currency_id and account.currency_id.id or False
         if currency_id and account.company_id.currency_id.id == currency_id:
             currency_id = False
@@ -190,7 +198,8 @@ class bank_reconcilation(osv.osv):
         for line in line_id:
             if line[2] and line[2].get('choose', False):
                 if line[1]:
-                    obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
+                    obj = self.pool.get('bank.reconcilation.line').browse(
+                        cr, uid, line[1])
                     if not currency_id:
                         total += (obj.debit - obj.credit)
                     else:
@@ -206,20 +215,23 @@ class bank_reconcilation(osv.osv):
 
                 else:
                     if not currency_id:
-                        total += (line[2].get('debit', 0) - line[2].get('credit', 0))
+                        total += (line[2].get('debit', 0) -
+                                  line[2].get('credit', 0))
                     else:
                         if line[2].get('currency_id', False) and line[2]['currency_id'] == currency_id:
                             total += line[2].get('amount_currency', 0)
                         else:
                             ptype_src = account.company_id.id
-                            total_company = (line[2].get('debit', 0) - line[2].get('credit', 0))
+                            total_company = (line[2].get(
+                                'debit', 0) - line[2].get('credit', 0))
                             total += currency_obj.compute(cr, uid,
                                                           ptype_src, currency_id,
                                                           total_company, round=False,
                                                           context=context)
 
             elif line[1]:
-                obj = self.pool.get('bank.reconcilation.line').browse(cr, uid, line[1])
+                obj = self.pool.get('bank.reconcilation.line').browse(
+                    cr, uid, line[1])
                 if obj.choose:
                     if not currency_id:
                         total += (obj.debit - obj.credit)
@@ -301,14 +313,16 @@ class bank_reconcilation(osv.osv):
     def button_reload(self, cr, uid, ids, context):
         line_obj = self.pool.get('bank.reconcilation.line')
         for obj in self.browse(cr, uid, ids, context):
-            move_ids = [line.move_line_id.id for line in obj.line_id if line.move_line_id]
+            move_ids = [
+                line.move_line_id.id for line in obj.line_id if line.move_line_id]
             date = obj.date
             account_id = obj.account_id and obj.account_id.id or False
 
             # get line detail
             condition = '(ml.z_reconciled is NULL or ml.z_reconciled = FALSE) AND (ml.no_reconcile is NULL or ml.no_reconcile = FALSE) '
             if move_ids:
-                condition += ' AND ml.id not in %s ' % str(tuple(move_ids + [-1, -1]))
+                condition += ' AND ml.id not in %s ' % str(
+                    tuple(move_ids + [-1, -1]))
             if account_id:
                 condition += ' AND ml.account_id = %s' % account_id
             if date:
@@ -348,7 +362,8 @@ class bank_reconcilation(osv.osv):
                 raise osv.except_osv(_('Error!'), _(
                     'Your balance does not reconcile. Calculated and Statement Balances must reconcile'))
             if not move_ids:
-                raise osv.except_osv(_('Error!'), _('Please choose entry to reconciliation'))
+                raise osv.except_osv(_('Error!'), _(
+                    'Please choose entry to reconciliation'))
             cr.execute(
                 'UPDATE account_move_line set z_reconciled= TRUE where id in %s ' % str(tuple(move_ids + [-1, -1])))
         self.write(cr, uid, ids, {'state': 'reconciled'}, context)
@@ -357,21 +372,24 @@ class bank_reconcilation(osv.osv):
     def button_cancel(self, cr, uid, ids, context=None):
         for obj in self.browse(cr, uid, ids, context):
             if not obj.account_id.reconcile_delete:
-                raise osv.except_osv(_('Invalid action !'), _('Account is not allow to delete reconciled bank !'))
+                raise osv.except_osv(_('Invalid action !'), _(
+                    'Account is not allow to delete reconciled bank !'))
 
             next_ids = self.search(cr, uid, [('date', '>', obj.date),
                                              ('state', '=', 'reconciled'),
                                              ('account_id', '=', obj.account_id and obj.account_id.id or False)])
             if next_ids:
                 next_re = self.browse(cr, uid, next_ids[0])
-                raise osv.except_osv(_('Error!'), _('Please remove the next reconciliation first: %s'%next_re.name))
+                raise osv.except_osv(_('Error!'), _(
+                    'Please remove the next reconciliation first: %s' % next_re.name))
             move_ids = []
             for line in obj.line_id:
                 if line.choose:
                     move_ids.append(line.move_line_id.id)
 
             if not move_ids:
-                raise osv.except_osv(_('Error!'), _('Please choose entry to reconciliation'))
+                raise osv.except_osv(_('Error!'), _(
+                    'Please choose entry to reconciliation'))
             cr.execute(
                 'UPDATE account_move_line set z_reconciled= FALSE where id in %s ' % str(tuple(move_ids + [-1, -1])))
         self.write(cr, uid, ids, {'state': 'draft'}, context)
@@ -390,7 +408,7 @@ class bank_reconcilation_line(osv.osv):
         'date': fields.related('move_line_id', 'date', string='Date', type='date',
                                store={
                                    'bank.reconcilation.line': (
-                                   lambda self, cr, uid, ids, c={}: ids, ['move_line_id'], 10),
+                                       lambda self, cr, uid, ids, c={}: ids, ['move_line_id'], 10),
                                }),
         'partner_id': fields.related('move_line_id', 'partner_id', string='Partner', type='many2one',
                                      relation="res.partner"),
@@ -409,8 +427,15 @@ class bank_reconcilation_line(osv.osv):
     }
     _order = "date asc"
 
-bank_reconcilation_line()
+    def unlink(self, cr, uid, ids, context=None):
+        objects = self.browse(cr, uid, ids, context)
+        for t in objects:
+            if t.move_line_id:
+                t.move_line_id.write({'no_reconcile': True})
+        return super(bank_reconcilation_line, self).unlink(cr, uid, ids, context)
 
+
+bank_reconcilation_line()
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
